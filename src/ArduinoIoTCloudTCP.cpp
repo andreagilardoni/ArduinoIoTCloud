@@ -458,7 +458,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
 
   if (_thing_id_property->isDifferentFromCloud())
   {
-    return State::CheckDeviceConfig;
+    return State::Disconnect;
   }
 
   unsigned long const now = millis();
@@ -511,7 +511,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
 
   if (_thing_id_property->isDifferentFromCloud())
   {
-    return State::CheckDeviceConfig;
+    return State::Disconnect;
   }
 
   /* Check whether or not we need to send a new request. */
