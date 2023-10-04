@@ -381,7 +381,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeDeviceTopic()
   if (!_mqttClient.subscribe(_deviceTopicIn))
   {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _deviceTopicIn.c_str());
-    return State::SubscribeDeviceTopic;
   }
 
   if (_last_device_subscribe_cnt > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
