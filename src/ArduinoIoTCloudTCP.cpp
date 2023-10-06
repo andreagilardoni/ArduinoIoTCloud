@@ -448,12 +448,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_CheckDeviceConfig()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
 {
-  if (!_mqttClient.connected())
-  {
-    return State::Disconnect;
-  }
-
-  if (_thing_id_property->isDifferentFromCloud())
+  if (!_mqttClient.connected() || _thing_id_property->isDifferentFromCloud())
   {
     return State::Disconnect;
   }
@@ -494,12 +489,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
 {
-  if (!_mqttClient.connected())
-  {
-    return State::Disconnect;
-  }
-
-  if (_thing_id_property->isDifferentFromCloud())
+  if (!_mqttClient.connected() || _thing_id_property->isDifferentFromCloud())
   {
     return State::Disconnect;
   }
