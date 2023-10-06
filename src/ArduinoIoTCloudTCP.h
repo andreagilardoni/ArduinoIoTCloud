@@ -123,7 +123,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
       ConnectMqttBroker,
       SendDeviceProperties,
       SubscribeDeviceTopic,
-      WaitDeviceConfig,
       CheckDeviceConfig,
       SubscribeThingTopics,
       RequestLastValues,
@@ -215,7 +214,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     State handle_SyncTime();
     State handle_ConnectMqttBroker();
     State handle_SendDeviceProperties();
-    State handle_WaitDeviceConfig();
     State handle_CheckDeviceConfig();
     State handle_SubscribeDeviceTopic();
     State handle_SubscribeThingTopics();
