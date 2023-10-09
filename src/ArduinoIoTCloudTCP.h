@@ -26,6 +26,7 @@
 #include <ArduinoIoTCloud.h>
 #include <ArduinoMqttClient.h>
 #include <ArduinoIoTCloudProperties.h>
+#include <utility/time/TimedAttempt.h>
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
   #include <Arduino_SecureElement.h>
@@ -143,14 +144,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     ArduinoIoTCloudPropertiesClass _thing;
     ArduinoIoTCloudPropertiesClass _device;
 
-    unsigned long _next_connection_attempt_tick;
-    unsigned int _last_connection_attempt_cnt;
-    unsigned long _next_device_subscribe_attempt_tick;
-    unsigned int _last_device_subscribe_cnt;
-    unsigned long _next_thing_subscribe_attempt_tick;
-    unsigned int  _last_thing_subscribe_attempt_cnt;
-    unsigned long _next_sync_attempt_tick;
-    unsigned int _last_sync_attempt_cnt;
+    TimedAttempt _connection_attempt;
+
     String _brokerAddress;
     uint16_t _brokerPort;
     uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];
