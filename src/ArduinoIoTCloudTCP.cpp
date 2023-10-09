@@ -456,7 +456,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
   }
 
   bool const is_retry_attempt = (_last_thing_subscribe_attempt_cnt > 0);
-  if (is_retry_attempt && (millis() < _next_connection_attempt_tick))
+  if (is_retry_attempt && (millis() < _next_thing_subscribe_attempt_tick))
     return State::SubscribeThingTopics;
 
   if (_last_thing_subscribe_attempt_cnt > AIOT_CONFIG_THING_TOPICS_SUBSCRIBE_MAX_RETRY_CNT)
