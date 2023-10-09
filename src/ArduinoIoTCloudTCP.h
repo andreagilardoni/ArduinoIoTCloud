@@ -69,6 +69,35 @@ typedef bool (*onOTARequestCallbackFunc)(void);
  * CLASS DECLARATION
  ******************************************************************************/
 
+class TimedAttempt
+{
+  public:
+    TimedAttempt(unsigned long delay, unsigned long max_delay) { _delay = delay; _max_delay = max_delay; }
+
+    void begin(unsigned long delay, unsigned long max_delay) { _retry_cnt = 0; _delay = delay; _max_delay = max_delay; }
+    void begin(unsigned long delay) { _retry_cnt = 0; _delay = delay; _max_delay = delay; }
+    bool isRetry() { return _retry_cnt > 0; }
+    void reset() { _retry_cnt = 0; }
+    bool isExpired() { return millis() > _next_retry_tick; }
+    unsigned long reconfigure(unsigned long delay, unsigned long max_delay) { _delay = delay; _max_delay = max_delay; return reload(); }
+    unsigned long retry() { _retry_cnt++; return reload(); }
+    unsigned long reload() {
+      unsigned long retry_delay = (1 << _retry_cnt) * _delay;
+      retry_delay = min(retry_delay, _max_delay);
+     _next_retry_tick = millis() + retry_delay;
+     return retry_delay;
+    }
+    unsigned int getRetryCount() { return _retry_cnt; }
+
+  private:
+    unsigned long _delay;
+    unsigned long _max_delay;
+    unsigned long _next_retry_tick;
+    unsigned int  _retry_cnt;
+
+};
+
+
 class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 {
   public:
@@ -147,15 +176,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     unsigned int _tz_dst_until;
     Property * _tz_dst_until_property;
 
-
-    unsigned long _next_connection_attempt_tick;
-    unsigned int _last_connection_attempt_cnt;
-    unsigned long _next_device_subscribe_attempt_tick;
-    unsigned int _last_device_subscribe_cnt;
-    unsigned long _next_thing_subscribe_attempt_tick;
-    unsigned int  _last_thing_subscribe_attempt_cnt;
-    unsigned long _next_sync_attempt_tick;
-    unsigned int _last_sync_attempt_cnt;
+    TimedAttempt _connection_attempt;
     String _brokerAddress;
     uint16_t _brokerPort;
     uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];
