@@ -396,7 +396,8 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_WaitDeviceConfig()
 
   if (getThingIdOutdatedFlag())
   {
-    return State::CheckDeviceConfig;
+    // return State::CheckDeviceConfig;
+    return State::WaitDeviceConfig;
   }
 
   if (millis() > _next_device_subscribe_attempt_tick)
@@ -405,7 +406,8 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_WaitDeviceConfig()
     if (_mqttClient.unsubscribe(_deviceTopicIn))
     {
       DEBUG_ERROR("ArduinoIoTCloudTCP::%s device waiting for valid thing_id", __FUNCTION__);
-      return State::SubscribeDeviceTopic;
+      return State::WaitDeviceConfig;
+      // return State::SubscribeDeviceTopic;
     }
   }
   return State::WaitDeviceConfig;
