@@ -1,5 +1,5 @@
 #pragma once
-#include <models/message.h>
+#include <models/models.h>
 #include <interfaces/messageStream.h>
 #include <assert.h>
 

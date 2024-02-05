@@ -27,6 +27,7 @@
 #if OTA_ENABLED
 #include <Arduino.h>
 #include <Arduino_ConnectionHandler.h>
+#include <interfaces/CloudProcess.h>
 
 /******************************************************************************
  * DEFINES
@@ -58,15 +59,51 @@ enum class OTAError : int
  * CLASS DECLARATION
  ******************************************************************************/
 
-class OTA
-{
+class OTACloudProcess: public CloudProcess {
 public:
+    enum State {
 
-  static int onRequest(String url, NetworkAdapter iface);
-  static String getImageSHA256();
-  static bool isCapable();
+    };
+    virtual void handleMessage(Message*);
+    // virtual CloudProcess::State getState();
+    // virtual void hook(State s, void* action);
+    virtual void update();
 
+protected:
+    // The following methods represent the FSM actions performed in each state
+
+    // the first state is 'resume', where we try to understand if we are booting after a ota
+    // the objective is to understand the result and report it to the cloud
+    virtual State resume() = 0;
+
+    // this state is the normal state where no action has to be performed. We may poll the cloud
+    // for updates in this state
+    virtual State idle();
+
+    // we go in this state if there is an ota available, depending on the policies implemented we may
+    // start the ota or wait for an user interaction
+    virtual State otaAvailable();
+
+    // we start the process of ota update and wait for the server to respond with the ota url and other info
+    virtual State startOTA();
+
+    // we start the download and decompress process
+    virtual State fetch() = 0;
+
+    // when the download is completed we verify for integrity and correctness of the downloaded binary
+    virtual State verifyOTA(); // TODO this may be performed inside download
+
+    // whene the download is correctly finished we set the mcu to use the newly downloaded binary
+    virtual State flashOTA() = 0;
+
+    // we reboot the device
+    virtual State reboot() = 0;
+
+    // if any of the steps described fail we get into this state and report to the cloud what happened
+    // then we go back to idle state
+    virtual State fail();
 };
+
 
 #endif /* OTA_ENABLED */
 
