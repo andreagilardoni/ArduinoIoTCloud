@@ -25,6 +25,7 @@
 #include <AIoTC_Config.h>
 #include <ArduinoIoTCloud.h>
 #include <ArduinoMqttClient.h>
+#include <ArduinoIoTCloudProperties.h>
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
   #include <Arduino_SecureElement.h>
@@ -78,6 +79,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual void update        () override;
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
+    virtual void push          () override;
+
+    bool setTimestamp(String const & prop_name, unsigned long const timestamp);
 
     int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     int begin(bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
@@ -107,6 +111,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     void handle_OTARequest();
 #endif
+
+    ArduinoIoTCloudPropertiesClass _thing;
+    ArduinoIoTCloudPropertiesClass _device;
 
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;

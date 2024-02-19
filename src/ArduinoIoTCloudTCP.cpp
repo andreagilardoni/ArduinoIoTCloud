@@ -201,25 +201,25 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 
   Property* p;
   p = new CloudWrapperString(_lib_version);
-  addPropertyToContainer(_device_property_container, *p, "LIB_VERSION", Permission::Read, -1);
+  addPropertyToContainer(_device.property_container, *p, "LIB_VERSION", Permission::Read, -1);
 #if OTA_ENABLED
   p = new CloudWrapperBool(_ota_cap);
-  addPropertyToContainer(_device_property_container, *p, "OTA_CAP", Permission::Read, -1);
+  addPropertyToContainer(_device.property_container, *p, "OTA_CAP", Permission::Read, -1);
   p = new CloudWrapperInt(_ota_error);
-  addPropertyToContainer(_device_property_container, *p, "OTA_ERROR", Permission::Read, -1);
+  addPropertyToContainer(_device.property_container, *p, "OTA_ERROR", Permission::Read, -1);
   p = new CloudWrapperString(_ota_img_sha256);
-  addPropertyToContainer(_device_property_container, *p, "OTA_SHA256", Permission::Read, -1);
+  addPropertyToContainer(_device.property_container, *p, "OTA_SHA256", Permission::Read, -1);
   p = new CloudWrapperString(_ota_url);
-  addPropertyToContainer(_device_property_container, *p, "OTA_URL", Permission::ReadWrite, -1);
+  addPropertyToContainer(_device.property_container, *p, "OTA_URL", Permission::ReadWrite, -1);
   p = new CloudWrapperBool(_ota_req);
-  addPropertyToContainer(_device_property_container, *p, "OTA_REQ", Permission::ReadWrite, -1);
+  addPropertyToContainer(_device.property_container, *p, "OTA_REQ", Permission::ReadWrite, -1);
 #endif /* OTA_ENABLED */
   p = new CloudWrapperString(_thing_id);
-  _thing_id_property = &addPropertyToContainer(_device_property_container, *p, "thing_id", Permission::ReadWrite, -1).writeOnDemand();
+  _thing_id_property = &addPropertyToContainer(_device.property_container, *p, "thing_id", Permission::ReadWrite, -1).writeOnDemand();
   p = new CloudWrapperInt(_tz_offset);
-  _tz_offset_property = &addPropertyToContainer(_thing_property_container, *p, "tz_offset", Permission::ReadWrite, -1).writeOnDemand();
+  _tz_offset_property = &addPropertyToContainer(_thing.property_container, *p, "tz_offset", Permission::ReadWrite, -1).writeOnDemand();
   p = new CloudWrapperUnsignedInt(_tz_dst_until);
-  _tz_dst_until_property = &addPropertyToContainer(_thing_property_container, *p, "tz_dst_until", Permission::ReadWrite, -1).writeOnDemand();
+  _tz_dst_until_property = &addPropertyToContainer(_thing.property_container, *p, "tz_dst_until", Permission::ReadWrite, -1).writeOnDemand();
 
 #if OTA_ENABLED
   _ota_cap = OTA::isCapable();
@@ -312,6 +312,23 @@ void ArduinoIoTCloudTCP::printDebugInfo()
   DEBUG_INFO("***** Arduino IoT Cloud - configuration info *****");
   DEBUG_INFO("Device ID: %s", getDeviceId().c_str());
   DEBUG_INFO("MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
+}
+
+void ArduinoIoTCloudTCP::push()
+{
+  requestUpdateForAllProperties(_thing.property_container);
+}
+
+bool ArduinoIoTCloudTCP::setTimestamp(String const & prop_name, unsigned long const timestamp)
+{
+  Property * p = getProperty(_thing.property_container, prop_name);
+
+  if (p == nullptr)
+    return false;
+
+  p->setTimestamp(timestamp);
+
+  return true;
 }
 
 /******************************************************************************
@@ -577,7 +594,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
     * the connection from being established due to a wrong data
     * in the reconstructed certificate.
     */
-    updateTimestampOnLocallyChangedProperties(_thing_property_container);
+    updateTimestampOnLocallyChangedProperties(_thing.property_container);
 
     /* Retransmit data in case there was a lost transaction due
     * to phy layer or MQTT connectivity loss.
@@ -667,21 +684,21 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
 
   /* Topic for OTA properties and device configuration */
   if (_deviceTopicIn == topic) {
-    CBORDecoder::decode(_device_property_container, (uint8_t*)bytes, length);
+    CBORDecoder::decode(_device.property_container, (uint8_t*)bytes, length);
     _last_device_subscribe_cnt = 0;
     _next_device_subscribe_attempt_tick = 0;
   }
 
   /* Topic for user input data */
   if (_dataTopicIn == topic) {
-    CBORDecoder::decode(_thing_property_container, (uint8_t*)bytes, length);
+    CBORDecoder::decode(_thing.property_container, (uint8_t*)bytes, length);
   }
 
   /* Topic for sync Thing last values on connect */
   if ((_shadowTopicIn == topic) && (_state == State::RequestLastValues))
   {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
-    CBORDecoder::decode(_thing_property_container, (uint8_t*)bytes, length, true);
+    CBORDecoder::decode(_thing.property_container, (uint8_t*)bytes, length, true);
     _time_service.setTimeZoneData(_tz_offset, _tz_dst_until);
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     _last_sync_request_cnt = 0;
@@ -710,7 +727,7 @@ void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(String const topic, Proper
 
 void ArduinoIoTCloudTCP::sendThingPropertiesToCloud()
 {
-  sendPropertyContainerToCloud(_dataTopicOut, _thing_property_container, _last_checked_property_index);
+  sendPropertyContainerToCloud(_dataTopicOut, _thing.property_container, _thing.last_checked_property_index);
 }
 
 void ArduinoIoTCloudTCP::sendDevicePropertiesToCloud()
@@ -723,7 +740,7 @@ void ArduinoIoTCloudTCP::sendDevicePropertiesToCloud()
                 ro_device_property_list.end(),
                 [this, &ro_device_property_container ] (String const & name)
                 {
-                  Property* p = getProperty(this->_device_property_container, name);
+                  Property* p = getProperty(this->_device.property_container, name);
                   if(p != nullptr)
                     addPropertyToContainer(ro_device_property_container, *p, p->name(), p->isWriteableByCloud() ? Permission::ReadWrite : Permission::Read);
                 }
@@ -738,7 +755,7 @@ void ArduinoIoTCloudTCP::sendDevicePropertyToCloud(String const name)
   PropertyContainer temp_device_property_container;
   unsigned int last_device_property_index = 0;
 
-  Property* p = getProperty(this->_device_property_container, name);
+  Property* p = getProperty(this->_device.property_container, name);
   if(p != nullptr)
   {
     addPropertyToContainer(temp_device_property_container, *p, p->name(), p->isWriteableByCloud() ? Permission::ReadWrite : Permission::Read);

@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include <ArduinoIoTCloud.h>
+#include <ArduinoIoTCloudProperties.h>
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -38,6 +39,7 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     virtual void update        () override;
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
+    virtual void push          () override;
 
     int begin(ConnectionHandler& connection, bool retry = false);
 
@@ -49,6 +51,7 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     inline void setMaxRetry     (int val)  { _maxNumRetry = val; }
     inline void setIntervalRetry(long val) { _intervalRetry = val; }
 
+    ArduinoIoTCloudPropertiesClass _thing;
 
   private:
 
