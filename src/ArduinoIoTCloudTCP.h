@@ -132,9 +132,14 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     State _state;
 
+    String _device_id;
     String _thing_id;
     Property * _thing_id_property;
-    String _device_id;
+    int _tz_offset;
+    Property * _tz_offset_property;
+    unsigned int _tz_dst_until;
+    Property * _tz_dst_until_property;
+
 
     unsigned long _next_connection_attempt_tick;
     unsigned int _last_connection_attempt_cnt;
