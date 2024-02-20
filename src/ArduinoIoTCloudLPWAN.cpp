@@ -91,6 +91,11 @@ void ArduinoIoTCloudLPWAN::printDebugInfo()
   DEBUG_INFO("Device EUI: %s", static_cast<LoRaConnectionHandler*>(_connection)->getDeviceEUI().c_str());
 }
 
+void ArduinoIoTCloudLPWAN::push()
+{
+  requestUpdateForAllProperties(_thing.property_container);
+}
+
 /******************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
@@ -120,7 +125,7 @@ ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_Connected()
   }
 
   /* Check if a primitive property wrapper is locally changed. */
-  updateTimestampOnLocallyChangedProperties(_thing_property_container);
+  updateTimestampOnLocallyChangedProperties(_thing.property_container);
 
   /* Decode available data. */
   if (_connection->available())
@@ -142,7 +147,7 @@ void ArduinoIoTCloudLPWAN::decodePropertiesFromCloud()
   {
     lora_msg_buf[bytes_received] = _connection->read();
   }
-  CBORDecoder::decode(_thing_property_container, lora_msg_buf, bytes_received);
+  CBORDecoder::decode(_thing.property_container, lora_msg_buf, bytes_received);
 }
 
 void ArduinoIoTCloudLPWAN::sendPropertiesToCloud()
@@ -150,7 +155,7 @@ void ArduinoIoTCloudLPWAN::sendPropertiesToCloud()
   int bytes_encoded = 0;
   uint8_t data[CBOR_LORA_MSG_MAX_SIZE];
 
-  if (CBOREncoder::encode(_thing_property_container, data, sizeof(data), bytes_encoded, _last_checked_property_index, true) == CborNoError)
+  if (CBOREncoder::encode(_thing.property_container, data, sizeof(data), bytes_encoded, _thing.last_checked_property_index, true) == CborNoError)
     if (bytes_encoded > 0)
       writeProperties(data, bytes_encoded);
 }
