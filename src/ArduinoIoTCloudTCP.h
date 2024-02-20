@@ -91,6 +91,11 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline void setSecretDeviceKey(String const password)  { _password = password;  }
     #endif
 
+    inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
+    inline String & getThingId ()                       { return _thing_id; };
+    inline void     setDeviceId(String const device_id) { _device_id = device_id; };
+    inline String & getDeviceId()                       { return _device_id; };
+
     inline String   getBrokerAddress() const { return _brokerAddress; }
     inline uint16_t getBrokerPort   () const { return _brokerPort; }
 
@@ -126,6 +131,10 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     };
 
     State _state;
+
+    String _thing_id;
+    Property * _thing_id_property;
+    String _device_id;
 
     unsigned long _next_connection_attempt_tick;
     unsigned int _last_connection_attempt_cnt;

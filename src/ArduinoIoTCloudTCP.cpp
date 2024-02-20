@@ -71,6 +71,9 @@ void updateTimezoneInfo()
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 : _state{State::ConnectPhy}
+, _thing_id{""}
+, _thing_id_property{nullptr}
+, _device_id{""}
 , _next_connection_attempt_tick{0}
 , _last_connection_attempt_cnt{0}
 , _next_device_subscribe_attempt_tick{0}

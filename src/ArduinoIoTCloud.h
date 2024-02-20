@@ -100,11 +100,6 @@ class ArduinoIoTCloudClass
             void push();
             bool setTimestamp(String const & prop_name, unsigned long const timestamp);
 
-    inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
-    inline String & getThingId ()                       { return _thing_id; };
-    inline void     setDeviceId(String const device_id) { _device_id = device_id; };
-    inline String & getDeviceId()                       { return _device_id; };
-
     inline ConnectionHandler * getConnection()          { return _connection; }
 
     inline unsigned long getInternalTime()              { return _time_service.getTime(); }
@@ -162,8 +157,6 @@ class ArduinoIoTCloudClass
     TimeServiceClass & _time_service;
     int _tz_offset;
     unsigned int _tz_dst_until;
-    String _thing_id;
-    Property * _thing_id_property;
     String _lib_version;
 
     void execCloudEventCallback(ArduinoIoTCloudEvent const event);
@@ -172,7 +165,7 @@ class ArduinoIoTCloudClass
 
     void addPropertyRealInternal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
 
-    String _device_id;
+
     OnCloudEventCallback _cloud_event_callback[3];
     bool _thing_id_outdated;
 };
