@@ -88,7 +88,7 @@ void ArduinoIoTCloudLPWAN::update()
 void ArduinoIoTCloudLPWAN::printDebugInfo()
 {
   DEBUG_INFO("***** Arduino IoT Cloud LPWAN - configuration info *****");
-  DEBUG_INFO("Thing ID: %s", getThingId().c_str());
+  DEBUG_INFO("Device EUI: %s", static_cast<LoRaConnectionHandler*>(_connection)->getDeviceEUI().c_str());
 }
 
 /******************************************************************************
