@@ -85,17 +85,12 @@ class ArduinoIoTCloudProcess
     virtual void printDebugInfo() = 0;
 };
 
-class ArduinoIoTCloudClass
+class ArduinoIoTCloudClass: public ArduinoIoTCloudProcess
 {
   public:
 
              ArduinoIoTCloudClass();
     virtual ~ArduinoIoTCloudClass() { }
-
-
-    virtual void update        () = 0;
-    virtual int  connected     () = 0;
-    virtual void printDebugInfo() = 0;
 
             void push();
             bool setTimestamp(String const & prop_name, unsigned long const timestamp);
