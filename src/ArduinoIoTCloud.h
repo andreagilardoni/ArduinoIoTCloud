@@ -76,6 +76,15 @@ typedef void (*OnCloudEventCallback)(void);
  * CLASS DECLARATION
  ******************************************************************************/
 
+class ArduinoIoTCloudProcess
+{
+  public:
+
+    virtual void update        () = 0;
+    virtual int  connected     () = 0;
+    virtual void printDebugInfo() = 0;
+};
+
 class ArduinoIoTCloudClass
 {
   public:
