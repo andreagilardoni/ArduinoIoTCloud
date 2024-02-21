@@ -74,9 +74,31 @@ public:
     VerifyOTA,
     FlashOTA,
     Reboot,
-    DownloadFail,
-    CRCValidationFail,
-    Fail
+
+    // Error states that may generically happen on all board
+    NoCapableBootloaderFail   = -1,
+    NoOtaStorageFail          = -2,
+    OtaStorageInitFail        = -3,
+    OtaStorageOpenFail        = -4,
+    OtaHeaderLengthFail       = -5,
+    OtaHeaderCrcFail          = -6,
+    OtaHeaterMagicNumberFail  = -7,
+    ParseHttpHeaderFail       = -8,
+    UrlParseErrorFail         = -9,
+    ServerConnectErrorFail    = -10,
+    HttpHeaderErrorFail       = -11,
+    OtaDownloadFail           = -12,
+    OtaHeaderTimeoutFail      = -13,
+    HttpResponseFail          = -14,
+    OtaStorageEndFail         = -15,
+    StorageConfigFail         = -16,
+    LibraryFail               = -17,
+    ModemFail                 = -18,
+    ErrorOpenUpdateFileFail   = -19,
+    ErrorWriteUpdateFileFail  = -20,
+    ErrorReformatFail         = -21,
+    ErrorUnmountFail          = -22,
+    ErrorRenameFail           = -23,
   };
 
   static constexpr char* const STATE_NAMES[];

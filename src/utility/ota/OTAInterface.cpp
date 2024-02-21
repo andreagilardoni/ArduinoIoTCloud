@@ -64,18 +64,7 @@ void OTACloudProcessInterface::handleMessage(Message* msg) {
   case Fetch:         updateState(fetch());        break;
   case FlashOTA:      updateState(flashOTA());     break;
   case Reboot:        updateState(reboot());       break;
-  case DownloadFail:
-  case CRCValidationFail:
-  case Fail:
-  default:            updateState(fail());
-  }
-}
-
-State OTACloudProcessInterface::resume(Message* msg) {
-  // we just booted the MCU, verify if we were performing an ota or just normally booted
-
-  if(!ota_in_progress) { // TODO replace with proper condition
-    return Idle;
+  default:            updateState(fail()); // all the states that are not defined are failures
   }
   // TODO verify that the ota was performed successfully
 
