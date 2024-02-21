@@ -1,21 +1,37 @@
 #pragma once
+#include "OTAInterface.h"
+#include <Arduino_Portenta_OTA.h>
 
 class STM32H7OTACloudProcess: public OTACloudProcessInterface {
 public:
-  STM32H7OTACloudProcess();
-  void update();
+  STM32H7OTACloudProcess(MessageStream *ms, ConnectionHandler* connection_handler=nullptr);
+  ~STM32H7OTACloudProcess();
+  void update() override;
 
-  // retrocompatibility functions used in old ota prtotocol based on properties
-  int otaRequest(char const * ota_url, NetworkAdapter iface);
-  String getOTAImageSHA256();
-  bool isOTACapable();
+  virtual bool isOtaCapable() override;
 protected:
-  // we start the download and decompress process
-  virtual State fetch(Message* msg=nullptr);
+  virtual OTACloudProcessInterface::State resume(Message* msg=nullptr) override;
+
+  // we are overriding the method of startOTA in order to open the destination file for the ota download
+  virtual OTACloudProcessInterface::State startOTA() override;
 
   // whene the download is correctly finished we set the mcu to use the newly downloaded binary
-  virtual State flashOTA(Message* msg=nullptr);
+  virtual OTACloudProcessInterface::State flashOTA() override;
 
   // we reboot the device
-  virtual State reboot(Message* msg=nullptr);
+  virtual OTACloudProcessInterface::State reboot() override;
+
+  // write the decompressed char buffer of the incoming ota
+  virtual int writeFlash(uint8_t* const buffer, size_t len) override;
+
+  virtual void reset() override;
+
+  void* appStartAddress();
+  uint32_t appSize();
+  bool appFlashOpen() { return true; };
+  bool appFlashClose() { return true; };
+private:
+  FILE* decompressed;
+  Arduino_Portenta_OTA_QSPI ota_portenta_qspi;
+  static const char UPDATE_FILE_NAME[];
 };
