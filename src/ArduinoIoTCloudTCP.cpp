@@ -89,9 +89,11 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _shadowTopicIn("")
 , _dataTopicOut("")
 , _dataTopicIn("")
+, _message_stream(std::bind(&ArduinoIoTCloudTCP::sendMessage, this, std::placeholders::_1))
 #if OTA_ENABLED
 , _ask_user_before_executing_ota{false}
 , _get_ota_confirmation{nullptr}
+, _ota(&_message_stream)
 #endif /* OTA_ENABLED */
 {
 
@@ -112,6 +114,10 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
 
   /* Setup retry timers */
   _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
+#if  OTA_ENABLED
+  _ota.setConnectionHandler(_connection);
+#endif // OTA_ENABLED
+
   return begin(enable_watchdog, _brokerAddress, _brokerPort);
 }
 
@@ -210,6 +216,12 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   }
 #endif
 
+#if OTA_ENABLED
+  _message_stream.addReceive(
+    "ota", // TODO make "ota" a constant
+    std::bind(&OTACloudProcessInterface::handleMessage, &_ota, std::placeholders::_1));
+#endif // OTA_ENABLED
+
   return 1;
 }
 
@@ -221,7 +233,6 @@ void ArduinoIoTCloudTCP::update()
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   watchdog_reset();
 #endif
-
 
   /* Run through the state machine. */
   State next_state = _state;
@@ -324,6 +335,10 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 
   _device.update();
 
+#if  OTA_ENABLED
+  _ota.update();
+#endif // OTA_ENABLED
+
   if (_device.attached())
   {
     _thing.update();
@@ -403,28 +418,35 @@ void ArduinoIoTCloudTCP::handleDownstreamMessage(int length)
   // }
 
   if (_messageTopicIn == topic) {
-    GenericCommand command;
+    CommandDown command;
     MessageDecoder::DecoderState err =  MessageDecoder::decode((Message*)&command, bytes, length);
 
-    switch (command.command.id)
+    switch (command.c.id)
     {
       case CommandID::ThingGetIdCmdDownId:
       {
-        ThingGetIdCmdDown * msg = (ThingGetIdCmdDown *)&command;
-        _thing_id = msg->fields.params.thing_id;
-        _device.sendMessageDownstream(Event::ThingId, msg->fields.params.thing_id);
+        ThingGetIdCmdDown * msg = &command.thingGetIdCmdDown;
+        _thing_id = msg->params.thing_id;
+        _device.sendMessageDownstream(Event::ThingId, msg->params.thing_id);
       }
       break;
 
       case CommandID::ThingGetLastValueCmdDownId:
       {
-        ThingGetLastValueCmdDown * msg = (ThingGetLastValueCmdDown*)&command;
-        CBORDecoder::decode(_thing.getPropertyContainer(), (uint8_t*)msg->fields.params.last_values, msg->fields.params.length, true);
+        ThingGetLastValueCmdDown * msg = &command.thingGetLastValueCmdDown;
+        CBORDecoder::decode(_thing.getPropertyContainer(), (uint8_t*)msg->params.last_values, msg->params.length, true);
+        _time_service.setTimeZoneData(_thing._tz_offset, _thing._tz_dst_until);
         _thing.sendMessageDownstream(Event::LastValues);
         execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
       }
       break;
-
+#if OTA_ENABLED
+      case CommandID::OtaUpdateCmdDownId:
+      {
+        _message_stream.send((Message*)&command, "ota"); // TODO make "ota" a constant
+      }
+      break;
+#endif // OTA_ENABLED
       default:
       break;
     }
@@ -516,14 +538,8 @@ void ArduinoIoTCloudTCP::sendDevicePropertiesToCloud()
   DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s announce device to the Cloud %d", __FUNCTION__, _time_service.getTime());
   sendPropertyContainerToCloud(_deviceTopicOut, ro_device_container, last_device_property_index);
 
-#if OTA_ENABLED
-  OtaBeginUp command = {CommandID::OtaBeginUpId};
-  memcpy(command.fields.params.sha, (uint8_t*)OTA::getImageSHA256().c_str(), SHA256_SIZE);
-  sendMessage((Message*)&command);
-#endif
-
   DeviceBeginCmdUp command2 = {CommandID::DeviceBeginCmdUpId};
-  strcpy(command2.fields.params.lib_version, AIOT_CONFIG_LIB_VERSION);
+  strcpy(command2.params.lib_version, AIOT_CONFIG_LIB_VERSION);
   sendMessage((Message*)&command2);
 }
 
@@ -540,7 +556,7 @@ void ArduinoIoTCloudTCP::sendDevicePropertyToCloud(String const name)
     sendPropertyContainerToCloud(_deviceTopicOut, temp_device_container, last_device_property_index);
   }
 }
-#endif
+#endif // OTA_ENABLED
 
 void ArduinoIoTCloudTCP::sendMessage(Message * msg)
 {
@@ -582,7 +598,7 @@ void ArduinoIoTCloudTCP::requestThingId()
   // }
 
   ThingGetIdCmdUp command = {CommandID::ThingGetIdCmdUpId};
-  strcpy(command.fields.params.thing_id, _thing_id.c_str());
+  strcpy(command.params.thing_id, _thing_id.c_str());
   sendMessage((Message*)&command);
 }
 
