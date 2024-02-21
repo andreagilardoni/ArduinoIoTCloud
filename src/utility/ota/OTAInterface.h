@@ -155,7 +155,7 @@ protected:
   // this method will be called by fetch to write the ota binary on the device flash
   // this method is directly called by fetch.
   // This method will be overridden by the actual board implementation
-  virtual error_type writeFlash(uint8_t* const buffer, size_t len) = 0;
+  virtual int writeFlash(uint8_t* const buffer, size_t len) = 0;
 
   OtaPolicies policies; // TODO getter and setters for this
 
