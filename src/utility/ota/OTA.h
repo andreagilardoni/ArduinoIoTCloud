@@ -1,42 +1,32 @@
-/*
-   This file is part of ArduinoIoTCloud.
-
-   Copyright 2020 ARDUINO SA (http://www.arduino.cc/)
-
-   This software is released under the GNU General Public License version 3,
-   which covers the main part of arduino-cli.
-   The terms of this license can be found at:
-   https://www.gnu.org/licenses/gpl-3.0.en.html
-
-   You can be released from the requirements of the above licenses by purchasing
-   a commercial license. Buying such a license is mandatory if you want to modify or
-   otherwise use the software for commercial activities involving the Arduino
-   software without disclosing the source code of your own applications. To purchase
-   a commercial license, send an email to license@arduino.cc.
-*/
-
-#ifndef ARDUINO_OTA_LOGIC_H_
-#define ARDUINO_OTA_LOGIC_H_
-
-/******************************************************************************
- * INCLUDE
- ******************************************************************************/
-
-#include <AIoTC_Config.h>
-
+#pragma once
+#include "AIoTC_Config.h"
 #if OTA_ENABLED
-#include <Arduino.h>
-#include <Arduino_ConnectionHandler.h>
 
-/******************************************************************************
- * DEFINES
- ******************************************************************************/
+#ifdef ARDUINO_ARCH_SAMD
+#include "OTASamd.h"
+using OTACloudProcess = SAMDOTACloudProcess;
+
+#elif defined(ARDUINO_NANO_RP2040_CONNECT)
+#include "OTANanoRP2040.h"
+using OTACloudProcess = NANO_RP2040OTACloudProcess;
+
+#elif defined(BOARD_STM32H7)
+#include "OTAPortentaH7.h"
+using OTACloudProcess = STM32H7OTACloudProcess;
+
+#elif defined(ARDUINO_ARCH_ESP32)
+#include "OTAEsp32.h"
+using OTACloudProcess = ESP32OTACloudProcess;
+
+#elif defined(ARDUINO_UNOR4_WIFI)
+#include "OTAUnoR4.h"
+using OTACloudProcess = UNOR4OTACloudProcess;
+
+#else
+#error "This Board doesn't support OTA"
+#endif
 
 #define RP2040_OTA_ERROR_BASE (-100)
-
-/******************************************************************************
- * TYPEDEF
- ******************************************************************************/
 
 enum class OTAError : int
 {
@@ -54,20 +44,4 @@ enum class OTAError : int
   RP2040_ErrorUnmount         = RP2040_OTA_ERROR_BASE - 9,
 };
 
-/******************************************************************************
- * CLASS DECLARATION
- ******************************************************************************/
-
-class OTA
-{
-public:
-
-  static int onRequest(String url, NetworkAdapter iface);
-  static String getImageSHA256();
-  static bool isCapable();
-
-};
-
-#endif /* OTA_ENABLED */
-
-#endif /* ARDUINO_OTA_LOGIC_H_ */
+#endif // OTA_ENABLED
