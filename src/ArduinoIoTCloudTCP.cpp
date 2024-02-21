@@ -89,9 +89,11 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _shadowTopicIn("")
 , _dataTopicOut("")
 , _dataTopicIn("")
+, _message_stream(std::bind(&ArduinoIoTCloudTCP::handleMessageCP, this, std::placeholders::_1))
 #if OTA_ENABLED
 , _ask_user_before_executing_ota{false}
 , _get_ota_confirmation{nullptr}
+, _ota(&_message_stream)
 #endif /* OTA_ENABLED */
 {
 
@@ -112,6 +114,10 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
 
   /* Setup retry timers */
   _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
+#ifdef OTA_ENABLED
+  _ota.setConnectionHandler(_connection);
+#endif // OTA_ENABLED
+
   return begin(enable_watchdog, _brokerAddress, _brokerPort);
 }
 
@@ -222,6 +228,9 @@ void ArduinoIoTCloudTCP::update()
   watchdog_reset();
 #endif
 
+#ifdef OTA_ENABLED
+  _ota.update();
+#endif // OTA_ENABLED
 
   /* Run through the state machine. */
   State next_state = _state;
@@ -539,7 +548,7 @@ void ArduinoIoTCloudTCP::sendDevicePropertyToCloud(String const name)
     sendPropertyContainerToCloud(_deviceTopicOut, temp_device_container, last_device_property_index);
   }
 }
-#endif
+#endif // OTA_ENABLED
 
 void ArduinoIoTCloudTCP::sendMessage(Message * msg)
 {

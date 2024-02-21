@@ -53,6 +53,10 @@
 #include "cbor/MessageDecoder.h"
 #include "cbor/MessageEncoder.h"
 
+#if OTA_ENABLED
+#include "utility/ota/OTA.h"
+#endif // OTA_ENABLED
+
 /******************************************************************************
    CONSTANTS
  ******************************************************************************/
@@ -245,6 +249,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     }
 #endif
 
+    void handleMessageCP(Message* m); // FIXME change name
+
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
 
@@ -311,10 +317,13 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     ArduinoIoTCloudThing _thing;
     ArduinoIoTCloudDevice _device;
+    MessageStream _message_stream;
 
 #if OTA_ENABLED
     bool _ask_user_before_executing_ota;
     onOTARequestCallbackFunc _get_ota_confirmation;
+
+    OTACloudProcess _ota;
 #endif /* OTA_ENABLED */
 
     inline String getTopic_deviceout() { return String("/a/d/" + getDeviceId() + "/e/o");}
