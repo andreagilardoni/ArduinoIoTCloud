@@ -172,10 +172,10 @@ void OTACloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) {
         );
 
       cursor += buf_len - (cursor-buffer);
-      downloadedSize += (cursor-buffer);
+      context->downloadedSize += (cursor-buffer);
 
       // TODO there should be no more bytes available when the download is completed
-      if(context->headerCopiedBytes + downloadedSize == http_client.contentLength()) {
+      if(context->headerCopiedBytes + context->downloadedSize == http_client.contentLength()) {
         context->downloadState = OtaDownloadCompleted;
       }
       // TODO fail if we exceed a timeout? and available is 0 (client is broken)
