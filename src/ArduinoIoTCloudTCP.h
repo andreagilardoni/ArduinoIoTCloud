@@ -228,6 +228,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline String   getBrokerAddress() const { return _brokerAddress; }
     inline uint16_t getBrokerPort   () const { return _brokerPort; }
 
+    void decode();
+    void encode();
+
 #if OTA_ENABLED
     /* The callback is triggered when the OTA is initiated and it gets executed until _ota_req flag is cleared.
      * It should return true when the OTA can be applied or false otherwise.
