@@ -97,6 +97,48 @@ class TimedAttempt
 
 };
 
+class ArduinoIoTCloudDevice: public ArduinoIoTCloudProcess, public ArduinoIoTCloudPropertiesClass
+{
+  public:
+
+    virtual void update        () override;
+    virtual int  connected     () override;
+    virtual void printDebugInfo() override;
+    virtual void push          () override;
+
+  private:
+
+    enum class State
+    {
+      SendDeviceProperties,
+      SubscribeDeviceTopic,
+      Connected,
+      Disconnect,
+    };
+};
+
+class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTCloudPropertiesClass
+{
+  public:
+
+    virtual void update        () override;
+    virtual int  connected     () override;
+    virtual void printDebugInfo() override;
+    virtual void push          () override;
+
+    bool setTimestamp(String const & prop_name, unsigned long const timestamp);
+
+  private:
+
+    enum class State
+    {
+      SubscribeThingTopics,
+      RequestLastValues,
+      Connected,
+      Disconnect,
+    };
+};
+
 
 class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 {
