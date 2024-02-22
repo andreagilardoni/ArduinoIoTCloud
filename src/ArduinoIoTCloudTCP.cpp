@@ -33,6 +33,9 @@
 #include "cbor/CBOREncoder.h"
 #include "cbor/CBORDecoder.h"
 #include "utility/watchdog/Watchdog.h"
+#include "cbor/MessageDecoder.h"
+#include "cbor/MessageEncoder.h"
+#include <typeinfo> 
 
 /******************************************************************************
    LOCAL MODULE FUNCTIONS

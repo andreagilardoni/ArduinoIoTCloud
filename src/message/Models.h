@@ -146,7 +146,7 @@ struct __attribute__((__packed__)) ThingGetLastValueCmdDown {
 struct __attribute__((__packed__)) TimezoneCommandDown{
     Command c;
     struct {
-        uint32_t offset;
+        int32_t offset;
         uint32_t until;
     } params;
 };
