@@ -25,7 +25,7 @@
 #include <AIoTC_Config.h>
 #include <ArduinoIoTCloud.h>
 #include <ArduinoMqttClient.h>
-#include <ArduinoIoTCloudProperties.h>
+#include <ArduinoIoTCloudThing.h>
 #include <utility/time/TimedAttempt.h>
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
