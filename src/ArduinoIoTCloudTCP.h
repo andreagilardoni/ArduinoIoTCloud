@@ -188,7 +188,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     void handle_OTARequest();
 #endif
 
-    ArduinoIoTCloudPropertiesClass _thing;
+    ArduinoIoTCloudThing _thing;
     ArduinoIoTCloudPropertiesClass _device;
 
   private:

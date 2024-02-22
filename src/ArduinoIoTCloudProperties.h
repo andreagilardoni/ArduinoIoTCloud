@@ -95,7 +95,7 @@ class ArduinoIoTCloudPropertiesClass
     Property& addPropertyReal(unsigned int& property, String name, int tag, Permission const permission);
     Property& addPropertyReal(String& property, String name, int tag, Permission const permission);
 
-    PropertyContainer property_container;
+    PropertyContainer properties;
     unsigned int last_checked_property_index;
 
   private:
