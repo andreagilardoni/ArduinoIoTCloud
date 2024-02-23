@@ -27,12 +27,12 @@ int  ArduinoIoTCloudThing::connected     () {}
 void ArduinoIoTCloudThing::printDebugInfo() {}
 void ArduinoIoTCloudThing::push()
 {
-  requestUpdateForAllProperties(properties);
+  requestUpdateForAllProperties(getPropertyContainer());
 }
 
 bool ArduinoIoTCloudThing::setTimestamp(String const & prop_name, unsigned long const timestamp)
 {
-  Property * p = getProperty(properties, prop_name);
+  Property * p = getProperty(getPropertyContainer(), prop_name);
 
   if (p == nullptr)
     return false;
