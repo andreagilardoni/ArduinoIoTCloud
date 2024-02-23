@@ -99,6 +99,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline String   getBrokerAddress() const { return _brokerAddress; }
     inline uint16_t getBrokerPort   () const { return _brokerPort; }
 
+    inline ArduinoIoTCloudPropertiesClass &getThing() { return _thing; }
+
 #if OTA_ENABLED
     /* The callback is triggered when the OTA is initiated and it gets executed until _ota_req flag is cleared.
      * It should return true when the OTA can be applied or false otherwise.
@@ -111,9 +113,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     void handle_OTARequest();
 #endif
-
-    ArduinoIoTCloudPropertiesClass _thing;
-    ArduinoIoTCloudPropertiesClass _device;
 
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
@@ -143,6 +142,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     unsigned int _tz_dst_until;
     Property * _tz_dst_until_property;
 
+    ArduinoIoTCloudPropertiesClass _thing;
+    ArduinoIoTCloudPropertiesClass _device;
 
     unsigned long _next_connection_attempt_tick;
     unsigned int _last_connection_attempt_cnt;

@@ -26,7 +26,7 @@
  ******************************************************************************/
 
 ArduinoIoTCloudPropertiesClass::ArduinoIoTCloudPropertiesClass()
-: last_checked_property_index{0}
+: _last_checked_property_index{0}
 {
 
 }
@@ -89,7 +89,7 @@ Property& ArduinoIoTCloudPropertiesClass::addPropertyReal(String& property, Stri
 }
 Property& ArduinoIoTCloudPropertiesClass::addPropertyReal(Property& property, String name, int tag, Permission const permission)
 {
-  return addPropertyToContainer(property_container, property, name, permission, tag);
+  return addPropertyToContainer(_properties, property, name, permission, tag);
 }
 
 /* The following methods are deprecated but still used for non-LoRa boards */
@@ -166,8 +166,8 @@ void ArduinoIoTCloudPropertiesClass::addPropertyRealInternal(Property& property,
   }
 
   if (seconds == ON_CHANGE) {
-    addPropertyToContainer(property_container, property, name, permission, tag).publishOnChange(minDelta, Property::DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
+    addPropertyToContainer(_properties, property, name, permission, tag).publishOnChange(minDelta, Property::DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
   } else {
-    addPropertyToContainer(property_container, property, name, permission, tag).publishEvery(seconds).onUpdate(fn).onSync(synFn);
+    addPropertyToContainer(_properties, property, name, permission, tag).publishEvery(seconds).onUpdate(fn).onSync(synFn);
   }
 }

@@ -87,7 +87,7 @@ class ArduinoIoTCloudClass
 
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
-#define addProperty( v, ...) _thing.addPropertyReal(v, #v, __VA_ARGS__)
+#define addProperty( v, ...) getThing().addPropertyReal(v, #v, __VA_ARGS__)
 
   protected:
 
