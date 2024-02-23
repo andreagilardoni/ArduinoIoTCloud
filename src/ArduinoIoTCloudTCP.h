@@ -172,6 +172,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline void     setDeviceId(String const device_id) { _device_id = device_id; };
     inline String & getDeviceId()                       { return _device_id; };
 
+    inline ArduinoIoTCloudThing &getThing() { return _thing; }
+
     inline String   getBrokerAddress() const { return _brokerAddress; }
     inline uint16_t getBrokerPort   () const { return _brokerPort; }
 
@@ -187,9 +189,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     void handle_OTARequest();
 #endif
-
-    ArduinoIoTCloudThing _thing;
-    ArduinoIoTCloudPropertiesClass _device;
 
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
@@ -261,6 +260,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _shadowTopicIn;
     String _dataTopicOut;
     String _dataTopicIn;
+
+    ArduinoIoTCloudThing _thing;
+    ArduinoIoTCloudPropertiesClass _device;
 
 #if OTA_ENABLED
     bool _ota_cap;
