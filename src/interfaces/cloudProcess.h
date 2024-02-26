@@ -2,11 +2,13 @@
 #include <models/models.h>
 #include <interfaces/messageStream.h>
 #include <assert.h>
+#include <functional>
 
 class CloudProcess {
 public:
     CloudProcess(MessageStream* stream): stream(stream) {
-        stream->addReceive(std::bind(&CloudProcess::handleMessage, this));
+        // FIXME this function requires the cloud process to know the channel it is bound to, isn't it better to link it outside?
+        // stream->addReceive(std::bind(&CloudProcess::handleMessage, this, std::placeholders::_1));
     }
 
     /**
