@@ -183,7 +183,14 @@ protected:
 
   uint16_t policies; // TODO getter and setters for this
 
-  inline void updateState(State s) { if(state!=s) { sprevious_state = state; state = s; } }
+  inline void updateState(State s) {
+    if(state!=s) {
+      DEBUG_VERBOSE("OTAInterface: state change to %s from %s",
+        STATE_NAMES[s],
+        STATE_NAMES[state]);
+      previous_state = state; state = s;
+    }
+  }
 
   // This method is called to report the current state of the OtaClass
   void reportStatus();
