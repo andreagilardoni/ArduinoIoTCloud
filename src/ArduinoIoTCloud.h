@@ -73,6 +73,14 @@ class ArduinoIoTCloudProcess
     virtual int  connected     () = 0;
     virtual void printDebugInfo() = 0;
     virtual void push          () = 0;
+
+    enum class Event
+    {
+      RequestlastValues,
+      SendProperties,
+      Disconnect
+    };
+
 };
 
 class ArduinoIoTCloudClass: public ArduinoIoTCloudProcess
