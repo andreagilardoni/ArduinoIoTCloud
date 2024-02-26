@@ -116,6 +116,8 @@ class ArduinoIoTCloudDevice: public ArduinoIoTCloudProcess, public ArduinoIoTClo
       Connected,
       Disconnect,
     };
+
+    State _state;
 };
 
 class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTCloudPropertiesClass
