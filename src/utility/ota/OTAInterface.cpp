@@ -99,15 +99,18 @@ void OTACloudProcessInterface::handleMessage(Message* msg) {
   }
 }
 
-State OTACloudProcessInterface::idle(Message* msg) {
+OTACloudProcessInterface::State OTACloudProcessInterface::idle(Message* msg) {
   // if a msg arrived, it may be an OTAavailable, then go to otaAvailable
   // otherwise do nothing
-  if(msg!=nullptr && msg.commandId == OTAavailable) {
+  if(msg!=nullptr && msg->id == OTAavailableId) {
     // save info coming from this message
     assert(context == nullptr); // This should never fail
+
+    union OTAavailable* oa_msg = (union OTAavailable*)msg;
+
     context = new OtaContext(
-      msg.id, msg.url,
-      msg.initialSha256, msg.finalSha256,
+      oa_msg->fields.params.id, oa_msg->fields.params.url,
+      oa_msg->fields.params.initialSha256, oa_msg->fields.params.finalSha256,
       [this](uint8_t c) {
         int res = this->writeFlash(&c, 1);
 
@@ -122,7 +125,7 @@ State OTACloudProcessInterface::idle(Message* msg) {
   return Idle;
 }
 
-State OTACloudProcessInterface::otaAvailable() {
+OTACloudProcessInterface::State OTACloudProcessInterface::otaAvailable() {
   // depending on the policy decided on this device the ota process can start immediately
   // or wait for confirmation from the user
   if(policies & (ApprovalRequired | Approved) == ApprovalRequired ) {
@@ -133,25 +136,92 @@ State OTACloudProcessInterface::otaAvailable() {
   } // TODO add an abortOTA command? in this case delete the context
 }
 
-State OTACloudProcessInterface::startOTA() {
+OTACloudProcessInterface::State OTACloudProcessInterface::startOTA() {
   // Report that we are starting ota
-  statusReport();
+  reportStatus();
 
-  assert(client != nullptr, "ERROR client wasn't set in OTACloudProcess");
+  assert((client != nullptr, "ERROR client wasn't set in OTACloudProcess"));
 
   // make the http get request
   if(strcmp(context->url.schema(), "http") == 0) {
-    http_client = new HttpClient(client, url.host(), url.port());
+    client = connection_handler->getNewClient();
   } else if(strcmp(context->url.schema(), "https") == 0) {
-    ssl_client  = new SSLCLient(client)
-    http_client = new HttpClient(*ssl_client, url.host(), url.port());
+    initSSLClient();
   } else {
     return UrlParseErrorFail;
   }
+  http_client = new HttpClient(*client, context->url.host(), context->url.port());
 
-  http_client.get(url.path());
-  // TODO verify content length is present kNoContentLengthHeader
+  auto res = http_client->get(context->url.path());
+
+  int statusCode = http_client->responseStatusCode();
+
+  if(statusCode != 200) {
+    DEBUG_ERROR("OTA ERROR: get responsereturned status %d", statusCode);
+    return OtaDownloadFail;
+  }
+
+  // The following call is required to save the header value , keep it
+  if(http_client->contentLength() == HttpClient::kNoContentLengthHeader) {
+    DEBUG_ERROR("OTA ERROR: the response header doesn't contain \"ContentLength\" field");
+    return OtaDownloadFail;
+  }
+
   return Fetch;
+}
+
+OTACloudProcessInterface::State OTACloudProcessInterface::fetch() {
+  constexpr size_t buf_len = 100;
+  static uint8_t buffer[buf_len];
+  OTACloudProcessInterface::State res = Fetch;
+  int http_res = 0;
+
+  if(http_client->available() == 0) {
+    goto exit;
+  }
+
+  http_res = http_client->read(buffer, buf_len);
+
+  if(http_res < 0) {
+    res = OtaDownloadFail;
+
+    goto exit;
+  }
+
+  parseOta(buffer, http_res);
+
+  // TODO verify that the information present in the ota header match the info in context
+  // TODO verify the magic number
+  if(context->downloadState == OtaDownloadCompleted) {
+    // Verify that the downloaded file size is matching the expected size ??
+    // this could distinguish between consistency of the downloaded bytes and filesize
+
+    // validate CRC
+    context->calculatedCrc32 ^= 0xFFFFFFFF; // finalize CRC
+    if(context->header.header.crc32 == context->calculatedCrc32) {
+      DEBUG_INFO("Ota download completed successfully");
+      res = FlashOTA;
+    } else {
+      res = OtaHeaderCrcFail;
+    }
+  } else if(context->downloadState == OtaDownloadError) {
+    DEBUG_INFO("OtaDownloadError");
+
+    res = OtaDownloadFail;
+  }
+
+exit:
+  if(res != Fetch) {
+    http_client->stop(); // close the connection
+    delete http_client;
+    http_client = nullptr;
+
+    if(client!=nullptr) {
+      delete client;
+      client=nullptr;
+    }
+  }
+  return res;
 }
 
 void OTACloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) {
@@ -159,7 +229,7 @@ void OTACloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) {
 
   for(uint8_t* cursor=(uint8_t*)buffer; cursor<buffer+buf_len; ) {
     switch(context->downloadState) {
-    case OtaDownloadHeader:
+    case OtaDownloadHeader: {
       uint32_t copied = buf_len < sizeof(context->header.buf) ? buf_len : sizeof(context->header.buf);
       memcpy(context->header.buf, buffer, copied);
       cursor += copied;
@@ -177,8 +247,9 @@ void OTACloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) {
       }
 
       break;
+    }
     case OtaDownloadFile:
-      context->decoder.decompress(cursor, buf_len - (cursor-buffer));
+      context->decoder.decompress(cursor, buf_len - (cursor-buffer)); // TODO verify return value
 
       context->calculatedCrc32 = crc_update(
           context->calculatedCrc32,
@@ -190,7 +261,7 @@ void OTACloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) {
       context->downloadedSize += (cursor-buffer);
 
       // TODO there should be no more bytes available when the download is completed
-      if(context->headerCopiedBytes + context->downloadedSize == http_client.contentLength()) {
+      if(context->downloadedSize == http_client->contentLength()) {
         context->downloadState = OtaDownloadCompleted;
       }
       // TODO fail if we exceed a timeout? and available is 0 (client is broken)
@@ -204,44 +275,7 @@ void OTACloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) {
   }
 }
 
-State OTACloudProcessInterface::fetch() {
-  size_t buf_len = 100; // TODO should this be constexpr?
-  static uint8_t buffer[buf_len];
-  int res = http_client->read(buffer, len);
-  State res;
-
-  parseOta(buffer, buf_len);
-
-  // TODO verify that the information present in the ota header match the info in context
-  // TODO verify the magic number
-  if(context->downloadState == OtaDownloadCompleted) {
-    // Verify that the downloaded file size is matching the expected size ??
-    // this could distinguish between consistency of the downloaded bytes and filesize
-
-    // validate CRC
-    context->calculatedCrc32 ^= 0xFFFFFFFF; // finalize CRC
-    if(context->header.crc32 == context->calculatedCrc32) {
-      res = FlashOTA;
-    } else {
-      res = OtaHeaderCrcFail;
-    }
-  } else if(context->downloadState == OtaDownloadError) {
-    res = OtaDownloadFail;
-  }
-
-  http_client->stop(); // close the connection
-  delete http_client;
-  http_client = nullptr;
-
-  if(ssl_client != nullptr) {
-    delete ssl_client;
-    ssl_client = nullptr;
-  }
-
-  return res;
-}
-
-State OTACloudProcessInterface::fail() {
+OTACloudProcessInterface::State OTACloudProcessInterface::fail() {
   reportStatus();
   reset();
   clean();
