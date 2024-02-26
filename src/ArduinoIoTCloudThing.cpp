@@ -80,7 +80,9 @@ bool ArduinoIoTCloudThing::setTimestamp(String const & prop_name, unsigned long 
   Property * p = getProperty(getPropertyContainer(), prop_name);
 
   if (p == nullptr)
+  {
     return false;
+  }
 
   p->setTimestamp(timestamp);
 

@@ -168,7 +168,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
              ArduinoIoTCloudTCP();
     virtual ~ArduinoIoTCloudTCP() { }
 
-
     virtual void update        () override;
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
