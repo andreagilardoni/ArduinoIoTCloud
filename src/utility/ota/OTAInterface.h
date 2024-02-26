@@ -63,11 +63,11 @@ union OTAHeader {
 
 class OTACloudProcessInterface: public CloudProcess {
 public:
-  OTACloudProcessInterface();
+  OTACloudProcessInterface(MessageStream *ms, ConnectionHandler* connection_handler=nullptr);
   OTACloudProcessInterface(const OTACloudProcessInterface&) = delete;
   OTACloudProcessInterface(OTACloudProcessInterface&&) = delete;
 
-  ~OTACloudProcessInterface();
+  virtual ~OTACloudProcessInterface();
 
   enum State: int16_t {
     Resume,
@@ -116,11 +116,11 @@ public:
   virtual void handleMessage(Message*);
   // virtual CloudProcess::State getState();
   // virtual void hook(State s, void* action);
-  virtual inline void update() { handleMessage(nullptr); }
+  virtual void update() { handleMessage(nullptr); }
 
   inline void approveOta() { policies |= Confirmation; }
 
-  inline virtual void setClient(Client* c) { client = c; }
+  inline virtual void setConnectionHandler(ConnectionHandler* c) { connection_handler = c; }
 protected:
   // The following methods represent the FSM actions performed in each state
 
@@ -140,7 +140,7 @@ protected:
   virtual State startOTA();
 
   // we start the download and decompress process
-  virtual State fetch() = 0;
+  virtual State fetch();
 
   // whene the download is correctly finished we set the mcu to use the newly downloaded binary
   virtual State flashOTA() = 0;

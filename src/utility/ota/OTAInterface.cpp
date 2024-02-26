@@ -19,7 +19,7 @@
  * INCLUDE
  ******************************************************************************/
 
-// #include <AIoTC_Config.h>
+#include <AIoTC_Config.h>
 
 #if OTA_ENABLED
 
@@ -47,22 +47,18 @@ OTACloudProcessInterface::STATE_NAMES = {
   "Fail"
 };
 
-OTACloudProcessInterface::OTACloudProcessInterface(Client* client)
-: policies(None)
+OTACloudProcessInterface::OTACloudProcessInterface(MessageStream *ms, ConnectionHandler* connection_handler)
+: CloudProcess(ms)
+, policies(None)
 , state(Resume)
 , previous_state(Resume)
-, client(client)
+, connection_handler(connection_handler)
 , http_client(nullptr)
 , context(nullptr) {
 }
 
 OTACloudProcessInterface::~OTACloudProcessInterface() {
   clean();
-
-  if(client !=nullptr) {
-    delete client;
-    client = nullptr;
-  }
 }
 
 void OTACloudProcessInterface::handleMessage(Message* msg) {
@@ -241,9 +237,9 @@ void OTACloudProcessInterface::clean() {
     http_client = nullptr;
   }
 
-  if(ssl_client != nullptr) {
-    delete ssl_client;
-    ssl_client = nullptr;
+  if(client!=nullptr) {
+    delete client;
+    client=nullptr;
   }
 
   // free the context pointer
