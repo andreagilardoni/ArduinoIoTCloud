@@ -269,7 +269,6 @@ void ArduinoIoTCloudTCP::update()
   case State::SubscribeDeviceTopic: next_state = handle_SubscribeDeviceTopic(); break;
   case State::CheckDeviceConfig:    next_state = handle_CheckDeviceConfig();    break;
   case State::SubscribeThingTopics: next_state = handle_SubscribeThingTopics(); break;
-  case State::RequestLastValues:    next_state = handle_RequestLastValues();    break;
   case State::Connected:            next_state = handle_Connected();            break;
   case State::Disconnect:           next_state = handle_Disconnect();           break;
   }
@@ -478,32 +477,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
   return State::Connected;
 }
 
-ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
-{
-  if (!_mqttClient.connected() || _thing_id_property->isDifferentFromCloud())
-  {
-    return State::Disconnect;
-  }
-
-  /* Check whether or not we need to send a new request. */
-  if (_connection_attempt.isRetry() && !_connection_attempt.isExpired())
-    return State::RequestLastValues;
-
-  /* Track the number of times a get-last-values request was sent to the cloud.
-   * If no data is received within a certain number of retry-requests it's a better
-   * strategy to disconnect and re-establish connection from the ground up.
-   */
-  if (_connection_attempt.getRetryCount() > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
-  {
-    return State::Disconnect;
-  }
-
-  _connection_attempt.retry();
-  requestLastValue();
-  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values requested", __FUNCTION__, _time_service.getTime());
-  return State::RequestLastValues;
-}
-
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 {
   if (!_mqttClient.connected())
@@ -611,7 +584,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   }
 
   /* Topic for sync Thing last values on connect */
-  if ((_shadowTopicIn == topic) && (_state == State::RequestLastValues))
+  if (_shadowTopicIn == topic)
   {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
     CBORDecoder::decode(_thing.getPropertyContainer(), (uint8_t*)bytes, length, true);
