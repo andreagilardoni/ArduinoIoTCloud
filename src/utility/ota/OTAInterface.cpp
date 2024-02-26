@@ -291,7 +291,8 @@ OTACloudProcessInterface::OtaContext::OtaContext(
     const char* id, const char* url,
     uint8_t* initialSha256, uint8_t* finalSha256,
     std::function<void(uint8_t)> putc)
-    : url(url)
+    : id((char*) malloc(strlen(id) + 1))
+    , url(url)
     , downloadState(OtaDownloadHeader)
     , calculatedCrc32(0xFFFFFFFF)
     , headerCopiedBytes(0)
@@ -299,16 +300,13 @@ OTACloudProcessInterface::OtaContext::OtaContext(
     , decoder(putc)
     , report_couter(0) {
 
-  id  = (const char*) malloc(strlen(id) + 1);
   strcpy(this->id, id);
-  strcpy(this->url, url);
   memcpy(this->initialSha256, initialSha256, 32);
   memcpy(this->finalSha256, finalSha256, 32);
 }
 
 OTACloudProcessInterface::OtaContext::~OtaContext() {
   free(id);
-  free(url);
 }
 
 static const uint32_t crc_table[256] = {

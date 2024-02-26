@@ -220,7 +220,7 @@ protected:
       std::function<void(uint8_t)> putc);
     ~OtaContext();
     // parameters present in the ota available message that are of interest of the process
-    const char* id;
+    char* const id;
     ParsedUrl   url; // TODO replace with parsed url struct
     uint8_t     initialSha256[32];
     uint8_t     finalSha256[32];
