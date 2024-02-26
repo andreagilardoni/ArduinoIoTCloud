@@ -653,6 +653,32 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   }
 }
 
+void ArduinoIoTCloudTCP::onDeliver(ArduinoIoTCloudProcessEvent id)
+{
+  ArduinoCloud.sendMessage(id);
+}
+
+void ArduinoIoTCloudTCP::sendMessage(ArduinoIoTCloudProcessEvent id)
+{
+  switch (id)
+  {
+  case ArduinoIoTCloudProcessEvent::SendProperties:
+    sendThingPropertiesToCloud();
+  break;
+
+  case ArduinoIoTCloudProcessEvent::RequestlastValues:
+    requestLastValue();
+  break;
+
+  case ArduinoIoTCloudProcessEvent::Disconnect:
+    _state = State::Disconnect;
+  break;
+
+  default:
+  break;
+  }
+}
+
 void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(String const topic, PropertyContainer & container, unsigned int & current_property_index)
 {
   int bytes_encoded = 0;

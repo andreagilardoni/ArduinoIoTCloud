@@ -218,6 +218,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     static void onMessage(int length);
     void handleMessage(int length);
+    static void onDeliver(ArduinoIoTCloudProcessEvent id);
+    void sendMessage(ArduinoIoTCloudProcessEvent id);
+
     void sendPropertyContainerToCloud(String const topic, PropertyContainer & property_container, unsigned int & current_property_index);
     void sendThingPropertiesToCloud();
     void sendDevicePropertiesToCloud();
