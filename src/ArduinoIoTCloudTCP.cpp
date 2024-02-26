@@ -175,7 +175,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #ifdef BOARD_HAS_SECRET_KEY
   _mqttClient.setUsernamePassword(getDeviceId(), _password);
 #endif
-  _mqttClient.onMessage(ArduinoIoTCloudTCP::onMessage);
+  _mqttClient.onMessage(ArduinoIoTCloudTCP::onDownstreamMessage);
   _mqttClient.setKeepAliveInterval(30 * 1000);
   _mqttClient.setConnectionTimeout(1500);
   _mqttClient.setId(getDeviceId().c_str());
@@ -602,12 +602,12 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
   return State::ConnectPhy;
 }
 
-void ArduinoIoTCloudTCP::onMessage(int length)
+void ArduinoIoTCloudTCP::onDownstreamMessage(int length)
 {
-  ArduinoCloud.handleMessage(length);
+  ArduinoCloud.handleDownstreamMessage(length);
 }
 
-void ArduinoIoTCloudTCP::handleMessage(int length)
+void ArduinoIoTCloudTCP::handleDownstreamMessage(int length)
 {
   String topic = _mqttClient.messageTopic();
 
@@ -636,6 +636,32 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     _time_service.setTimeZoneData(_tz_offset, _tz_dst_until);
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     _state = State::Connected;
+  }
+}
+
+void ArduinoIoTCloudTCP::onUpstreamMessage(ArduinoIoTCloudProcess::Event id)
+{
+  ArduinoCloud.handleUpstreamMessage(id);
+}
+
+void ArduinoIoTCloudTCP::handleUpstreamMessage(ArduinoIoTCloudProcess::Event id)
+{
+  switch (id)
+  {
+  case Event::SendProperties:
+    sendThingPropertiesToCloud();
+  break;
+
+  case Event::RequestlastValues:
+    requestLastValue();
+  break;
+
+  case Event::Disconnect:
+    _state = State::Disconnect;
+  break;
+
+  default:
+  break;
   }
 }
 
