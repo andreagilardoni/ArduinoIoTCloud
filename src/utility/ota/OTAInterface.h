@@ -97,6 +97,7 @@ public:
     VerifyOTA,
     FlashOTA,
     Reboot,
+    Fail,
 
     // Error states that may generically happen on all board
     NoCapableBootloaderFail   = -1,
@@ -124,7 +125,7 @@ public:
     ErrorRenameFail           = -23,
   };
 
-  static constexpr char* const STATE_NAMES[];
+  static const char* const STATE_NAMES[];
 
   enum OtaFlags: uint16_t {
     None              = 0,

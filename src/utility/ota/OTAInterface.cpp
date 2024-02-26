@@ -32,8 +32,7 @@ static uint32_t crc_update(uint32_t crc, const void * data, size_t data_len);
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
-
-OTACloudProcessInterface::STATE_NAMES = {
+const char* const OTACloudProcessInterface::STATE_NAMES[] = { // used only for debug purposes
   "Resume",
   "Idle",
   "OtaAvailable",
@@ -42,9 +41,30 @@ OTACloudProcessInterface::STATE_NAMES = {
   "VerifyOTA",
   "FlashOTA",
   "Reboot",
-  "DownloadFail",
-  "CRCValidationFail",
-  "Fail"
+  "Fail",
+  "NoCapableBootloaderFail",
+  "NoOtaStorageFail",
+  "OtaStorageInitFail",
+  "OtaStorageOpenFail",
+  "OtaHeaderLengthFail",
+  "OtaHeaderCrcFail",
+  "OtaHeaterMagicNumberFail",
+  "ParseHttpHeaderFail",
+  "UrlParseErrorFail",
+  "ServerConnectErrorFail",
+  "HttpHeaderErrorFail",
+  "OtaDownloadFail",
+  "OtaHeaderTimeoutFail",
+  "HttpResponseFail",
+  "OtaStorageEndFail",
+  "StorageConfigFail",
+  "LibraryFail",
+  "ModemFail",
+  "ErrorOpenUpdateFileFail",
+  "ErrorWriteUpdateFileFail",
+  "ErrorReformatFail",
+  "ErrorUnmountFail",
+  "ErrorRenameFail",
 };
 
 OTACloudProcessInterface::OTACloudProcessInterface(MessageStream *ms, ConnectionHandler* connection_handler)
