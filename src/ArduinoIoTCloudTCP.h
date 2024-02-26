@@ -64,6 +64,7 @@ static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
  ******************************************************************************/
 
 typedef bool (*onOTARequestCallbackFunc)(void);
+typedef void (*onSendMessageUpstreamCallbackFunc)(ArduinoIoTCloudProcess::Event);
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -126,6 +127,7 @@ class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTClo
     virtual void printDebugInfo() override;
     virtual void push          () override;
 
+    void begin(onSendMessageUpstreamCallbackFunc cb);
     bool setTimestamp(String const & prop_name, unsigned long const timestamp);
 
   private:
@@ -137,6 +139,9 @@ class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTClo
       Connected,
       Disconnect,
     };
+
+    onSendMessageUpstreamCallbackFunc _send_message_upstream;
+    void sendMessageUpstream(ArduinoIoTCloudProcess::Event id);
 };
 
 
