@@ -304,7 +304,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     State handle_CheckDeviceConfig();
     State handle_SubscribeDeviceTopic();
     State handle_SubscribeThingTopics();
-    State handle_RequestLastValues();
     State handle_Connected();
     State handle_Disconnect();
 
