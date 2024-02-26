@@ -26,7 +26,6 @@
 #include <ArduinoIoTCloud.h>
 #include <ArduinoMqttClient.h>
 #include <ArduinoIoTCloudThing.h>
-#include <utility/time/TimedAttempt.h>
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
   #include <Arduino_SecureElement.h>
@@ -75,7 +74,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
              ArduinoIoTCloudTCP();
     virtual ~ArduinoIoTCloudTCP() { }
-
 
     virtual void update        () override;
     virtual int  connected     () override;
@@ -136,10 +134,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _device_id;
     String _thing_id;
     Property * _thing_id_property;
-    int _tz_offset;
-    Property * _tz_offset_property;
-    unsigned int _tz_dst_until;
-    Property * _tz_dst_until_property;
 
     ArduinoIoTCloudThing _thing;
     ArduinoIoTCloudPropertiesClass _device;

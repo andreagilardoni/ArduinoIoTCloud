@@ -24,6 +24,7 @@
 
 #include <interfaces/CloudProcess.h>
 #include <ArduinoIoTCloudProperties.h>
+#include <utility/time/TimedAttempt.h>
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -33,20 +34,33 @@ class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTClo
 {
   public:
 
+             ArduinoIoTCloudThing();
+    virtual ~ArduinoIoTCloudThing() { }
+
     virtual void begin(deliverCallbackFunc cb) override;
     virtual void update() override;
-    virtual int connected() override;
+    virtual int  connected() override;
     virtual void handleMessage(ArduinoIoTCloudProcessEvent ev, char* msg) override;
 
   private:
 
     enum class State
     {
-      SubscribeThingTopics,
-      RequestLastValues,
-      Connected,
-      Disconnect,
+      RequestLastValues, //Init
+      Connected,         //Connected
+      Disconnect,        //Error
     };
+
+    State _state;
+    TimedAttempt _connection_attempt;
+    int _tz_offset;
+    Property * _tz_offset_property;
+    unsigned int _tz_dst_until;
+    Property * _tz_dst_until_property;
+
+    State handle_RequestLastValues();
+    State handle_Connected();
+    State handle_Disconnect();
 };
 
 #endif /* ARDUINO_IOT_CLOUD_THING_H */

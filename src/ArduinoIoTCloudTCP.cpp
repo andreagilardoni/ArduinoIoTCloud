@@ -63,10 +63,6 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _device_id{""}
 , _thing_id{""}
 , _thing_id_property{nullptr}
-, _tz_offset{0}
-, _tz_offset_property{nullptr}
-, _tz_dst_until{0}
-, _tz_dst_until_property{nullptr}
 , _connection_attempt(0,0)
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
@@ -215,10 +211,8 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif /* OTA_ENABLED */
   p = new CloudWrapperString(_thing_id);
   _thing_id_property = &addPropertyToContainer(_device.getPropertyContainer(), *p, "thing_id", Permission::ReadWrite, -1).writeOnDemand();
-  p = new CloudWrapperInt(_tz_offset);
-  _tz_offset_property = &addPropertyToContainer(_thing.getPropertyContainer(), *p, "tz_offset", Permission::ReadWrite, -1).writeOnDemand();
-  p = new CloudWrapperUnsignedInt(_tz_dst_until);
-  _tz_dst_until_property = &addPropertyToContainer(_thing.getPropertyContainer(), *p, "tz_dst_until", Permission::ReadWrite, -1).writeOnDemand();
+
+  _thing.begin(onDeliver);
 
 #if OTA_ENABLED
   _ota_cap = OTA::isCapable();
@@ -481,7 +475,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
 
   /* Successfully subscribed to thing topics, reconfigure timers for next state and go on */
   _connection_attempt.begin(AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms);
-  return State::RequestLastValues;
+  return State::Connected;
 }
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
@@ -521,19 +515,12 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
   /* We are connected so let's to our stuff here. */
   else
   {
+    _thing.update();
+
     if (_thing_id_property->isDifferentFromCloud())
     {
       return State::Disconnect;
     }
-
-    /* Check if a primitive property wrapper is locally changed.
-    * This function requires an existing time service which in
-    * turn requires an established connection. Not having that
-    * leads to a wrong time set in the time service which inhibits
-    * the connection from being established due to a wrong data
-    * in the reconstructed certificate.
-    */
-    updateTimestampOnLocallyChangedProperties(_thing.getPropertyContainer());
 
     /* Retransmit data in case there was a lost transaction due
     * to phy layer or MQTT connectivity loss.
@@ -543,27 +530,8 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
       _mqtt_data_request_retransmit = false;
     }
 
-    /* Configure Time service with timezone data:
-    * _tz_offset [offset + dst]
-    * _tz_dst_until [posix timestamp until _tz_offset is valid]
-    */
-    if (_tz_offset_property->isDifferentFromCloud() || _tz_dst_until_property->isDifferentFromCloud()) {
-      _tz_offset_property->fromCloudToLocal();
-      _tz_dst_until_property->fromCloudToLocal();
-      _time_service.setTimeZoneData(_tz_offset, _tz_dst_until);
-    }
+    return State::Connected;
 
-    /* Check if any properties need encoding and send them to
-    * the cloud if necessary.
-    */
-    sendThingPropertiesToCloud();
-
-    unsigned long const internal_posix_time = _time_service.getTime();
-    if (internal_posix_time < _tz_dst_until) {
-      return State::Connected;
-    } else {
-      return State::RequestLastValues;
-    }
   }
 }
 
@@ -647,7 +615,6 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
     CBORDecoder::decode(_thing.getPropertyContainer(), (uint8_t*)bytes, length, true);
-    _time_service.setTimeZoneData(_tz_offset, _tz_dst_until);
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     _state = State::Connected;
   }
