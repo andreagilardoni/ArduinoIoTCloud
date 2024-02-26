@@ -124,6 +124,9 @@ class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTClo
 {
   public:
 
+             ArduinoIoTCloudThing();
+    virtual ~ArduinoIoTCloudThing() { }
+
     virtual void update        () override;
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
@@ -132,18 +135,29 @@ class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTClo
     void begin(onSendMessageUpstreamCallbackFunc cb);
     bool setTimestamp(String const & prop_name, unsigned long const timestamp);
 
+    int _tz_offset;
+    Property * _tz_offset_property;
+    unsigned int _tz_dst_until;
+    Property * _tz_dst_until_property;
+
   private:
 
     enum class State
     {
-      SubscribeThingTopics,
-      RequestLastValues,
-      Connected,
-      Disconnect,
+      RequestLastValues, //Init
+      Connected,         //Connected
+      Disconnect,        //Error
     };
+
+    State _state;
+    TimedAttempt _connection_attempt;
 
     onSendMessageUpstreamCallbackFunc _send_message_upstream;
     void sendMessageUpstream(ArduinoIoTCloudProcess::Event id);
+
+    State handle_RequestLastValues();
+    State handle_Connected();
+    State handle_Disconnect();
 };
 
 
@@ -219,10 +233,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _device_id;
     String _thing_id;
     Property * _thing_id_property;
-    int _tz_offset;
-    Property * _tz_offset_property;
-    unsigned int _tz_dst_until;
-    Property * _tz_dst_until_property;
 
     TimedAttempt _connection_attempt;
     String _brokerAddress;
