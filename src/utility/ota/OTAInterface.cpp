@@ -129,7 +129,7 @@ State OTACloudProcessInterface::otaAvailable() {
   if(policies & (ApprovalRequired | Approved) == ApprovalRequired ) {
     return OtaAvailable;
   } else {
-    policies &= ~Confirmation;
+    policies &= ~Approved;
     return StartOTA;
   } // TODO add an abortOTA command? in this case delete the context
 }

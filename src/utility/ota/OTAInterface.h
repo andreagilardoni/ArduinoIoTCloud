@@ -138,7 +138,7 @@ public:
   // virtual void hook(State s, void* action);
   virtual void update() { handleMessage(nullptr); }
 
-  inline void approveOta() { policies |= Confirmation; }
+  inline void approveOta() { policies |= Approved; }
 
   inline virtual void setConnectionHandler(ConnectionHandler* c) { connection_handler = c; }
 protected:
@@ -181,7 +181,7 @@ protected:
   // This method will be overridden by the actual board implementation
   virtual int writeFlash(uint8_t* const buffer, size_t len) = 0;
 
-  OtaPolicies policies; // TODO getter and setters for this
+  uint16_t policies; // TODO getter and setters for this
 
   inline void updateState(State s) { if(state!=s) { sprevious_state = state; state = s; } }
 
