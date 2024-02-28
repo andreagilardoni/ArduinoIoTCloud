@@ -68,7 +68,7 @@ void ArduinoIoTCloudThing::update()
 
 int ArduinoIoTCloudThing::connected()
 {
-
+  return _state == State::Connected ? 1 : 0;
 }
 
 void ArduinoIoTCloudThing::handleMessage(ArduinoIoTCloudProcessEvent ev, char* msg)
