@@ -130,6 +130,20 @@ int ArduinoIoTCloudDevice::sendMessageDownstream(ArduinoIoTCloudProcess::Event e
     case Event::Disconnect:
     _state = State::Disconnect;
     break;
+
+    case Event::SendCapabilities:
+    case Event::GetThingId:
+    case Event::AttachThing:
+    case Event::RequestlastValues:
+    case Event::LastValues:
+    case Event::SendProperties:
+    case Event::OtaUrl:
+    case Event::OtaReq:
+    case Event::OtaConfirm:
+    case Event::OtaStart:
+    case Event::OtaError:
+    default:
+    break;
   }
 }
 
