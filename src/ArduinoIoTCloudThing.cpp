@@ -49,6 +49,8 @@ void ArduinoIoTCloudThing::begin(deliverCallbackFunc cb)
   _tz_offset_property = &addPropertyToContainer(getPropertyContainer(), *p, "tz_offset", Permission::ReadWrite, -1).writeOnDemand();
   p = new CloudWrapperUnsignedInt(_tz_dst_until);
   _tz_dst_until_property = &addPropertyToContainer(getPropertyContainer(), *p, "tz_dst_until", Permission::ReadWrite, -1).writeOnDemand();
+
+  _connection_attempt.begin(AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms);
 }
 
 void ArduinoIoTCloudThing::update()
