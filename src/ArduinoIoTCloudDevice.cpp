@@ -194,6 +194,7 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_AttachThing()
 
 ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Connected()
 {
+#if OTA_ENABLED
   /* Check if we have received the OTA_URL property and provide
   * echo to the cloud.
   */
@@ -223,6 +224,7 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Connected()
       _deliver(ArduinoIoTCloudProcessEvent::OtaError);
     }
   }
+#endif
 
   return State::Connected;
 }
