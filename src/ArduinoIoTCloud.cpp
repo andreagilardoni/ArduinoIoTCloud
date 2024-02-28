@@ -30,7 +30,6 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass()
 , _time_service(TimeService)
 , _lib_version{AIOT_CONFIG_LIB_VERSION}
 , _cloud_event_callback{nullptr}
-, _thing_id_outdated{false}
 {
 
 }
