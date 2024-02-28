@@ -97,7 +97,7 @@ void ArduinoIoTCloudDevice::handleMessage(ArduinoIoTCloudProcessEvent ev, char* 
 
   if (msg != nullptr)
   {
-    message = String((char*)msg);
+    message = String(msg);
   }
 
   switch (ev)
