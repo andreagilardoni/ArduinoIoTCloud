@@ -103,7 +103,39 @@ int ArduinoIoTCloudThing::sendMessageUpstream(ArduinoIoTCloudProcess::Event id)
 
 int ArduinoIoTCloudThing::sendMessageDownstream(ArduinoIoTCloudProcess::Event ev, const char * data)
 {
+  String message = "";
 
+  if (data != nullptr)
+  {
+    message = String(data);
+  }
+
+  switch (ev)
+  {
+    /* We have received last values */
+    case Event::LastValues:
+    _state = State::Connected;
+    break;
+
+    /* We have received a reset command */
+    case Event::Disconnect:
+    _state = State::Disconnect;
+    break;
+
+    case Event::SendCapabilities:
+    case Event::GetThingId:
+    case Event::ThingId:
+    case Event::AttachThing:
+    case Event::RequestlastValues:
+    case Event::SendProperties:
+    case Event::OtaUrl:
+    case Event::OtaReq:
+    case Event::OtaConfirm:
+    case Event::OtaStart:
+    case Event::OtaError:
+    default:
+    break;
+  }
 }
 
 ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_RequestLastValues()
