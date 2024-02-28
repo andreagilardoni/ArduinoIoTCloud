@@ -76,9 +76,22 @@ class ArduinoIoTCloudProcess
 
     enum class Event
     {
-      RequestlastValues,
+      /* Device Events */
+      SendCapabilities,
+      GetThingId,
+      AttachThing,
+
+      /* Thing Events */
+      RequestlastValues = 256,
       SendProperties,
-      Disconnect
+      Disconnect,
+
+      /* Ota Events */
+      OtaUrl = 512,
+      OtaReq,
+      OtaConfirm,
+      OtaStart,
+      OtaError
     };
 
 };
