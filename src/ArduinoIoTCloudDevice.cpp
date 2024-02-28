@@ -113,6 +113,16 @@ void ArduinoIoTCloudDevice::handleMessage(ArduinoIoTCloudProcessEvent ev, char* 
     _state = State::Disconnect;
     break;
 
+    case ArduinoIoTCloudProcessEvent::SendCapabilities:
+    case ArduinoIoTCloudProcessEvent::GetThingId:
+    case ArduinoIoTCloudProcessEvent::RequestlastValues:
+    case ArduinoIoTCloudProcessEvent::LastValues:
+    case ArduinoIoTCloudProcessEvent::SendProperties:
+    case ArduinoIoTCloudProcessEvent::OtaUrl:
+    case ArduinoIoTCloudProcessEvent::OtaReq:
+    case ArduinoIoTCloudProcessEvent::OtaConfirm:
+    case ArduinoIoTCloudProcessEvent::OtaStart:
+    case ArduinoIoTCloudProcessEvent::OtaError:
     default:
     break;
   }
