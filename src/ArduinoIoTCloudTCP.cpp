@@ -626,6 +626,7 @@ void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(String const topic, Proper
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
 
   if (CBOREncoder::encode(container, data, sizeof(data), bytes_encoded, current_property_index, false) == CborNoError)
+  {
     if (bytes_encoded > 0)
     {
       /* If properties have been encoded store them in the back-up buffer
@@ -636,6 +637,7 @@ void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(String const topic, Proper
       /* Transmit the properties to the MQTT broker */
       write(topic, _mqtt_data_buf, _mqtt_data_len);
     }
+  }
 }
 
 void ArduinoIoTCloudTCP::sendThingPropertiesToCloud()
