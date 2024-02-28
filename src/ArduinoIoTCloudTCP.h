@@ -102,22 +102,50 @@ class ArduinoIoTCloudDevice: public ArduinoIoTCloudProcess, public ArduinoIoTClo
 {
   public:
 
+             ArduinoIoTCloudDevice();
+    virtual ~ArduinoIoTCloudDevice() { }
+
     virtual void update        () override;
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
     virtual void push          () override;
 
+    void begin(onSendMessageUpstreamCallbackFunc cb);
+    int sendMessageDownstream(int id, uint8_t* data);
+
   private:
 
     enum class State
     {
-      SendDeviceProperties,
-      SubscribeDeviceTopic,
+      SendCapabilities,
+      RequestThingId,
+      ProcessThingId,
+      AttachThing,
       Connected,
       Disconnect,
     };
 
     State _state;
+    TimedAttempt _connection_attempt;
+    String _thing_id;
+
+    onSendMessageUpstreamCallbackFunc _send_message_upstream;
+    int sendMessageUpstream(ArduinoIoTCloudProcess::Event id);
+
+    State handle_SendCapabilities();
+    State handle_RequestThingId();
+    State handle_ProcessThingId();
+    State handle_AttachThing();
+    State handle_Connected();
+    State handle_Disconnect();
+
+#if OTA_ENABLED
+    bool _ota_cap;
+    int _ota_error;
+    String _ota_img_sha256;
+    String _ota_url;
+    bool _ota_req;
+#endif
 };
 
 class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTCloudPropertiesClass
