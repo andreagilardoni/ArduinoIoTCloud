@@ -247,11 +247,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
       ConnectPhy,
       SyncTime,
       ConnectMqttBroker,
-      SendDeviceProperties,
-      SubscribeDeviceTopic,
-      CheckDeviceConfig,
-      SubscribeThingTopics,
-      RequestLastValues,
       Connected,
       Disconnect,
     };
@@ -307,14 +302,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _dataTopicIn;
 
     ArduinoIoTCloudThing _thing;
-    ArduinoIoTCloudPropertiesClass _device;
+    ArduinoIoTCloudDevice _device;
 
 #if OTA_ENABLED
-    bool _ota_cap;
-    int _ota_error;
-    String _ota_img_sha256;
-    String _ota_url;
-    bool _ota_req;
     bool _ask_user_before_executing_ota;
     onOTARequestCallbackFunc _get_ota_confirmation;
 #endif /* OTA_ENABLED */
@@ -329,10 +319,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     State handle_ConnectPhy();
     State handle_SyncTime();
     State handle_ConnectMqttBroker();
-    State handle_SendDeviceProperties();
-    State handle_CheckDeviceConfig();
-    State handle_SubscribeDeviceTopic();
-    State handle_SubscribeThingTopics();
     State handle_Connected();
     State handle_Disconnect();
 
@@ -353,7 +339,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     void sendDevicePropertyToCloud(String const name);
 #endif
 
-    void updateThingTopics();
 };
 
 /******************************************************************************
