@@ -318,10 +318,10 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 
   _device.update();
 
-  //if(_device.thingAttached())
-  //{
-  //  _thing.update();
-  //}
+  if(_device.attached())
+  {
+    _thing.update();
+  }
 
   /* Retransmit data in case there was a lost transaction due
   * to phy layer or MQTT connectivity loss.
