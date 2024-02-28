@@ -35,6 +35,7 @@
 : _state{State::SendCapabilities}
 , _connection_attempt(0,0)
 , _thing_id{"."}
+, _attached{false}
 #if OTA_ENABLED
 , _ota_cap{false}
 , _ota_error{static_cast<int>(OTAError::None)}
@@ -218,6 +219,7 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_AttachThing()
 
   _connection_attempt.retry();
 
+  _attached = false;
   if (!sendMessageUpstream(Event::AttachThing))
   {
     DEBUG_ERROR("CloudDevice::%s could not attach to Thing", __FUNCTION__);
@@ -226,6 +228,7 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_AttachThing()
   }
 
   DEBUG_VERBOSE("CloudDevice::%s device attached to a new valid thing_id %s %d", __FUNCTION__, _thing_id.c_str(), getTime());
+  _attached = true;
 
   _connection_attempt.begin(AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms, AIOT_CONFIG_MAX_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms);
   return State::Connected;
@@ -277,6 +280,8 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Disconnect()
 
   /* Reset thing id*/
   _thing_id = "";
+
+  _attached = false;
 
   return State::SendCapabilities;
 }

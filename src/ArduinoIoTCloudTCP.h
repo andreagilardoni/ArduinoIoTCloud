@@ -112,6 +112,7 @@ class ArduinoIoTCloudDevice: public ArduinoIoTCloudProcess, public ArduinoIoTClo
 
     void begin(onSendMessageUpstreamCallbackFunc cb);
     int sendMessageDownstream(ArduinoIoTCloudProcess::Event ev, const char* data = nullptr);
+    inline bool attached() { return _attached; };
 
   private:
 
@@ -128,6 +129,7 @@ class ArduinoIoTCloudDevice: public ArduinoIoTCloudProcess, public ArduinoIoTClo
     State _state;
     TimedAttempt _connection_attempt;
     String _thing_id;
+    bool _attached;
 
     onSendMessageUpstreamCallbackFunc _send_message_upstream;
     int sendMessageUpstream(ArduinoIoTCloudProcess::Event id);
