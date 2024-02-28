@@ -673,8 +673,45 @@ void ArduinoIoTCloudTCP::requestLastValue()
   // Send the getLastValues CBOR message to the cloud
   // [{0: "r:m", 3: "getLastValues"}] = 81 A2 00 63 72 3A 6D 03 6D 67 65 74 4C 61 73 74 56 61 6C 75 65 73
   // Use http://cbor.me to easily generate CBOR encoding
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s at time [%d]", __FUNCTION__, getTime());
   const uint8_t CBOR_REQUEST_LAST_VALUE_MSG[] = { 0x81, 0xA2, 0x00, 0x63, 0x72, 0x3A, 0x6D, 0x03, 0x6D, 0x67, 0x65, 0x74, 0x4C, 0x61, 0x73, 0x74, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x73 };
   write(_shadowTopicOut, CBOR_REQUEST_LAST_VALUE_MSG, sizeof(CBOR_REQUEST_LAST_VALUE_MSG));
+}
+
+void ArduinoIoTCloudTCP::requestThingId()
+{
+  if (!_mqttClient.subscribe(_deviceTopicIn))
+  {
+    /* If device_id is wrong the board can't connect to the broker so this condition
+    * should never happen.
+    */
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _deviceTopicIn.c_str());
+  }
+}
+
+void ArduinoIoTCloudTCP::attachThing()
+{
+  _dataTopicIn    = getTopic_datain();
+  _dataTopicOut   = getTopic_dataout();
+  if (!_mqttClient.subscribe(_dataTopicIn))
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _dataTopicIn.c_str());
+    DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
+    return;
+  }
+
+  _shadowTopicIn  = getTopic_shadowin();
+  _shadowTopicOut = getTopic_shadowout();
+  if (!_mqttClient.subscribe(_shadowTopicIn))
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _shadowTopicIn.c_str());
+    DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
+    return;
+  }
+
+  DEBUG_INFO("Connected to Arduino IoT Cloud");
+  DEBUG_INFO("Thing ID: %s", getThingId().c_str());
+  execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
 }
 
 int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const length)
