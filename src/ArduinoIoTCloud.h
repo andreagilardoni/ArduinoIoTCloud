@@ -128,7 +128,6 @@ class ArduinoIoTCloudClass: public ArduinoIoTCloudProcess
   private:
 
     OnCloudEventCallback _cloud_event_callback[3];
-    bool _thing_id_outdated;
 };
 
 #ifdef HAS_TCP
