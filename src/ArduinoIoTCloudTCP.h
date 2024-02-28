@@ -64,7 +64,7 @@ static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
  ******************************************************************************/
 
 typedef bool (*onOTARequestCallbackFunc)(void);
-typedef void (*onSendMessageUpstreamCallbackFunc)(ArduinoIoTCloudProcess::Event);
+typedef int (*onSendMessageUpstreamCallbackFunc)(ArduinoIoTCloudProcess::Event);
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -153,7 +153,7 @@ class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTClo
     TimedAttempt _connection_attempt;
 
     onSendMessageUpstreamCallbackFunc _send_message_upstream;
-    void sendMessageUpstream(ArduinoIoTCloudProcess::Event id);
+    int sendMessageUpstream(ArduinoIoTCloudProcess::Event id);
 
     State handle_RequestLastValues();
     State handle_Connected();
@@ -309,8 +309,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     static void onDownstreamMessage(int length);
     void handleDownstreamMessage(int length);
-    static void onUpstreamMessage(ArduinoIoTCloudProcess::Event id);
-    void handleUpstreamMessage(ArduinoIoTCloudProcess::Event id);
+    static int onUpstreamMessage(ArduinoIoTCloudProcess::Event id);
+    int handleUpstreamMessage(ArduinoIoTCloudProcess::Event id);
 
     void sendPropertyContainerToCloud(String const topic, PropertyContainer & property_container, unsigned int & current_property_index);
     void sendThingPropertiesToCloud();

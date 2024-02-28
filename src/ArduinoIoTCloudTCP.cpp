@@ -579,13 +579,14 @@ void ArduinoIoTCloudTCP::handleDownstreamMessage(int length)
   }
 }
 
-void ArduinoIoTCloudTCP::onUpstreamMessage(ArduinoIoTCloudProcess::Event id)
+int ArduinoIoTCloudTCP::onUpstreamMessage(ArduinoIoTCloudProcess::Event id)
 {
-  ArduinoCloud.handleUpstreamMessage(id);
+  return ArduinoCloud.handleUpstreamMessage(id);
 }
 
-void ArduinoIoTCloudTCP::handleUpstreamMessage(ArduinoIoTCloudProcess::Event id)
+int ArduinoIoTCloudTCP::handleUpstreamMessage(ArduinoIoTCloudProcess::Event id)
 {
+  int ret = 1;
   switch (id)
   {
   case Event::SendProperties:
@@ -603,6 +604,8 @@ void ArduinoIoTCloudTCP::handleUpstreamMessage(ArduinoIoTCloudProcess::Event id)
   default:
   break;
   }
+
+  return ret;
 }
 
 void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(String const topic, PropertyContainer & container, unsigned int & current_property_index)

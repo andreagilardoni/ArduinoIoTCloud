@@ -89,11 +89,11 @@ bool ArduinoIoTCloudThing::setTimestamp(String const & prop_name, unsigned long 
   return true;
 }
 
-void ArduinoIoTCloudThing::sendMessageUpstream(ArduinoIoTCloudProcess::Event id)
+int ArduinoIoTCloudThing::sendMessageUpstream(ArduinoIoTCloudProcess::Event id)
 {
   if (_send_message_upstream)
   {
-    _send_message_upstream(id);
+    return _send_message_upstream(id);
   }
 }
 
