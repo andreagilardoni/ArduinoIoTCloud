@@ -34,6 +34,7 @@
  ArduinoIoTCloudDevice::ArduinoIoTCloudDevice()
 : _state{State::SendCapabilities}
 , _connection_attempt(0,0)
+, _thing_id{"."}
 #if OTA_ENABLED
 , _ota_cap{false}
 , _ota_error{static_cast<int>(OTAError::None)}
