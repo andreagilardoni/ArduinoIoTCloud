@@ -42,6 +42,8 @@ class ArduinoIoTCloudDevice: public ArduinoIoTCloudProcess, public ArduinoIoTClo
     virtual int  connected() override;
     virtual void handleMessage(ArduinoIoTCloudProcessEvent ev, char* msg) override;
 
+    inline bool attached() { return _attached; };
+
   private:
 
     enum class State
@@ -57,6 +59,7 @@ class ArduinoIoTCloudDevice: public ArduinoIoTCloudProcess, public ArduinoIoTClo
     State _state;
     TimedAttempt _connection_attempt;
     String _thing_id;
+    bool _attached;
 
 #if OTA_ENABLED
     bool _ota_cap;
