@@ -161,17 +161,17 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_RequestThingId()
   if (_connection_attempt.isRetry())
   {
     /* Configuration not received or device not attached to a valid thing. Try to resubscribe */
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s device waiting for valid thing_id %d", __FUNCTION__, getTime());
+    DEBUG_ERROR("CloudDevice::%s device waiting for valid thing_id %d", __FUNCTION__, getTime());
   }
 
-  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s request device configuration %d", __FUNCTION__, getTime());
+  DEBUG_VERBOSE("CloudDevice::%s request device configuration %d", __FUNCTION__, getTime());
 
   if (!sendMessageUpstream(Event::GetThingId))
   {
     /* If device_id is wrong the board can't connect to the broker so this condition
     * should never happen.
     */
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not handle Thing_id request", __FUNCTION__);
+    DEBUG_ERROR("CloudDevice::%s could not handle Thing_id request", __FUNCTION__);
   }
 
   /* Max retry than disconnect */
@@ -182,7 +182,7 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_RequestThingId()
 
   /* No device configuration received. Wait: 4s -> 8s -> 16s -> 32s -> 32s ...*/
   unsigned long subscribe_retry_delay = _connection_attempt.retry();
-  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s %d next configuration request in %d ms", __FUNCTION__, _connection_attempt.getRetryCount(), subscribe_retry_delay);
+  DEBUG_VERBOSE("CloudDevice::%s %d next configuration request in %d ms", __FUNCTION__, _connection_attempt.getRetryCount(), subscribe_retry_delay);
 
   return State::RequestThingId;
 }
@@ -196,7 +196,7 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_ProcessThingId()
     * Device not attached. Wait: 40s -> 80s -> 160s -> 320s -> 640s -> 1280s -> 1280s ...
     */
     unsigned long attach_retry_delay = _connection_attempt.reconfigure(AIOT_CONFIG_DEVICE_TOPIC_ATTACH_RETRY_DELAY_ms, AIOT_CONFIG_MAX_DEVICE_TOPIC_ATTACH_RETRY_DELAY_ms);
-    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s device not attached, next configuration request in %d ms", __FUNCTION__, attach_retry_delay);
+    DEBUG_VERBOSE("CloudDevice::%s device not attached, next configuration request in %d ms", __FUNCTION__, attach_retry_delay);
     return State::RequestThingId;
   }
 
@@ -219,12 +219,12 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_AttachThing()
 
   if (!sendMessageUpstream(Event::AttachThing))
   {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not attach to Thing", __FUNCTION__);
+    DEBUG_ERROR("CloudDevice::%s could not attach to Thing", __FUNCTION__);
     DEBUG_ERROR("Check your Thing configuration, and press the reset button on your board.");
     return State::AttachThing;
   }
 
-  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s device attached to a new valid thing_id %s %d", __FUNCTION__, _thing_id.c_str(), getTime());
+  DEBUG_VERBOSE("CloudDevice::%s device attached to a new valid thing_id %s %d", __FUNCTION__, _thing_id.c_str(), getTime());
 
   _connection_attempt.begin(AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms, AIOT_CONFIG_MAX_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms);
   return State::Connected;
