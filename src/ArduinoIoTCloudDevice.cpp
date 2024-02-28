@@ -19,6 +19,10 @@
  * INCLUDE
  ******************************************************************************/
 
+#include <AIoTC_Config.h>
+
+#ifdef HAS_TCP
+
 #include <ArduinoIoTCloudTCP.h>
 #if OTA_ENABLED
 #include <utility/ota/OTA.h>
@@ -261,3 +265,5 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Disconnect()
 
   return State::SendCapabilities;
 }
+
+#endif
