@@ -345,8 +345,8 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
     _mqttClient.stop();
   }
 
-  _device.sendMessageDownstream(1, nullptr);
-  _thing.sendMessageDownstream(1, nullptr);
+  _device.sendMessageDownstream(Event::Disconnect);
+  _thing.sendMessageDownstream(Event::Disconnect);
   DEBUG_INFO("Disconnected from Arduino IoT Cloud");
   execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
 
@@ -377,7 +377,7 @@ void ArduinoIoTCloudTCP::handleDownstreamMessage(int length)
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] device configuration received", __FUNCTION__, millis());
     if (_thing_id_property->isDifferentFromCloud()) {
       _thing_id_property->fromCloudToLocal();
-      _device.sendMessageDownstream(0, (uint8_t*)_thing_id.c_str());
+      _device.sendMessageDownstream(Event::ThingId, _thing_id.c_str());
     }
   }
 
@@ -393,7 +393,7 @@ void ArduinoIoTCloudTCP::handleDownstreamMessage(int length)
     _time_service.setTimeZoneData(_thing._tz_offset, _thing._tz_dst_until);
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     /* Unlock thing state machine waiting last values */
-    _thing.sendMessageDownstream(0, nullptr);
+    _thing.sendMessageDownstream(Event::LastValues);
   }
 }
 

@@ -97,7 +97,7 @@ int ArduinoIoTCloudThing::sendMessageUpstream(ArduinoIoTCloudProcess::Event id)
   }
 }
 
-int ArduinoIoTCloudThing::sendMessageDownstream(int id, uint8_t * data)
+int ArduinoIoTCloudThing::sendMessageDownstream(ArduinoIoTCloudProcess::Event ev, const char * data)
 {
 
 }

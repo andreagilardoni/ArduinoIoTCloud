@@ -105,7 +105,7 @@ int ArduinoIoTCloudDevice::sendMessageUpstream(ArduinoIoTCloudProcess::Event id)
   }
 }
 
-int ArduinoIoTCloudDevice::sendMessageDownstream(int id, uint8_t * data)
+int ArduinoIoTCloudDevice::sendMessageDownstream(ArduinoIoTCloudProcess::Event ev, const char * data)
 {
   String message = "";
 
@@ -114,16 +114,16 @@ int ArduinoIoTCloudDevice::sendMessageDownstream(int id, uint8_t * data)
     message = String((char*)data);
   }
 
-  switch (id)
+  switch (ev)
   {
     /* We have received a new thing id message */
-    case 0:
+    case Event::ThingId:
     _thing_id = message;
     _state = State::ProcessThingId;
     break;
 
     /* We have received a reset command */
-    case 1:
+    case Event::Disconnect:
     _state = State::Disconnect;
     break;
   }

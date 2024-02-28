@@ -111,7 +111,7 @@ class ArduinoIoTCloudDevice: public ArduinoIoTCloudProcess, public ArduinoIoTClo
     virtual void push          () override;
 
     void begin(onSendMessageUpstreamCallbackFunc cb);
-    int sendMessageDownstream(int id, uint8_t* data);
+    int sendMessageDownstream(ArduinoIoTCloudProcess::Event ev, const char* data = nullptr);
 
   private:
 
@@ -162,7 +162,7 @@ class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTClo
 
     void begin(onSendMessageUpstreamCallbackFunc cb);
     bool setTimestamp(String const & prop_name, unsigned long const timestamp);
-    int sendMessageDownstream(int id, uint8_t* data);
+    int sendMessageDownstream(ArduinoIoTCloudProcess::Event ev, const char* data = nullptr);
 
     int _tz_offset;
     Property * _tz_offset_property;
