@@ -97,6 +97,11 @@ int ArduinoIoTCloudThing::sendMessageUpstream(ArduinoIoTCloudProcess::Event id)
   }
 }
 
+int ArduinoIoTCloudThing::sendMessageDownstream(int id, uint8_t * data)
+{
+
+}
+
 ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_RequestLastValues()
 {
   /* Check whether or not we need to send a new request. */

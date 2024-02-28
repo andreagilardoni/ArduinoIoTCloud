@@ -134,6 +134,7 @@ class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTClo
 
     void begin(onSendMessageUpstreamCallbackFunc cb);
     bool setTimestamp(String const & prop_name, unsigned long const timestamp);
+    int sendMessageDownstream(int id, uint8_t* data);
 
     int _tz_offset;
     Property * _tz_offset_property;
