@@ -17,10 +17,23 @@
 
 enum class ArduinoIoTCloudProcessEvent
 {
-  RequestlastValues,
+  /* Device Events */
+  SendCapabilities,
+  GetThingId,
+  AttachThing,
+
+  /* Thing Events */
+  RequestlastValues = 256,
   LastValues,
   SendProperties,
-  Disconnect
+  Disconnect,
+
+  /* Ota Events */
+  OtaUrl = 512,
+  OtaReq,
+  OtaConfirm,
+  OtaStart,
+  OtaError
 };
 
 typedef void (*deliverCallbackFunc)(ArduinoIoTCloudProcessEvent);
