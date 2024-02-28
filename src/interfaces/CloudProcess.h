@@ -34,8 +34,9 @@ class ArduinoIoTCloudProcess
   public:
 
     virtual void begin(deliverCallbackFunc cb) = 0;
-    virtual void update()                      = 0;
-    virtual int  connected()                   = 0;
+    virtual void update() = 0;
+    virtual int  connected() = 0;
+    virtual void handleMessage(ArduinoIoTCloudProcessEvent ev, char* msg) = 0;
 
   protected:
 
