@@ -19,6 +19,10 @@
  * INCLUDE
  ******************************************************************************/
 
+#include <AIoTC_Config.h>
+
+#ifdef HAS_TCP
+
 #include <ArduinoIoTCloudTCP.h>
 
 /******************************************************************************
@@ -172,3 +176,5 @@ ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_Disconnect()
 
   return State::RequestLastValues;
 }
+
+#endif
