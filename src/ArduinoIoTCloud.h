@@ -79,19 +79,24 @@ class ArduinoIoTCloudProcess
       /* Device Events */
       SendCapabilities,
       GetThingId,
+      ThingId,
       AttachThing,
 
       /* Thing Events */
       RequestlastValues = 256,
+      LastValues,
       SendProperties,
-      Disconnect,
 
       /* Ota Events */
       OtaUrl = 512,
       OtaReq,
       OtaConfirm,
       OtaStart,
-      OtaError
+      OtaError,
+
+      /* Generic Events */
+      Disconnect
+
     };
 
 };
