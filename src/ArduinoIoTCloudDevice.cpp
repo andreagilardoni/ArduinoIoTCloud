@@ -115,7 +115,7 @@ int ArduinoIoTCloudDevice::sendMessageDownstream(ArduinoIoTCloudProcess::Event e
 
   if (data != nullptr)
   {
-    message = String((char*)data);
+    message = String(data);
   }
 
   switch (ev)
