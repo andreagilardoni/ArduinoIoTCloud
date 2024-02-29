@@ -95,11 +95,11 @@ public:
 
   enum State: int16_t {
     Resume,
+    OtaBegin,
     Idle,
     OtaAvailable,
     StartOTA,
     Fetch,
-    VerifyOTA,
     FlashOTA,
     Reboot,
     Fail,
@@ -153,6 +153,10 @@ protected:
   // the objective is to understand the result and report it to the cloud
   virtual State resume(Message* msg=nullptr) = 0;
 
+  // This state is used to send to the cloud the initial information on the fw present on the mcu
+  // this state will only send the sha256 of the board fw and go into Idle state
+  virtual State otaBegin();
+
   // this state is the normal state where no action has to be performed. We may poll the cloud
   // for updates in this state
   virtual State idle(Message* msg=nullptr);
@@ -190,9 +194,9 @@ protected:
 
   inline void updateState(State s) {
     if(state!=s) {
-      DEBUG_VERBOSE("OTAInterface: state change to %s from %s",
-        STATE_NAMES[s],
-        STATE_NAMES[state]);
+      DEBUG_INFO("OTAInterface: state change to %s from %s",
+        STATE_NAMES[s < 0? Fail - s : s],
+        STATE_NAMES[state < 0? Fail - state : state]);
       previous_state = state; state = s;
     }
   }
@@ -214,6 +218,7 @@ private:
     OtaDownloadHeader,
     OtaDownloadFile,
     OtaDownloadCompleted,
+    OtaDownloadMagicNumberMismatch,
     OtaDownloadError
   };
 

@@ -26,18 +26,19 @@
 #include "OTA.h"
 #include "URLParser.h"
 
+#ifndef ARDUINO_ARCH_ESP32
 static uint32_t crc_update(uint32_t crc, const void * data, size_t data_len);
-
+#endif // ARDUINO_ARCH_ESP32
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 const char* const OTACloudProcessInterface::STATE_NAMES[] = { // used only for debug purposes
   "Resume",
+  "OtaBegin",
   "Idle",
   "OtaAvailable",
   "StartOTA",
   "Fetch",
-  "VerifyOTA",
   "FlashOTA",
   "Reboot",
   "Fail",
@@ -109,6 +110,7 @@ void OTACloudProcessInterface::handleMessage(Message* msg) {
 
   switch(state) {
   case Resume:        updateState(resume(msg));    break;
+  case OtaBegin:      updateState(otaBegin());     break;
   case Idle:          updateState(idle(msg));      break;
   case OtaAvailable:  updateState(otaAvailable()); break;
   case StartOTA:      updateState(startOTA());     break;
@@ -118,6 +120,25 @@ void OTACloudProcessInterface::handleMessage(Message* msg) {
   default:            updateState(fail()); // all the states that are not defined are failures
   }
 }
+
+OTACloudProcessInterface::State OTACloudProcessInterface::otaBegin() {
+  if(!isOtaCapable()) {
+    // FIXME What do we have to do in this case?
+    DEBUG_WARNING("OTA is not available on this board");
+    return OtaBegin;
+  }
+
+  union OTABegin msg = {
+    OTABeginId,
+    // TODO put sha256 here
+  };
+
+  deliver((Message*)&msg);
+  // TODO msg object do not extist after this call make sure it gets copied somewhere
+
+  return Idle;
+}
+
 
 OTACloudProcessInterface::State OTACloudProcessInterface::idle(Message* msg) {
   // if a msg arrived, it may be an OTAavailable, then go to otaAvailable
@@ -228,6 +249,8 @@ OTACloudProcessInterface::State OTACloudProcessInterface::fetch() {
     DEBUG_INFO("OtaDownloadError");
 
     res = OtaDownloadFail;
+  } else if(context->downloadState == OtaDownloadMagicNumberMismatch) {
+    res = OtaHeaterMagicNumberFail;
   }
 
 exit:
@@ -264,6 +287,12 @@ void OTACloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) {
           &(context->header.header.magic_number),
           sizeof(context->header) - offsetof(OTAHeader, header.magic_number)
         );
+
+        if(context->header.header.magic_number != OtaMagicNumber) {
+          DEBUG_ERROR("Magic number mismatch");
+          context->downloadState = OtaDownloadMagicNumberMismatch;
+          return;
+        }
       }
 
       break;
