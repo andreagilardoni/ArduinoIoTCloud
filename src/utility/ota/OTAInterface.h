@@ -146,6 +146,8 @@ public:
   inline void approveOta() { policies |= Approved; }
 
   inline virtual void setConnectionHandler(ConnectionHandler* c) { connection_handler = c; }
+
+  virtual bool isOtaCapable() = 0;
 protected:
   // The following methods represent the FSM actions performed in each state
 
