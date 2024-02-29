@@ -50,6 +50,9 @@
 
 #include <ArduinoIoTCloudProperties.h>
 
+#include "cbor/MessageDecoder.h"
+#include "cbor/MessageEncoder.h"
+
 /******************************************************************************
    CONSTANTS
  ******************************************************************************/
@@ -299,6 +302,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     String _deviceTopicOut;
     String _deviceTopicIn;
+    String _messageTopicOut;
+    String _messageTopicIn;
     String _shadowTopicOut;
     String _shadowTopicIn;
     String _dataTopicOut;
@@ -314,6 +319,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     inline String getTopic_deviceout() { return String("/a/d/" + getDeviceId() + "/e/o");}
     inline String getTopic_devicein () { return String("/a/d/" + getDeviceId() + "/e/i");}
+    inline String getTopic_messageout() { return String("/a/d/" + getDeviceId() + "/cmd/up");}
+    inline String getTopic_messagein () { return String("/a/d/" + getDeviceId() + "/cmd/dw");}
     inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/shadow/o"); }
     inline String getTopic_shadowin () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/shadow/i"); }
     inline String getTopic_dataout  () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/e/o"); }
@@ -324,6 +331,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     State handle_ConnectMqttBroker();
     State handle_Connected();
     State handle_Disconnect();
+
+    void sendMessage(Message * msg);
 
     static void onDownstreamMessage(int length);
     void handleDownstreamMessage(int length);
