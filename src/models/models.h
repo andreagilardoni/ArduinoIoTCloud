@@ -4,7 +4,7 @@
 #define MAX_PAYLOAD_SIZE 256
 #define THING_ID_SIZE 37
 #define SHA256_SIZE 32
-#define URL_SIZE 64
+#define URL_SIZE 256
 #define MAX_STATE_SIZE 32
 #define ID_SIZE 32
 #define MAX_LIB_VERSION_SIZE 10
