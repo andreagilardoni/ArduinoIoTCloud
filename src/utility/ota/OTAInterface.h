@@ -33,7 +33,12 @@
 #include <Arduino_DebugUtils.h>
 
 #if defined(BOARD_STM32H7)
+#ifdef BOARD_HAS_WIFI
+  #include <WiFiSSLClient.h>
+#endif // BOARD_HAS_WIFI
+#ifdef BOARD_HAS_ETHERNET
   #include "EthernetSSLClient.h"
+#endif // BOARD_HAS_ETHERNET
 #elif defined(BOARD_ESP)
   #include <WiFiClientSecure.h>
 #elif defined(ARDUINO_UNOR4_WIFI)

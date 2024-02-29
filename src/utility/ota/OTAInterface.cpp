@@ -66,6 +66,26 @@ const char* const OTACloudProcessInterface::STATE_NAMES[] = { // used only for d
   "ErrorRenameFail",
 };
 
+void dump_buffer(uint8_t* b, uint32_t len, uint8_t blocks=8, uint8_t cols=8) {
+
+  // TODO make sure blocks is less that cols
+  Serial.println("BUFFER >>>>>>>");
+  for(uint8_t *p=b; p<b+len; p++) {
+    if(*p < 0x10) {
+      Serial.print(0);
+    }
+    Serial.print(*p,  HEX);
+
+    if(cols != 0 && ((p-b)+1) % blocks == 0 && ((p-b)+1) % cols != 0){
+      Serial.print(" ");
+    }
+    if(cols != 0 && ((p-b)+1) % cols == 0){
+      Serial.println();
+    }
+  }
+  Serial.println("\nBUFFER <<<<<<<");
+}
+
 OTACloudProcessInterface::OTACloudProcessInterface(MessageStream *ms, ConnectionHandler* connection_handler)
 : CloudProcess(ms)
 , policies(None)
@@ -299,6 +319,43 @@ void OTACloudProcessInterface::clean() {
   if(context != nullptr) {
     delete context;
     context = nullptr;
+  }
+}
+
+void OTACloudProcessInterface::initSSLClient() {
+  switch(connection_handler->getInterface()) {
+#ifdef BOARD_HAS_WIFI
+  case NetworkAdapter::WIFI:
+#if defined(BOARD_STM32H7)
+    client = new WiFiSSLClient();
+#elif defined(ARDUINO_NANO_RP2040_CONNECT)
+    client = new WiFiSSLClient();
+#elif defined(ARDUINO_PORTENTA_C33)
+    client = new SSLClient();
+#endif
+    break;
+#endif // BOARD_HAS_WIFI
+#ifdef BOARD_HAS_ETHERNET
+  case NetworkAdapter::ETHERNET:
+#if defined(BOARD_STM32H7)
+    client = new EthernetSSLClient();
+#elif defined(ARDUINO_PORTENTA_C33)
+    client = new SSLClient();
+#endif
+#endif // BOARD_HAS_ETHERNET
+    break;
+  // case NetworkAdapter::NB: // TODO implement this
+  //   client = NBSSLCLIENT();
+  //   break;
+  // case NetworkAdapter::GSM:
+  //   client = GSMSSLCLIENT();
+  //   break;
+  // case NetworkAdapter::CATM:
+  //   client = new CATMSSLCLIENT();
+  //   break;
+  case NetworkAdapter::LORA:
+  default:
+    DEBUG_ERROR("ERROR: connectionHandler type doesn't support TCP connections");
   }
 }
 
