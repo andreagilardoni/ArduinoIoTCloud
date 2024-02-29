@@ -26,9 +26,28 @@
 #if OTA_ENABLED
 #include <Arduino.h>
 #include <ArduinoHttpClient.h>
+#include <URLParser.h>
 #include <Arduino_ConnectionHandler.h>
-#include <interfaces/CloudProcess.h>
+#include <interfaces/cloudProcess.h>
 #include "utility/lzss/lzss.h"
+#include <Arduino_DebugUtils.h>
+
+#if defined(BOARD_STM32H7)
+  #include "EthernetSSLClient.h"
+#elif defined(BOARD_ESP)
+  #include <WiFiClientSecure.h>
+#elif defined(ARDUINO_UNOR4_WIFI)
+  #include <WiFiSSLClient.h>
+#elif defined(ARDUINO_PORTENTA_C33)
+  #include <SSLClient.h>
+#elif defined(BOARD_HAS_SE050)
+  #include <WiFiSSLSE050Client.h>
+#endif
+
+#ifdef BOARD_HAS_OFFLOADED_ECCX08
+#include "tls/utility/CryptoUtil.h"
+#include <WiFiSSLClient.h>
+#endif
 
 union HeaderVersion {
   struct __attribute__((packed)) {
@@ -172,9 +191,11 @@ private:
   void parseOta(uint8_t* buffer, size_t buf_len);
 
   State state, previous_state;
-  Client*     client;
-  SSLClient*  ssl_client
-  HttpClient* http_client;
+  ConnectionHandler*  connection_handler;
+  HttpClient*         http_client;
+  Client*             client;
+
+  void initSSLClient();
 
   enum OTADownloadState: uint8_t {
     OtaDownloadHeader,
