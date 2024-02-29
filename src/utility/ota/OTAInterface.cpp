@@ -284,7 +284,7 @@ void OTACloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) {
         context->calculatedCrc32 = crc_update(
           context->calculatedCrc32,
           &(context->header.header.magic_number),
-          sizeof(context->header) - offsetof(OTAHeader, header.magic_number)
+          sizeof(context->header) - offsetof(ota::OTAHeader, header.magic_number)
         );
 
         if(context->header.header.magic_number != OtaMagicNumber) {

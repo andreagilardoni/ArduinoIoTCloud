@@ -54,33 +54,34 @@
 #include <WiFiSSLClient.h>
 #endif
 
-union HeaderVersion {
-  struct __attribute__((packed)) {
-    uint32_t header_version    :  6;
-    uint32_t compression       :  1;
-    uint32_t signature         :  1;
-    uint32_t spare             :  4;
-    uint32_t payload_target    :  4;
-    uint32_t payload_major     :  8;
-    uint32_t payload_minor     :  8;
-    uint32_t payload_patch     :  8;
-    uint32_t payload_build_num : 24;
-  } field;
-  uint8_t buf[sizeof(field)];
-  static_assert(sizeof(buf) == 8, "Error: sizeof(HEADER.VERSION) != 8");
-};
+namespace ota {
+  union HeaderVersion {
+    struct __attribute__((packed)) {
+      uint32_t header_version    :  6;
+      uint32_t compression       :  1;
+      uint32_t signature         :  1;
+      uint32_t spare             :  4;
+      uint32_t payload_target    :  4;
+      uint32_t payload_major     :  8;
+      uint32_t payload_minor     :  8;
+      uint32_t payload_patch     :  8;
+      uint32_t payload_build_num : 24;
+    } field;
+    uint8_t buf[sizeof(field)];
+    static_assert(sizeof(buf) == 8, "Error: sizeof(HEADER.VERSION) != 8");
+  };
 
-union OTAHeader {
-  struct __attribute__((packed)) {
-    uint32_t len;
-    uint32_t crc32;
-    uint32_t magic_number;
-    HeaderVersion hdr_version;
-  } header;
-  uint8_t buf[sizeof(header)];
-  static_assert(sizeof(buf) == 20, "Error: sizeof(HEADER) != 20");
-};
-
+  union OTAHeader {
+    struct __attribute__((packed)) {
+      uint32_t len;
+      uint32_t crc32;
+      uint32_t magic_number;
+      HeaderVersion hdr_version;
+    } header;
+    uint8_t buf[sizeof(header)];
+    static_assert(sizeof(buf) == 20, "Error: sizeof(HEADER) != 20");
+  };
+}
 /******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
@@ -238,7 +239,7 @@ protected:
     uint8_t     initialSha256[32];
     uint8_t     finalSha256[32];
 
-    OTAHeader         header;
+    ota::OTAHeader    header;
     OTADownloadState  downloadState;
     uint32_t          calculatedCrc32;
     uint32_t          headerCopiedBytes;
