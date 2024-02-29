@@ -233,7 +233,8 @@ protected:
     ~OtaContext();
     // parameters present in the ota available message that are of interest of the process
     char* const id;
-    ParsedUrl   url; // TODO replace with parsed url struct
+    char* const url;
+    ParsedUrl   parsed_url; // TODO replace with parsed url struct
     uint8_t     initialSha256[32];
     uint8_t     finalSha256[32];
 

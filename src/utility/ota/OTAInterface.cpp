@@ -184,21 +184,20 @@ OTACloudProcessInterface::State OTACloudProcessInterface::startOTA() {
   assert((client != nullptr, "ERROR client wasn't set in OTACloudProcess"));
 
   // make the http get request
-  if(strcmp(context->url.schema(), "http") == 0) {
+  if(strcmp(context->parsed_url.schema(), "http") == 0) {
     client = connection_handler->getNewClient();
-  } else if(strcmp(context->url.schema(), "https") == 0) {
+  } else if(strcmp(context->parsed_url.schema(), "https") == 0) {
     initSSLClient();
   } else {
     return UrlParseErrorFail;
   }
-  http_client = new HttpClient(*client, context->url.host(), context->url.port());
+  http_client = new HttpClient(*client, context->parsed_url.host(), context->parsed_url.port());
 
-  auto res = http_client->get(context->url.path());
-
+  auto res = http_client->get(context->parsed_url.path()); // TODO handle res
   int statusCode = http_client->responseStatusCode();
 
   if(statusCode != 200) {
-    DEBUG_ERROR("OTA ERROR: get responsereturned status %d", statusCode);
+    DEBUG_ERROR("OTA ERROR: get response on \"%s\"returned status %d", context->url, statusCode);
     return OtaDownloadFail;
   }
 
@@ -410,8 +409,9 @@ OTACloudProcessInterface::OtaContext::OtaContext(
     const char* id, const char* url,
     uint8_t* initialSha256, uint8_t* finalSha256,
     std::function<void(uint8_t)> putc)
-    : id((char*) malloc(strlen(id) + 1))
-    , url(url)
+    : id( (char*) malloc(strlen(id) + 1))
+    , url((char*) malloc(strlen(url) + 1))
+    , parsed_url(url)
     , downloadState(OtaDownloadHeader)
     , calculatedCrc32(0xFFFFFFFF)
     , headerCopiedBytes(0)
@@ -420,12 +420,14 @@ OTACloudProcessInterface::OtaContext::OtaContext(
     , report_couter(0) {
 
   strcpy(this->id, id);
+  strcpy(this->url, url);
   memcpy(this->initialSha256, initialSha256, 32);
   memcpy(this->finalSha256, finalSha256, 32);
 }
 
 OTACloudProcessInterface::OtaContext::~OtaContext() {
   free(id);
+  free(url);
 }
 
 static const uint32_t crc_table[256] = {
