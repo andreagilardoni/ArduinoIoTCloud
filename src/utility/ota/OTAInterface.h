@@ -25,8 +25,10 @@
 
 #if OTA_ENABLED
 #include <Arduino.h>
+#include <ArduinoHttpClient.h>
 #include <Arduino_ConnectionHandler.h>
 #include <interfaces/CloudProcess.h>
+#include "utility/lzss/lzss.h"
 
 union HeaderVersion {
   struct __attribute__((packed)) {
@@ -65,7 +67,9 @@ public:
   OTACloudProcessInterface(const OTACloudProcessInterface&) = delete;
   OTACloudProcessInterface(OTACloudProcessInterface&&) = delete;
 
-  enum State {
+  ~OTACloudProcessInterface();
+
+  enum State: int16_t {
     Resume,
     Idle,
     OtaAvailable,
@@ -161,11 +165,16 @@ protected:
 
   inline void updateState(State s) { if(state!=s) { sprevious_state = state; state = s; } }
 
-private:
+  // This method is called to report the current state of the OtaClass
   void reportStatus();
+private:
+  void clean();
+  void parseOta(uint8_t* buffer, size_t buf_len);
 
   State state, previous_state;
-  Client* client;
+  Client*     client;
+  SSLClient*  ssl_client
+  HttpClient* http_client;
 
   enum OTADownloadState: uint8_t {
     OtaDownloadHeader,
@@ -174,22 +183,30 @@ private:
     OtaDownloadError
   };
 
-  typedef struct {
+protected:
+  struct OtaContext {
+    OtaContext(
+      const char* id, const char* url,
+      uint8_t initialSha256[32], uint8_t finalSha256[32],
+      std::function<void(uint8_t)> putc);
+    ~OtaContext();
     // parameters present in the ota available message that are of interest of the process
-    const char*       id;
-    const char*       url; // TODO replace with parsed url struct
-    const uint8_t*    initialSha256;
-    const uint8_t*    finalSha256;
+    const char* id;
+    ParsedUrl   url; // TODO replace with parsed url struct
+    uint8_t     initialSha256[32];
+    uint8_t     finalSha256[32];
 
     OTAHeader         header;
     OTADownloadState  downloadState;
     uint32_t          calculatedCrc32;
     uint32_t          headerCopiedBytes;
+    uint32_t          downloadedSize;
 
     // LZSS decoder
-  } ota_context_t;
+    LZSSDecoder       decoder;
 
-  ota_context_t *context;
+    uint16_t          report_couter;
+  } *context;
 };
 
 
