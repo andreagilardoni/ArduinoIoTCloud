@@ -67,8 +67,8 @@ unsigned long getTime()
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 : _state{State::ConnectPhy}
-, _device_id{"."}
-, _thing_id{"."}
+, _device_id{""}
+, _thing_id{""}
 , _thing_id_property{nullptr}
 , _connection_attempt(0,0)
 , _mqtt_data_buf{0}
@@ -411,6 +411,7 @@ void ArduinoIoTCloudTCP::handleDownstreamMessage(int length)
       case CommandID::ThingGetIdCmdDownId:
       {
         ThingGetIdCmdDown * msg = (ThingGetIdCmdDown *)&command;
+        _thing_id = msg->fields.params.thing_id;
         _device.sendMessageDownstream(Event::ThingId, msg->fields.params.thing_id);
       }
       break;
