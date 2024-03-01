@@ -478,6 +478,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
       case CommandID::ThingGetIdCmdDownId:
       {
         ThingGetIdCmdDown * msg = (ThingGetIdCmdDown *)&command;
+        _thing_id = msg->fields.params.thing_id;
         _device.sendMessageDownstream(Event::ThingId, msg->fields.params.thing_id);
       }
       break;
