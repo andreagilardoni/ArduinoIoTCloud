@@ -52,6 +52,7 @@
 
 #include "cbor/MessageDecoder.h"
 #include "cbor/MessageEncoder.h"
+#include "interfaces/messageStream.h"
 
 #if OTA_ENABLED
 #include "utility/ota/OTA.h"
