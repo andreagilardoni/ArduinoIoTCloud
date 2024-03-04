@@ -228,10 +228,6 @@ void ArduinoIoTCloudTCP::update()
   watchdog_reset();
 #endif
 
-#ifdef OTA_ENABLED
-  _ota.update();
-#endif // OTA_ENABLED
-
   /* Run through the state machine. */
   State next_state = _state;
   switch (_state)
@@ -332,6 +328,10 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
   }
 
   _device.update();
+
+#ifdef OTA_ENABLED
+  _ota.update();
+#endif // OTA_ENABLED
 
   if (_device.attached())
   {
