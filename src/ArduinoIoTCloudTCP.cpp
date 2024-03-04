@@ -89,7 +89,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _shadowTopicIn("")
 , _dataTopicOut("")
 , _dataTopicIn("")
-, _message_stream(std::bind(&ArduinoIoTCloudTCP::handleMessageCP, this, std::placeholders::_1))
+, _message_stream(std::bind(&ArduinoIoTCloudTCP::sendMessage, this, std::placeholders::_1))
 #if OTA_ENABLED
 , _ask_user_before_executing_ota{false}
 , _get_ota_confirmation{nullptr}

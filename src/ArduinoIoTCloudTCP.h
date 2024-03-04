@@ -248,9 +248,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
       _ask_user_before_executing_ota = true;
     }
 #endif
-
-    void handleMessageCP(Message* m); // FIXME change name
-
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
 
