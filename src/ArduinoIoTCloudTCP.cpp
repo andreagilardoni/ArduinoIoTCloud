@@ -443,6 +443,7 @@ void ArduinoIoTCloudTCP::handleDownstreamMessage(int length)
       {
         _message_stream.send((Message*)&command, "ota"); // TODO make "ota" a constant
       }
+      break;
       default:
       break;
     }
@@ -533,12 +534,6 @@ void ArduinoIoTCloudTCP::sendDevicePropertiesToCloud()
                 );
   DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s announce device to the Cloud %d", __FUNCTION__, _time_service.getTime());
   sendPropertyContainerToCloud(_deviceTopicOut, ro_device_container, last_device_property_index);
-
-#if OTA_ENABLED
-  OtaBeginUp command = {CommandID::OtaBeginUpId};
-  memcpy(command.fields.params.sha, (uint8_t*)OTA::getImageSHA256().c_str(), SHA256_SIZE);
-  sendMessage((Message*)&command);
-#endif
 
   DeviceBeginCmdUp command2 = {CommandID::DeviceBeginCmdUpId};
   strcpy(command2.fields.params.lib_version, AIOT_CONFIG_LIB_VERSION);

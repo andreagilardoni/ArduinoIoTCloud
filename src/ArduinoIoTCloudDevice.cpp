@@ -52,9 +52,9 @@ void ArduinoIoTCloudDevice::begin(onSendMessageUpstreamCallbackFunc cb)
   _send_message_upstream = cb;
 
 #if OTA_ENABLED
-  _ota_img_sha256 = OTA::getImageSHA256();
+  // _ota_img_sha256 = OTA::getImageSHA256();
   DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
-  _ota_cap = OTA::isCapable();
+  // _ota_cap = OTA::isCapable();
 
   Property* p;
   p = new CloudWrapperBool(_ota_cap);

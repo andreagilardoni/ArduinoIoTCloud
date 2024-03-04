@@ -128,8 +128,9 @@ OTACloudProcessInterface::State OTACloudProcessInterface::otaBegin() {
     return OtaBegin;
   }
 
-  union OTABegin msg = {
-    OTABeginId,
+  union OtaBeginUp msg = {
+    OtaBeginUpId,
+    {0}
     // TODO put sha256 here
   };
 
@@ -143,11 +144,11 @@ OTACloudProcessInterface::State OTACloudProcessInterface::otaBegin() {
 OTACloudProcessInterface::State OTACloudProcessInterface::idle(Message* msg) {
   // if a msg arrived, it may be an OTAavailable, then go to otaAvailable
   // otherwise do nothing
-  if(msg!=nullptr && msg->id == OTAavailableId) {
+  if(msg!=nullptr && msg->id == OtaUpdateCmdDownId) {
     // save info coming from this message
     assert(context == nullptr); // This should never fail
 
-    union OTAavailable* oa_msg = (union OTAavailable*)msg;
+    union OtaUpdateCmdDown* oa_msg = (union OtaUpdateCmdDown*)msg;
 
     context = new OtaContext(
       oa_msg->fields.params.id, oa_msg->fields.params.url,
@@ -393,13 +394,14 @@ void OTACloudProcessInterface::reportStatus() {
     return;
   }
 
-  union OTAStatusReport msg = {
-    OTAStatusReportId,
-    context->id,
-    "unknown", // FIXME put the proper expected value
-    millis(),  // FIXME put the proper expected value
-    context->report_couter++
+  union OtaProgressCmdUp msg = {
+    OtaProgressCmdUpId,
   };
+
+  strncpy(msg.fields.params.id, context->id, ID_SIZE);
+  strncpy(msg.fields.params.state, STATE_NAMES[state < 0? Fail - state : state], ID_SIZE); // FIXME put the proper expected value
+  msg.fields.params.time = millis(); // FIXME put the proper expected value
+  msg.fields.params.count = context->report_couter++;
 
   deliver((Message*)&msg);
   // TODO msg object do not extist after this call make sure it gets copied somewhere
