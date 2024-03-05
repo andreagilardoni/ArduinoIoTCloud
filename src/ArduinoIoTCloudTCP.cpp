@@ -418,23 +418,23 @@ void ArduinoIoTCloudTCP::handleDownstreamMessage(int length)
   // }
 
   if (_messageTopicIn == topic) {
-    GenericCommand command;
+    CommandDown command;
     MessageDecoder::DecoderState err =  MessageDecoder::decode((Message*)&command, bytes, length);
 
-    switch (command.command.id)
+    switch (command.c.id)
     {
       case CommandID::ThingGetIdCmdDownId:
       {
-        ThingGetIdCmdDown * msg = (ThingGetIdCmdDown *)&command;
-        _thing_id = msg->fields.params.thing_id;
-        _device.sendMessageDownstream(Event::ThingId, msg->fields.params.thing_id);
+        ThingGetIdCmdDown * msg = &command.thingGetIdCmdDown;
+        _thing_id = msg->params.thing_id;
+        _device.sendMessageDownstream(Event::ThingId, msg->params.thing_id);
       }
       break;
 
       case CommandID::ThingGetLastValueCmdDownId:
       {
-        ThingGetLastValueCmdDown * msg = (ThingGetLastValueCmdDown*)&command;
-        CBORDecoder::decode(_thing.getPropertyContainer(), (uint8_t*)msg->fields.params.last_values, msg->fields.params.length, true);
+        ThingGetLastValueCmdDown * msg = &command.thingGetLastValueCmdDown;
+        CBORDecoder::decode(_thing.getPropertyContainer(), (uint8_t*)msg->params.last_values, msg->params.length, true);
         _time_service.setTimeZoneData(_thing._tz_offset, _thing._tz_dst_until);
         _thing.sendMessageDownstream(Event::LastValues);
         execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
@@ -443,7 +443,7 @@ void ArduinoIoTCloudTCP::handleDownstreamMessage(int length)
 
       case CommandID::OtaUpdateCmdDownId:
       {
-        _message_stream.send((Message*)&command, "ota"); // TODO make "ota" a constant
+        _message_stream.send((Message*)&command.otaUpdateCmdDown, "ota"); // TODO make "ota" a constant
       }
       break;
       default:
@@ -538,7 +538,7 @@ void ArduinoIoTCloudTCP::sendDevicePropertiesToCloud()
   sendPropertyContainerToCloud(_deviceTopicOut, ro_device_container, last_device_property_index);
 
   DeviceBeginCmdUp command2 = {CommandID::DeviceBeginCmdUpId};
-  strcpy(command2.fields.params.lib_version, AIOT_CONFIG_LIB_VERSION);
+  strcpy(command2.params.lib_version, AIOT_CONFIG_LIB_VERSION);
   sendMessage((Message*)&command2);
 }
 
@@ -597,7 +597,7 @@ void ArduinoIoTCloudTCP::requestThingId()
   // }
 
   ThingGetIdCmdUp command = {CommandID::ThingGetIdCmdUpId};
-  strcpy(command.fields.params.thing_id, _thing_id.c_str());
+  strcpy(command.params.thing_id, _thing_id.c_str());
   sendMessage((Message*)&command);
 }
 
