@@ -34,7 +34,7 @@
  ArduinoIoTCloudDevice::ArduinoIoTCloudDevice()
 : _state{State::SendCapabilities}
 , _connection_attempt(0,0)
-, _thing_id{"."}
+, _thing_id{""}
 , _attached{false}
 #if OTA_ENABLED
 , _ota_cap{false}
@@ -113,6 +113,7 @@ int ArduinoIoTCloudDevice::sendMessageUpstream(ArduinoIoTCloudProcess::Event id)
 
 int ArduinoIoTCloudDevice::sendMessageDownstream(ArduinoIoTCloudProcess::Event ev, const char * data)
 {
+
   String message = "";
 
   if (data != nullptr)
