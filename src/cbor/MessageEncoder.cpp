@@ -156,31 +156,31 @@ MessageEncoder::EncoderState MessageEncoder::handle_CloseArray(CborEncoder * enc
 CborError MessageEncoder::encodeOtaBeginUp(CborEncoder * array_encoder, Message * message)
 {
   OtaBeginUp * otaBeginUp = (OtaBeginUp *) message;
-  CHECK_CBOR(cbor_encode_byte_string(array_encoder, otaBeginUp->fields.params.sha, SHA256_SIZE));
+  CHECK_CBOR(cbor_encode_byte_string(array_encoder, otaBeginUp->params.sha, SHA256_SIZE));
   return CborNoError;
 }
 
 CborError MessageEncoder::encodeThingGetIdCmdUp(CborEncoder * array_encoder, Message * message)
 {
   ThingGetIdCmdUp * thingGetIdCmdUp = (ThingGetIdCmdUp *) message;
-  CHECK_CBOR(cbor_encode_text_stringz(array_encoder, thingGetIdCmdUp->fields.params.thing_id));
+  CHECK_CBOR(cbor_encode_text_stringz(array_encoder, thingGetIdCmdUp->params.thing_id));
   return CborNoError;
 }
 
 CborError MessageEncoder::encodeDeviceBeginCmdUp(CborEncoder * array_encoder, Message * message)
 {
   DeviceBeginCmdUp * deviceBeginCmdUp = (DeviceBeginCmdUp *) message;
-  CHECK_CBOR(cbor_encode_text_stringz(array_encoder, deviceBeginCmdUp->fields.params.lib_version));
+  CHECK_CBOR(cbor_encode_text_stringz(array_encoder, deviceBeginCmdUp->params.lib_version));
   return CborNoError;
 }
 
 CborError MessageEncoder::encodeOtaProgressCmdUp(CborEncoder * array_encoder, Message * message)
 {
   OtaProgressCmdUp * ota = (OtaProgressCmdUp *)message;
-  CHECK_CBOR(cbor_encode_text_stringz(array_encoder, ota->fields.params.id));
-  CHECK_CBOR(cbor_encode_text_stringz(array_encoder, ota->fields.params.state));
-  CHECK_CBOR(cbor_encode_uint(array_encoder, ota->fields.params.time));
-  CHECK_CBOR(cbor_encode_uint(array_encoder, ota->fields.params.count));
+  CHECK_CBOR(cbor_encode_text_stringz(array_encoder, ota->params.id));
+  CHECK_CBOR(cbor_encode_text_stringz(array_encoder, ota->params.state));
+  CHECK_CBOR(cbor_encode_uint(array_encoder, ota->params.time));
+  CHECK_CBOR(cbor_encode_uint(array_encoder, ota->params.count));
   return CborNoError;
 }
 
