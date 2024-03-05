@@ -1,7 +1,10 @@
 #pragma once
 #include <stdint.h>
 
-#define MAX_PAYLOAD_SIZE 256
+#if __cplusplus >= 201402L // Cpp14
+#include <algorithm>
+#endif // __cplusplus
+
 #define THING_ID_SIZE 37
 #define SHA256_SIZE 32
 #define URL_SIZE 256
@@ -31,139 +34,96 @@ struct Command {
 
 typedef Command Message;
 
-struct GenericCommand {
-    Command command;
-    uint8_t content[MAX_PAYLOAD_SIZE];
-};
-
-struct ThingGetIdCmdUpCommand {
-    Command command;
-};
-
-union ThingGetIdCmdUp {
+struct ThingGetIdCmdUp {
+    Command c;
     struct {
-        ThingGetIdCmdUpCommand thingGetIdCmdUpCommand;
-        struct {
-            char thing_id[THING_ID_SIZE];
-        } params;
-    } fields;
+        char thing_id[THING_ID_SIZE];
+    } params;
 };
 
-struct ThingGetLastValueCmdUpCommand {
-    Command command;
+struct ThingGetLastValueCmdUp {
+    Command c;
 };
 
-union ThingGetLastValueCmdUp {
+struct OtaBeginUp {
+    Command c;
     struct {
-        ThingGetLastValueCmdUpCommand thingGetLastValueCmdUpCommand;
-    } fields;
+        uint8_t sha [SHA256_SIZE];
+    } params;
 };
 
-struct OtaBeginUpCommand {
-    Command command;
-};
-
-union OtaBeginUp {
+struct DeviceBeginCmdUp {
+    Command c;
     struct {
-        OtaBeginUpCommand otaBeginUpCommand;
-        struct {
-          uint8_t sha [SHA256_SIZE];
-        } params;
-    } fields;
+        char lib_version[MAX_LIB_VERSION_SIZE];
+    } params;
 };
 
-struct DeviceBeginCmdUpCommand {
-    Command command;
-};
-
-union DeviceBeginCmdUp {
+struct OtaProgressCmdUp {
+    Command c;
     struct {
-        DeviceBeginCmdUpCommand deviceBeginCmdUpCommand;
-        struct {
-          char lib_version[MAX_LIB_VERSION_SIZE];
-        } params;
-    } fields;
+        char id[ID_SIZE];
+        char state[MAX_STATE_SIZE];
+        uint32_t time;
+        uint32_t count;
+    } params;
 };
 
-struct OtaProgressCmdUpCommand {
-    Command command;
+struct TimezoneCommandUp {
+    Command c;
 };
 
-union OtaProgressCmdUp {
+struct __attribute__((__packed__)) OtaUpdateCmdDown {
+    Command c;
     struct {
-        OtaProgressCmdUpCommand otaProgressCmdUpCommand;
-        struct {
-            char id[ID_SIZE];
-            char state[MAX_STATE_SIZE];
-            uint32_t time;
-            uint32_t count;
-        } params;
-    } fields;
+        char    id[ID_SIZE];
+        char    url[URL_SIZE];
+        uint8_t initialSha256[SHA256_SIZE];
+        uint8_t finalSha256[SHA256_SIZE];
+    } params;
 };
 
-struct OtaUpdateCmdDownCommand {
-    Command command;
-};
-
-union OtaUpdateCmdDown {
+struct __attribute__((__packed__)) ThingGetIdCmdDown {
+    Command c;
     struct {
-        OtaUpdateCmdDownCommand otaUpdateCmdDownCommand;
-        struct {
-            char    id[ID_SIZE];
-            char    url[URL_SIZE];
-            uint8_t initialSha256[SHA256_SIZE];
-            uint8_t finalSha256[SHA256_SIZE];
-        } params;
-    } fields;
+        char thing_id[THING_ID_SIZE];
+    } params;
 };
 
-struct ThingGetIdCmdDownCommand {
-    Command command; 
-};
-
-union ThingGetIdCmdDown {
+struct __attribute__((__packed__)) ThingGetLastValueCmdDown {
+    Command c;
     struct {
-        ThingGetIdCmdDownCommand thingGetIdCmdDownCommand;
-        struct {
-            char thing_id[THING_ID_SIZE];
-        } params;
-    } fields;
+        uint8_t * last_values;
+        size_t length;
+    } params;
 };
 
-struct ThingGetLastValueCmdDownCommand {
-    Command command; 
-};
-
-union ThingGetLastValueCmdDown {
+struct __attribute__((__packed__)) TimezoneCommandDown{
+    Command c;
     struct {
-        ThingGetLastValueCmdDownCommand thingGetLastValueCmdDownCommand;
-        struct {
-            uint8_t * last_values;
-            size_t length;
-        } params;
-    } fields;
+        uint32_t offset;
+        uint32_t until;
+    } params;
 };
 
-struct TimezoneCommandUpCommand {
-    Command command;
-};
-
-union TimezoneCommandUp {
-    struct {
-        TimezoneCommandUpCommand timezoneCommandUp;
-    } fields;
-};
-
-struct TimezoneCommandDownCommand {
-    Command command;
-};
-
-union TimezoneCommandDown {
-    struct {
-        TimezoneCommandDownCommand timezoneCommandDown;
-        struct {
-            uint32_t offset;
-            uint32_t until;
-        } params;
-    } fields;
+union CommandDown {
+    struct Command                  c;
+    struct OtaUpdateCmdDown         otaUpdateCmdDown;
+    struct ThingGetIdCmdDown        thingGetIdCmdDown;
+    struct ThingGetLastValueCmdDown thingGetLastValueCmdDown;
+    struct TimezoneCommandDown      timezoneCommandDown;
+    uint8_t buf[
+#if __cplusplus >= 201402L // Cpp14
+        std::max({sizeof(otaUpdateCmdDown),
+            sizeof(thingGetIdCmdDown),
+            sizeof(thingGetLastValueCmdDown),
+            sizeof(timezoneCommandDown)})
+#else
+        /* for versions of cpp prior to cpp14 std::max is not defined as constexpr,
+         * hence it cannot be used here thus we need to specify the size of the
+         * biggest member manually.
+         */
+        sizeof(otaUpdateCmdDown)
+#endif // __cplusplus
+        ];
 };
