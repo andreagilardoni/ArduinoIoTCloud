@@ -128,7 +128,7 @@ OTACloudProcessInterface::State OTACloudProcessInterface::otaBegin() {
     return OtaBegin;
   }
 
-  union OtaBeginUp msg = {
+  struct OtaBeginUp msg = {
     OtaBeginUpId,
     {0}
     // TODO put sha256 here
@@ -148,11 +148,11 @@ OTACloudProcessInterface::State OTACloudProcessInterface::idle(Message* msg) {
     // save info coming from this message
     assert(context == nullptr); // This should never fail
 
-    union OtaUpdateCmdDown* oa_msg = (union OtaUpdateCmdDown*)msg;
+    struct OtaUpdateCmdDown* oa_msg = (struct OtaUpdateCmdDown*)msg;
 
     context = new OtaContext(
-      oa_msg->fields.params.id, oa_msg->fields.params.url,
-      oa_msg->fields.params.initialSha256, oa_msg->fields.params.finalSha256,
+      oa_msg->params.id, oa_msg->params.url,
+      oa_msg->params.initialSha256, oa_msg->params.finalSha256,
       [this](uint8_t c) {
         int res = this->writeFlash(&c, 1);
 
@@ -394,14 +394,14 @@ void OTACloudProcessInterface::reportStatus() {
     return;
   }
 
-  union OtaProgressCmdUp msg = {
+  struct OtaProgressCmdUp msg = {
     OtaProgressCmdUpId,
   };
 
-  strncpy(msg.fields.params.id, context->id, ID_SIZE);
-  strncpy(msg.fields.params.state, STATE_NAMES[state < 0? Fail - state : state], ID_SIZE); // FIXME put the proper expected value
-  msg.fields.params.time = millis(); // FIXME put the proper expected value
-  msg.fields.params.count = context->report_couter++;
+  strncpy(msg.params.id, context->id, ID_SIZE);
+  strncpy(msg.params.state, STATE_NAMES[state < 0? Fail - state : state], ID_SIZE); // FIXME put the proper expected value
+  msg.params.time = millis(); // FIXME put the proper expected value
+  msg.params.count = context->report_couter++;
 
   deliver((Message*)&msg);
   // TODO msg object do not extist after this call make sure it gets copied somewhere
