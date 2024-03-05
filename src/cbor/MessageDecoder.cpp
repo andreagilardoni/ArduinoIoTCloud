@@ -138,7 +138,7 @@ MessageDecoder::ArrayParserState MessageDecoder::decodeThingGetIdCmdDown(CborVal
   ThingGetIdCmdDown * thingCommand = (ThingGetIdCmdDown *) message;
 
   // Message is composed of a single parameter, a string (thing_id)
-  if (!copyCBORStringToArray(param, thingCommand->fields.params.thing_id, sizeof(thingCommand->fields.params.thing_id))) {
+  if (!copyCBORStringToArray(param, thingCommand->params.thing_id, sizeof(thingCommand->params.thing_id))) {
     return ArrayParserState::Error;
   }
 
@@ -153,7 +153,7 @@ MessageDecoder::ArrayParserState MessageDecoder::decodeTimezoneCommandDown(CborV
   if (cbor_value_is_integer(param)) {
     uint64_t val = 0;
     if (cbor_value_get_uint64(param, &val) == CborNoError) {
-      setTz->fields.params.offset = static_cast<uint32_t>(val);
+      setTz->params.offset = static_cast<uint32_t>(val);
     }
   }
 
@@ -166,7 +166,7 @@ MessageDecoder::ArrayParserState MessageDecoder::decodeTimezoneCommandDown(CborV
   if (cbor_value_is_integer(param)) {
     uint64_t val = 0;
     if (cbor_value_get_uint64(param, &val) == CborNoError) {
-      setTz->fields.params.until = static_cast<uint32_t>(val);
+      setTz->params.until = static_cast<uint32_t>(val);
     }
   }
 
@@ -178,7 +178,7 @@ MessageDecoder::ArrayParserState MessageDecoder::decodeThingGetLastValueCmdDown(
 
   // Message is composed by a single parameter, a variable length byte array.
   if (cbor_value_is_byte_string(param)) {
-    if (cbor_value_dup_byte_string(param, &setLv->fields.params.last_values, &setLv->fields.params.length, NULL) != CborNoError) {
+    if (cbor_value_dup_byte_string(param, &setLv->params.last_values, &setLv->params.length, NULL) != CborNoError) {
       return ArrayParserState::Error;
     }
   }
@@ -190,7 +190,7 @@ MessageDecoder::ArrayParserState MessageDecoder::decodeOtaUpdateCmdDown(CborValu
   OtaUpdateCmdDown * ota = (OtaUpdateCmdDown *) message;
 
   // Message is composed 4 parameters: id, url, initialSha, finalSha
-  if (!copyCBORStringToArray(param, ota->fields.params.id, sizeof(ota->fields.params.id))) {
+  if (!copyCBORStringToArray(param, ota->params.id, sizeof(ota->params.id))) {
     return ArrayParserState::Error;
   }
 
@@ -198,7 +198,7 @@ MessageDecoder::ArrayParserState MessageDecoder::decodeOtaUpdateCmdDown(CborValu
     return ArrayParserState::Error;
   }
 
-  if (!copyCBORStringToArray(param, ota->fields.params.url, sizeof(ota->fields.params.url))) {
+  if (!copyCBORStringToArray(param, ota->params.url, sizeof(ota->params.url))) {
     return ArrayParserState::Error;
   }
 
@@ -206,7 +206,7 @@ MessageDecoder::ArrayParserState MessageDecoder::decodeOtaUpdateCmdDown(CborValu
     return ArrayParserState::Error;
   }
 
-  if (!copyCBORByteToArray(param, ota->fields.params.initialSha256, sizeof(ota->fields.params.initialSha256))) {
+  if (!copyCBORByteToArray(param, ota->params.initialSha256, sizeof(ota->params.initialSha256))) {
     return ArrayParserState::Error;
   }
 
@@ -214,7 +214,7 @@ MessageDecoder::ArrayParserState MessageDecoder::decodeOtaUpdateCmdDown(CborValu
     return ArrayParserState::Error;
   }
 
-  if (!copyCBORByteToArray(param, ota->fields.params.finalSha256, sizeof(ota->fields.params.finalSha256))) {
+  if (!copyCBORByteToArray(param, ota->params.finalSha256, sizeof(ota->params.finalSha256))) {
     return ArrayParserState::Error;
   }
 
