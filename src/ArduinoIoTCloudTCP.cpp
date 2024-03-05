@@ -183,8 +183,8 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   Property* p;
   p = new CloudWrapperString(_lib_version);
   addPropertyToContainer(_device.getPropertyContainer(), *p, "LIB_VERSION", Permission::Read, -1);
-  p = new CloudWrapperString(_thing_id);
-  _thing_id_property = &addPropertyToContainer(_device.getPropertyContainer(), *p, "thing_id", Permission::ReadWrite, -1);
+  // p = new CloudWrapperString(_thing_id);
+  // _thing_id_property = &addPropertyToContainer(_device.getPropertyContainer(), *p, "thing_id", Permission::ReadWrite, -1);
 
   _thing.begin();
   _device.begin();
@@ -458,17 +458,6 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     CBORDecoder::decode(_thing.getPropertyContainer(), (uint8_t*)bytes, length);
   }
 
-  /* Topic for sync Thing last values on connect */
-  if (_shadowTopicIn == topic) {
-    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
-    CBORDecoder::decode(_thing.getPropertyContainer(), (uint8_t*)bytes, length, true);
-    execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
-    /* Unlock thing state machine waiting last values */
-    Message message;
-    message.id = LastValues;
-    _thing.handleMessage(&message);
-  }
-
   if (_messageTopicIn == topic) {
     GenericCommand command;
     MessageDecoder::DecoderState err =  MessageDecoder::decode((Message*)&command, bytes, length);
@@ -487,7 +476,9 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
       {
         ThingGetLastValueCmdDown * msg = (ThingGetLastValueCmdDown*)&command;
         CBORDecoder::decode(_thing.getPropertyContainer(), (uint8_t*)msg->fields.params.last_values, msg->fields.params.length, true);
+        _time_service.setTimeZoneData(_thing._tz_offset, _thing._tz_dst_until);
         _thing.sendMessageDownstream(Event::LastValues);
+        execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
       }
       break;
 
@@ -589,11 +580,11 @@ void ArduinoIoTCloudTCP::sendDevicePropertiesToCloud()
   DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s announce device to the Cloud %d", __FUNCTION__, _time_service.getTime());
   sendPropertyContainerToCloud(_deviceTopicOut, ro_device_container, last_device_property_index);
 
-#if OTA_ENABLED
-  OtaBeginUp command = {CommandID::OtaBeginUpId};
-  memcpy(command.fields.params.sha, (uint8_t*)OTA::getImageSHA256().c_str(), SHA256_SIZE);
-  sendMessage((Message*)&command);
-#endif
+// #if OTA_ENABLED
+//   OtaBeginUp command = {CommandID::OtaBeginUpId};
+//   memcpy(command.fields.params.sha, (uint8_t*)OTA::getImageSHA256().c_str(), SHA256_SIZE);
+//   sendMessage((Message*)&command);
+// #endif
 
   DeviceBeginCmdUp command2 = {CommandID::DeviceBeginCmdUpId};
   strcpy(command2.fields.params.lib_version, AIOT_CONFIG_LIB_VERSION);
@@ -628,9 +619,9 @@ void ArduinoIoTCloudTCP::requestLastValue()
   // Send the getLastValues CBOR message to the cloud
   // [{0: "r:m", 3: "getLastValues"}] = 81 A2 00 63 72 3A 6D 03 6D 67 65 74 4C 61 73 74 56 61 6C 75 65 73
   // Use http://cbor.me to easily generate CBOR encoding
-  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s at time [%d]", __FUNCTION__, getTime());
-  const uint8_t CBOR_REQUEST_LAST_VALUE_MSG[] = { 0x81, 0xA2, 0x00, 0x63, 0x72, 0x3A, 0x6D, 0x03, 0x6D, 0x67, 0x65, 0x74, 0x4C, 0x61, 0x73, 0x74, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x73 };
-  write(_shadowTopicOut, CBOR_REQUEST_LAST_VALUE_MSG, sizeof(CBOR_REQUEST_LAST_VALUE_MSG));
+  // DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s at time [%d]", __FUNCTION__, getTime());
+  // const uint8_t CBOR_REQUEST_LAST_VALUE_MSG[] = { 0x81, 0xA2, 0x00, 0x63, 0x72, 0x3A, 0x6D, 0x03, 0x6D, 0x67, 0x65, 0x74, 0x4C, 0x61, 0x73, 0x74, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x73 };
+  // write(_shadowTopicOut, CBOR_REQUEST_LAST_VALUE_MSG, sizeof(CBOR_REQUEST_LAST_VALUE_MSG));
 
   ThingGetLastValueCmdUp command = {CommandID::ThingGetLastValueCmdUpId};
   sendMessage((Message*)&command);
@@ -646,13 +637,13 @@ void ArduinoIoTCloudTCP::requestThingId()
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _messageTopicIn.c_str());
   }
 
-  if (!_mqttClient.subscribe(_deviceTopicIn))
-  {
-    /* If device_id is wrong the board can't connect to the broker so this condition
-    * should never happen.
-    */
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _deviceTopicIn.c_str());
-  }
+  // if (!_mqttClient.subscribe(_deviceTopicIn))
+  // {
+  //   /* If device_id is wrong the board can't connect to the broker so this condition
+  //   * should never happen.
+  //   */
+  //   DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _deviceTopicIn.c_str());
+  // }
 
   ThingGetIdCmdUp command = {CommandID::ThingGetIdCmdUpId};
   strcpy(command.fields.params.thing_id, _thing_id.c_str());
