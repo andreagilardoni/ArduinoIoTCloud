@@ -104,5 +104,18 @@ bool STM32H7OTACloudProcess::isOtaCapable() {
   return Arduino_Portenta_OTA::isOtaCapable();
 }
 
+// extern uint32_t __stext = ~0;
+extern uint32_t __etext;
+extern uint32_t _sdata;
+extern uint32_t _edata;
+
+void* STM32H7OTACloudProcess::appStartAddress() {
+  return (void*)0x8040000;
+  // return &__stext;
+}
+uint32_t STM32H7OTACloudProcess::appSize() {
+  return ((&__etext - (uint32_t*)appStartAddress()) + (&_edata - &_sdata))*sizeof(void*);
+}
+
 
 #endif // defined(BOARD_STM32H7) && OTA_ENABLED
