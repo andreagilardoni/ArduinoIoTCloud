@@ -2,6 +2,7 @@
 
 #include "OTAInterface.h"
 #include "OTAUpdate.h"
+#include "r_flash_lp.h"
 
 class UNOR4OTACloudProcess: public OTACloudProcessInterface {
 public:
@@ -28,7 +29,17 @@ protected:
 
   virtual void reset() override;
 
+  constexpr void* appStartAddress();
+  uint32_t appSize();
+
+  bool appFlashOpen();
+  bool appFlashClose();
+
 public:
+  // used to access to flash memory for sha256 calculation
+  flash_lp_instance_ctrl_t  ctrl;
+  flash_cfg_t               cfg;
+
   OTAUpdate ota;
   static const char UPDATE_FILE_NAME[];
 };
