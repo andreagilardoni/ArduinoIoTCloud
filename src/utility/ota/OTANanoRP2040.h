@@ -26,6 +26,11 @@ protected:
   virtual int writeFlash(uint8_t* const buffer, size_t len) override;
 
   virtual void reset() override;
+
+  void* appStartAddress();
+  uint32_t appSize();
+  bool appFlashOpen() { return true; };
+  bool appFlashClose() { return true; };
 private:
   FlashIAPBlockDevice flash;
   FILE* decompressed;

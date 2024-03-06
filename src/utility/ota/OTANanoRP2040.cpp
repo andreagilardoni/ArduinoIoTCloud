@@ -15,7 +15,7 @@ const char NANO_RP2040OTACloudProcess::UPDATE_FILE_NAME[] = FULL_UPDATE_FILE_PAT
 
 NANO_RP2040OTACloudProcess::NANO_RP2040OTACloudProcess(MessageStream *ms, ConnectionHandler* connection_handler)
 : OTACloudProcessInterface(ms, connection_handler)
-, flash(XIP_BASE + 0xF00000, 0x100000) // TODO make this numbers a constant
+, flash((uint32_t)appStartAddress() + 0xF00000, 0x100000) // TODO make this numbers a constant
 , decompressed(nullptr)
 , fs(nullptr) {
 }
@@ -44,7 +44,7 @@ OTACloudProcessInterface::State NANO_RP2040OTACloudProcess::startOTA() {
     return OtaStorageInitFail;
   }
 
-  flash.erase(XIP_BASE + 0xF00000, 0x100000);
+  flash.erase((uint32_t)appStartAddress() + 0xF00000, 0x100000);
 
   fs = new mbed::FATFileSystem(SD_MOUNT_PATH); // FIXME can this be allocated in the stack?
   if ((err = fs->reformat(&flash)) != 0) {
@@ -106,6 +106,18 @@ int NANO_RP2040OTACloudProcess::close_fs() {
 
 bool NANO_RP2040OTACloudProcess::isOtaCapable() {
   return true;
+}
+
+// extern void* __stext;
+extern uint32_t __flash_binary_end;
+
+
+void* NANO_RP2040OTACloudProcess::appStartAddress() {
+  // return &__flash_binary_start;
+  return (void*)XIP_BASE;
+}
+uint32_t NANO_RP2040OTACloudProcess::appSize() {
+  return (&__flash_binary_end - (uint32_t*)appStartAddress())*sizeof(void*);
 }
 
 #endif // defined(ARDUINO_NANO_RP2040_CONNECT) && OTA_ENABLED
