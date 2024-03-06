@@ -30,7 +30,15 @@ protected:
   virtual int writeFlash(uint8_t* const buffer, size_t len) override {};
 
   virtual void reset() override;
+
+  void* appStartAddress();
+  uint32_t appSize();
+  bool appFlashOpen();
+  bool appFlashClose() { return true; };
+
+  void calculateSHA256(SHA256&) override;
 // private:
-public:
+public: // FIXME put this back to private after testing
   Arduino_ESP32_OTA ota;
+  const esp_partition_t *rom_partition;
 };
