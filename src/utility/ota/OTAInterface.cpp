@@ -130,9 +130,17 @@ OTACloudProcessInterface::State OTACloudProcessInterface::otaBegin() {
 
   struct OtaBeginUp msg = {
     OtaBeginUpId,
-    {0}
-    // TODO put sha256 here
   };
+
+  SHA256 sha256_calc;
+  calculateSHA256(sha256_calc);
+
+  sha256_calc.finalize(sha256);
+  memcpy(msg.params.sha, sha256, SHA256::HASH_SIZE);
+
+  DEBUG_VERBOSE("calculated SHA256: 0x%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
+    this->sha256[0], this->sha256[1], this->sha256[2], this->sha256[3], this->sha256[4], this->sha256[5], this->sha256[6], this->sha256[7], this->sha256[8], this->sha256[9], this->sha256[10], this->sha256[11], this->sha256[12], this->sha256[13], this->sha256[14], this->sha256[15], this->sha256[16], this->sha256[17], this->sha256[18], this->sha256[19], this->sha256[20], this->sha256[21], this->sha256[22], this->sha256[23], this->sha256[24], this->sha256[25], this->sha256[26], this->sha256[27], this->sha256[28], this->sha256[29], this->sha256[30], this->sha256[31]
+    );
 
   deliver((Message*)&msg);
   // TODO msg object do not extist after this call make sure it gets copied somewhere
@@ -140,6 +148,20 @@ OTACloudProcessInterface::State OTACloudProcessInterface::otaBegin() {
   return Idle;
 }
 
+void OTACloudProcessInterface::calculateSHA256(SHA256& sha256_calc) {
+  DEBUG_VERBOSE("calculate sha on: 0x%X len 0x%X  %d", appStartAddress(), appSize(), appSize());
+  auto res = appFlashOpen();
+  if(!res) {
+    // TODO return error
+    return;
+  }
+
+  sha256_calc.begin();
+  sha256_calc.update(
+    reinterpret_cast<const uint8_t*>(appStartAddress()),
+    appSize());
+  appFlashClose();
+}
 
 OTACloudProcessInterface::State OTACloudProcessInterface::idle(Message* msg) {
   // if a msg arrived, it may be an OTAavailable, then go to otaAvailable

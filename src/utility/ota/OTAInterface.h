@@ -22,6 +22,7 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
+#include "../../tls/utility/SHA256.h"
 
 #if OTA_ENABLED
 #include <Arduino.h>
@@ -206,6 +207,22 @@ protected:
 
   // This method is called to report the current state of the OtaClass
   void reportStatus();
+
+  // in order to calculate the SHA256 we need to get the start and end address of the Application,
+  // The Implementation of this class have to implement them.
+  // The calculation is performed during the otaBegin phase
+  virtual void* appStartAddress() = 0;
+  virtual uint32_t appSize()      = 0;
+
+  // some architecture require to explicitely open the flash in order to read it
+  virtual bool appFlashOpen() = 0;
+  virtual bool appFlashClose() = 0;
+
+  // sha256 is going to be used in the ota process for validation, avoid calculating it twice
+  uint8_t sha256[SHA256::HASH_SIZE];
+
+  // calculateSHA256 method is overridable for platforms that do not support access through pointer to program memory
+  virtual void calculateSHA256(SHA256&); // FIXME return error
 private:
   void clean();
   void parseOta(uint8_t* buffer, size_t buf_len);
