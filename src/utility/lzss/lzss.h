@@ -13,6 +13,15 @@
 /**************************************************************************************
    INCLUDE
  **************************************************************************************/
+#if defined __has_include
+#if __has_include(<decompress/lzss.h>) && !defined(ARDUINO_ARCH_ESP32)
+#include <decompress/lzss.h>
+#else
+#define NO_LZSS
+#endif
+#endif
+
+#ifdef NO_LZSS
 
 #include <Arduino.h>
 #include <functional>
@@ -107,3 +116,5 @@ private:
     // get the number of bits the FSM will require given its state
     uint8_t bits_required(FSM_STATES s);
 };
+
+#endif // NO_LZSS

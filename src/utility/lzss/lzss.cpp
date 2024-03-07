@@ -13,17 +13,13 @@
 /**************************************************************************************
    INCLUDE
  **************************************************************************************/
-// #if defined __has_include
-// #  if __has_include(<lzss.h>)
-// #    include <decompress/lzss.h>
-// #  endif
-// #  else
-// #    define NO_LZSS
-// #  endif
-// #endif
+#if defined __has_include
+#if ! __has_include(<decompress/lzss.h>) || defined(ARDUINO_ARCH_ESP32)
+#define NO_LZSS
+#endif
+#endif
 
-
-// #ifdef NO_LZSS
+#ifdef NO_LZSS
 #include "lzss.h"
 
 #include <stdlib.h>
@@ -172,3 +168,5 @@ int LZSSDecoder::getc() {
     }
     return c;
 }
+
+#endif // NO_LZSS

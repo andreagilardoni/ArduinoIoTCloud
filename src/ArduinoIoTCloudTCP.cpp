@@ -97,11 +97,14 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 #if OTA_ENABLED
 , _ota_cap{false}
 , _ota_error{static_cast<int>(OTAError::None)}
+, _ota_progress{"Resume"}
 , _ota_img_sha256{"Inv."}
 , _ota_url{""}
 , _ota_req{false}
 , _ask_user_before_executing_ota{false}
 , _get_ota_confirmation{nullptr}
+, _message_stream(std::bind(&ArduinoIoTCloudTCP::sendMessageOTA, this, std::placeholders::_1)) // FIXME send message
+, _ota(&_message_stream)
 #endif /* OTA_ENABLED */
 {
 
@@ -128,11 +131,6 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 {
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
-
-#if OTA_ENABLED
-  _ota_img_sha256 = OTA::getImageSHA256();
-  DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
-#endif /* OTA_ENABLED */
 
 #if defined(BOARD_HAS_SECRET_KEY)
   /* If board is not configured for username and password login */
@@ -210,6 +208,8 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   addPropertyToContainer(_device_property_container, *p, "OTA_CAP", Permission::Read, -1);
   p = new CloudWrapperInt(_ota_error);
   addPropertyToContainer(_device_property_container, *p, "OTA_ERROR", Permission::Read, -1);
+  p = new CloudWrapperString(_ota_progress);
+  addPropertyToContainer(_device_property_container, *p, "OTA_PROGRESS", Permission::Read, -1);
   p = new CloudWrapperString(_ota_img_sha256);
   addPropertyToContainer(_device_property_container, *p, "OTA_SHA256", Permission::Read, -1);
   p = new CloudWrapperString(_ota_url);
@@ -224,8 +224,14 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   addPropertyReal(_tz_dst_until, "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
 
 #if OTA_ENABLED
-  _ota_cap = OTA::isCapable();
+  _ota_cap = _ota.isOtaCapable();
 #endif
+
+#if  OTA_ENABLED
+  // Sha256 is calculated when the ota fsm reaches its second state
+  _ota.update();
+  _ota.update();
+#endif // OTA_ENABLED
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
   if (String(WiFi.firmwareVersion()) < String("1.4.4")) {
@@ -253,6 +259,15 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
     watchdog_enable_network_feed(_connection->getInterface());
   }
 #endif
+
+#if  OTA_ENABLED
+  _ota.setConnectionHandler(_connection);
+
+  _message_stream.addReceive(
+    "ota", // TODO make "ota" a constant
+    std::bind(&OTACloudProcessInterface::handleMessage, &_ota, std::placeholders::_1));
+
+#endif // OTA_ENABLED
 
   return 1;
 }
@@ -609,6 +624,10 @@ void ArduinoIoTCloudTCP::handle_OTARequest() {
   * OTA request has been set.
   */
 
+#if  OTA_ENABLED
+  _ota.update();
+#endif // OTA_ENABLED
+
   if (_ota_req)
   {
     bool const ota_execution_allowed_by_user = (_get_ota_confirmation != nullptr && _get_ota_confirmation());
@@ -620,10 +639,15 @@ void ArduinoIoTCloudTCP::handle_OTARequest() {
       _ota_req = false;
       /* Transmit the cleared request flags to the cloud. */
       sendDevicePropertyToCloud("OTA_REQ");
-      /* Call member function to handle OTA request. */
-      _ota_error = OTA::onRequest(_ota_url, _connection->getInterface());
-      /* If something fails send the OTA error to the cloud */
-      sendDevicePropertyToCloud("OTA_ERROR");
+
+      struct OtaUpdateCmdDown cmd = {
+        OtaUpdateCmdDownId,
+        "123456",
+      };
+
+      strncpy(cmd.params.url, _ota_url.c_str(), URL_SIZE);
+
+      _message_stream.send((Message*) &cmd, "ota");
     }
   }
 
@@ -769,6 +793,39 @@ void ArduinoIoTCloudTCP::updateThingTopics()
 
   clrThingIdOutdatedFlag();
 }
+
+#if OTA_ENABLED
+void ArduinoIoTCloudTCP::sendMessageOTA(Message* msg) {
+
+  switch(msg->id) {
+    case OtaBeginUpId:
+    {
+      OtaBeginUp *ota_begin_cmd = (OtaBeginUp*)msg;
+      String sha256_str;
+      std::for_each(ota_begin_cmd->params.sha,
+        ota_begin_cmd->params.sha + SHA256::HASH_SIZE,
+        [&sha256_str](uint8_t const elem) {
+          char buf[4];
+          snprintf(buf, 4, "%02X", elem);
+          sha256_str += buf;
+        });
+      _ota_img_sha256 = sha256_str;
+    }
+    break;
+    case OtaProgressCmdUpId:
+    {
+      OtaProgressCmdUp *ota_progress_cmd = (OtaProgressCmdUp*)msg;
+      _ota_progress = ota_progress_cmd->params.state;
+
+      /* If something fails send the OTA error to the cloud */
+      sendDevicePropertyToCloud("OTA_PROGRESS");
+    }
+    break;
+    default:
+      DEBUG_WARNING("unable to handle message id %d", msg->id);
+  }
+}
+#endif // OTA_ENABLED
 
 /******************************************************************************
  * EXTERN DEFINITION

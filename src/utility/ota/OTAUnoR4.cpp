@@ -34,11 +34,11 @@ OTACloudProcessInterface::State UNOR4OTACloudProcess::resume(Message* msg) {
 }
 
 OTACloudProcessInterface::State UNOR4OTACloudProcess::startOTA() {
-  OTAUpdate::Error ota_err = OTAUpdate::Error::None;
+  int ota_err = OTAUpdate::OTA_ERROR_NONE;
 
   // Open fs for ota
-  if((ota_err = ota.begin(UPDATE_FILE_NAME)) != OTAUpdate::Error::None) {
-    DEBUG_ERROR("OTAUpdate::begin() failed with %d", static_cast<int>(ota_err));
+  if((ota_err = ota.begin(UPDATE_FILE_NAME)) != OTAUpdate::OTA_ERROR_NONE) {
+    DEBUG_ERROR("OTAUpdate::begin() failed with %d", ota_err);
     return OtaDownloadFail; // FIXME
   }
 
@@ -46,17 +46,17 @@ OTACloudProcessInterface::State UNOR4OTACloudProcess::startOTA() {
 }
 
 OTACloudProcessInterface::State UNOR4OTACloudProcess::fetch() {
-  OTAUpdate::Error ota_err = OTAUpdate::Error::None;
+  int ota_err = OTAUpdate::OTA_ERROR_NONE;
 
   int const ota_download = ota.download(this->context->url,UPDATE_FILE_NAME);
   if (ota_download <= 0) {
     DEBUG_ERROR("OTAUpdate::download() failed with %d", ota_download);
     return OtaDownloadFail;
   }
-  DEBUG_VERBOSE("OTAUpdate::download() %d bytes downloaded", static_cast<int>(ota_download));
+  DEBUG_VERBOSE("OTAUpdate::download() %d bytes downloaded", ota_download);
 
-  if ((ota_err = ota.verify()) != OTAUpdate::Error::None) {
-    DEBUG_ERROR("OTAUpdate::verify() failed with %d", static_cast<int>(ota_err));
+  if ((ota_err = ota.verify()) != OTAUpdate::OTA_ERROR_NONE) {
+    DEBUG_ERROR("OTAUpdate::verify() failed with %d", ota_err);
     return OtaHeaderCrcFail; // FIXME
   }
 
@@ -64,11 +64,11 @@ OTACloudProcessInterface::State UNOR4OTACloudProcess::fetch() {
 }
 
 OTACloudProcessInterface::State UNOR4OTACloudProcess::flashOTA() {
-  OTAUpdate::Error ota_err = OTAUpdate::Error::None;
+  int ota_err = OTAUpdate::OTA_ERROR_NONE;
 
   /* Flash new firmware */
-  if ((ota_err = ota.update(UPDATE_FILE_NAME)) != OTAUpdate::Error::None) { // This reboots the MCU
-    DEBUG_ERROR("OTAUpdate::update() failed with %d", static_cast<int>(ota_err));
+  if ((ota_err = ota.update(UPDATE_FILE_NAME)) != OTAUpdate::OTA_ERROR_NONE) { // This reboots the MCU
+    DEBUG_ERROR("OTAUpdate::update() failed with %d", ota_err);
     return OtaDownloadFail; // FIXME
   }
 }
