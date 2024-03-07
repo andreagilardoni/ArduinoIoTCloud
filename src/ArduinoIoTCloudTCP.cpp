@@ -80,6 +80,8 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _shadowTopicIn("")
 , _dataTopicOut("")
 , _dataTopicIn("")
+, _message_stream(std::bind(&ArduinoIoTCloudTCP::sendMessage, this, std::placeholders::_1))
+, _thing(&_message_stream)
 #if OTA_ENABLED
 , _ask_user_before_executing_ota{false}
 , _get_ota_confirmation{nullptr}
@@ -190,8 +192,8 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   p = new CloudWrapperString(_thing_id);
   _thing_id_property = &addPropertyToContainer(_device.getPropertyContainer(), *p, "thing_id", Permission::ReadWrite, -1);
 
-  _thing.begin(onDeliver);
-  _device.begin(onDeliver);
+  _thing.begin();
+  _device.begin();
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
   if (String(WiFi.firmwareVersion()) < String("1.4.4")) {
@@ -399,34 +401,41 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   }
 }
 
-void ArduinoIoTCloudTCP::onDeliver(ArduinoIoTCloudProcessEvent id)
+void ArduinoIoTCloudTCP::sendMessage(Message * msg)
 {
-  ArduinoCloud.sendMessage(id);
-}
-
-void ArduinoIoTCloudTCP::sendMessage(ArduinoIoTCloudProcessEvent id)
-{
-  switch (id)
+  if (msg->id < OtaBeginUpId)
   {
-  case ArduinoIoTCloudProcessEvent::SendProperties:
-    sendThingPropertiesToCloud();
-  break;
+    switch (msg->id)
+    {
+      case SendProperties:
+      sendThingPropertiesToCloud();
+      break;
 
-  case ArduinoIoTCloudProcessEvent::GetLastValues:
-    requestLastValue();
-  break;
+      case GetLastValues:
+      requestLastValue();
+      break;
 
-  case ArduinoIoTCloudProcessEvent::GetThingId:
-    requestThingId();
-  break;
+      case GetThingId:
+      requestThingId();
+      break;
 
-  case ArduinoIoTCloudProcessEvent::AttachThing:
-    attachThing();
-  break;
+      case AttachThing:
+      attachThing();
+      break;
 
-  default:
-  break;
+      default:
+      break;
+    }
+
   }
+  else
+  {
+    uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
+    int bytes_encoded = 0;
+    //CborError err = MessageEncoder::encode(msg, data, sizeof(data), bytes_encoded);
+    //write(_messageTopicOut, data, bytes_encoded);
+  }
+
 }
 
 void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(String const topic, PropertyContainer & container, unsigned int & current_property_index)

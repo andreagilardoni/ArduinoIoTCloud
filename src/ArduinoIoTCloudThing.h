@@ -34,13 +34,13 @@ class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTClo
 {
   public:
 
-             ArduinoIoTCloudThing();
+             ArduinoIoTCloudThing(MessageStream* stream);
     virtual ~ArduinoIoTCloudThing() { }
 
     virtual void begin(deliverCallbackFunc cb) override;
     virtual void update() override;
     virtual int  connected() override;
-    virtual void handleMessage(ArduinoIoTCloudProcessEvent ev, char* msg) override;
+    virtual void handleMessage(Message* m) override;
 
   private:
 
@@ -57,6 +57,7 @@ class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTClo
     Property * _tz_offset_property;
     unsigned int _tz_dst_until;
     Property * _tz_dst_until_property;
+    Message _message;
 
     State handle_RequestLastValues();
     State handle_Connected();

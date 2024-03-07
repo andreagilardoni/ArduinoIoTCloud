@@ -29,8 +29,9 @@
    CTOR/DTOR
  ******************************************************************************/
 
-ArduinoIoTCloudThing::ArduinoIoTCloudThing()
-: _state{State::RequestLastValues}
+ArduinoIoTCloudThing::ArduinoIoTCloudThing(MessageStream *ms)
+: CloudProcess(ms)
+, _state{State::RequestLastValues}
 , _connection_attempt(0,0)
 , _tz_offset{0}
 , _tz_offset_property{nullptr}
@@ -40,10 +41,8 @@ ArduinoIoTCloudThing::ArduinoIoTCloudThing()
 
 }
 
-void ArduinoIoTCloudThing::begin(deliverCallbackFunc cb)
+void ArduinoIoTCloudThing::begin()
 {
-  _deliver = cb;
-
   Property* p;
   p = new CloudWrapperInt(_tz_offset);
   _tz_offset_property = &addPropertyToContainer(getPropertyContainer(), *p, "tz_offset", Permission::ReadWrite, -1).writeOnDemand();
@@ -71,7 +70,7 @@ int ArduinoIoTCloudThing::connected()
   return _state == State::Connected ? 1 : 0;
 }
 
-void ArduinoIoTCloudThing::handleMessage(ArduinoIoTCloudProcessEvent ev, char* msg)
+void ArduinoIoTCloudThing::handleMessage(Message* m)
 {
   String message = "";
 
@@ -120,7 +119,9 @@ ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_RequestLastValues()
   _connection_attempt.retry();
 
   /* Send message upstream to inform infrastructure we need to request thing last values */
-  _deliver(ArduinoIoTCloudProcessEvent::GetLastValues);
+
+  _message.id = GetLastValues;
+  deliver(&_message);
 
   return State::RequestLastValues;
 }
@@ -150,7 +151,8 @@ ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_Connected()
   /* Check if any properties need encoding and send them to
   * the cloud if necessary.
   */
-  _deliver(ArduinoIoTCloudProcessEvent::SendProperties);
+  _message.id = SendProperties;
+  deliver(&_message);
 
   if (getTime() > _tz_dst_until)
   {
@@ -162,9 +164,6 @@ ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_Connected()
 
 ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_Disconnect()
 {
-  /* Inform Infra we need to disconnect */
-  //_deliver(ArduinoIoTCloudProcessEvent::Disconnect);
-
   /* Reset attempt struct for the nex retry after disconnection */
   _connection_attempt.begin(AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms);
 

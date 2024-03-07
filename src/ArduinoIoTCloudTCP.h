@@ -80,8 +80,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
 
-    bool setTimestamp(String const & prop_name, unsigned long const timestamp);
-
     int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     int begin(bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
 
@@ -176,6 +174,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _dataTopicOut;
     String _dataTopicIn;
 
+    MessageStream _message_stream;
+
 #if OTA_ENABLED
     bool _ask_user_before_executing_ota;
     onOTARequestCallbackFunc _get_ota_confirmation;
@@ -196,8 +196,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     static void onMessage(int length);
     void handleMessage(int length);
-    static void onDeliver(ArduinoIoTCloudProcessEvent id);
-    void sendMessage(ArduinoIoTCloudProcessEvent id);
 
     void sendPropertyContainerToCloud(String const topic, PropertyContainer & property_container, unsigned int & current_property_index);
     void sendThingPropertiesToCloud();
@@ -206,6 +204,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     void requestThingId();
     void attachThing();
     int write(String const topic, byte const data[], int const length);
+    void sendMessage(Message * msg);
 
 #if OTA_ENABLED
     void sendDevicePropertyToCloud(String const name);

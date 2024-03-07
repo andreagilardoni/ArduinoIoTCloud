@@ -36,18 +36,23 @@
 
 enum CommandID: uint32_t {
     // Commands UP
-    OtaBeginUpId               = 65536,
-    ThingGetIdCmdUpId          = 66304,
-    ThingGetLastValueCmdUpId   = 66816,
-    DeviceBeginCmdUpId         = 67328,
-    OtaProgressCmdUpId         = 66048,
-    TimezoneCommandUpId        = 67584,
+    OtaBeginUpId               = 0x10000,
+    ThingGetIdCmdUpId          = 0x10300,
+    ThingGetLastValueCmdUpId   = 0x10500,
+    DeviceBeginCmdUpId         = 0x10700,
+    OtaProgressCmdUpId         = 0x10200,
+    TimezoneCommandUpId        = 0x10800,
 
     // Commands DOWN
-    OtaUpdateCmdDownId         = 65792,
-    ThingGetIdCmdDownId        = 66560,
-    ThingGetLastValueCmdDownId = 67072,
-    TimezoneCommandDownId      = 67840,
+    OtaUpdateCmdDownId         = 0x10100,
+    ThingGetIdCmdDownId        = 0x10400,
+    ThingGetLastValueCmdDownId = 0x10600,
+    TimezoneCommandDownId      = 0x10900,
+
+    // Internal messages
+    RequestlastValues          = 100,
+    SendProperties             = 200,
+    Disconnect                 = 300,
 };
 
 struct Command {
