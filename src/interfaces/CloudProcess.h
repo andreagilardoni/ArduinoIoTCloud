@@ -12,53 +12,45 @@
 #define ARDUINO_IOT_CLOUD_PROCESS
 
 /******************************************************************************
- * TYPEDEF
+ * INCLUDES
  ******************************************************************************/
 
-enum class ArduinoIoTCloudProcessEvent
-{
-  /* Device Events */
-  SendCapabilities,
-  GetThingId,
-  ThingId,
-  AttachThing,
-
-  /* Thing Events */
-  GetLastValues = 256,
-  LastValues,
-  SendProperties,
-
-  /* Ota Events */
-  OtaUrl = 512,
-  OtaReq,
-  OtaConfirm,
-  OtaStart,
-  OtaError,
-
-  /* Generic Events */
-  Disconnect,
-  Reset
-};
-
-typedef void (*deliverCallbackFunc)(ArduinoIoTCloudProcessEvent);
+#include <models/Models.h>
+#include <interfaces/MessageStream.h>
+#include <assert.h>
+#include <functional>
 
 /******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
 
-class ArduinoIoTCloudProcess
-{
-  public:
+class CloudProcess {
+public:
+    CloudProcess(MessageStream* stream): stream(stream) { }
 
-    virtual void begin(deliverCallbackFunc cb) = 0;
+    /**
+     * Abstract method that is called whenever a message comes from Message stream
+     * @param m: the incoming message
+     */
+    virtual void handleMessage(Message* m) = 0;
+
+    /**
+     * Abstract method that is called to update the FSM of the CloudProcess
+     */
     virtual void update() = 0;
-    virtual int  connected() = 0;
-    virtual void handleMessage(ArduinoIoTCloudProcessEvent ev, char* msg) = 0;
 
-  protected:
+protected:
+    /**
+     * Used by a derived class to send a message to the underlying messageStream
+     * @param msg: the message to send
+     */
+    void deliver(Message* msg) {
+        assert(stream != nullptr);
+        stream->sendUpstream(msg);
+    }
 
-    deliverCallbackFunc _deliver;
-
+private:
+    MessageStream* stream;
 };
 
 #endif /* ARDUINO_IOT_CLOUD_PROCESS */
