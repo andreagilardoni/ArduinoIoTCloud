@@ -26,6 +26,7 @@
 #include <ArduinoIoTCloud.h>
 #include <ArduinoMqttClient.h>
 #include <ArduinoIoTCloudThing.h>
+#include <ArduinoIoTCloudDevice.h>
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
   #include <Arduino_SecureElement.h>
