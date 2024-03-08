@@ -30,14 +30,14 @@
  * CLASS DECLARATION
  ******************************************************************************/
 
-class ArduinoIoTCloudThing: public ArduinoIoTCloudProcess , public ArduinoIoTCloudPropertiesClass
+class ArduinoIoTCloudThing: public CloudProcess , public ArduinoIoTCloudPropertiesClass
 {
   public:
 
              ArduinoIoTCloudThing(MessageStream* stream);
     virtual ~ArduinoIoTCloudThing() { }
 
-    virtual void begin(deliverCallbackFunc cb) override;
+    virtual void begin() override;
     virtual void update() override;
     virtual int  connected() override;
     virtual void handleMessage(Message* m) override;
