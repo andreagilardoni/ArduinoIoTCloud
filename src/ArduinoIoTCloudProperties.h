@@ -30,7 +30,16 @@
 #include "property/types/CloudWrapperUnsignedInt.h"
 #include "property/types/CloudWrapperString.h"
 
+/******************************************************************************
+   TYPEDEF
+ ******************************************************************************/
 
+typedef enum
+{
+  READ      = 0x01,
+  WRITE     = 0x02,
+  READWRITE = READ | WRITE
+} permissionType;
 
 /******************************************************************************
  * CLASS DECLARATION

@@ -25,6 +25,7 @@
 #include <AIoTC_Config.h>
 
 #include <Arduino_ConnectionHandler.h>
+#include <ArduinoIoTCloudProperties.h>
 
 #if defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE)
 #  include <Arduino_DebugUtils.h>
@@ -36,13 +37,6 @@
 /******************************************************************************
    TYPEDEF
  ******************************************************************************/
-
-typedef enum
-{
-  READ      = 0x01,
-  WRITE     = 0x02,
-  READWRITE = READ | WRITE
-} permissionType;
 
 enum class ArduinoIoTConnectionStatus
 {
