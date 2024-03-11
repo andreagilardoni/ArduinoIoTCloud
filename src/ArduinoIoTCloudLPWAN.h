@@ -39,7 +39,6 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     virtual void update        () override;
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
-    virtual void push          () override;
 
     int begin(ConnectionHandler& connection, bool retry = false);
 

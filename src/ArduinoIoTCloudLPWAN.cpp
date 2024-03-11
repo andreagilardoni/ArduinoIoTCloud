@@ -92,11 +92,6 @@ void ArduinoIoTCloudLPWAN::printDebugInfo()
   DEBUG_INFO("Device EUI: %s", static_cast<LoRaConnectionHandler*>(_connection)->getDeviceEUI().c_str());
 }
 
-void ArduinoIoTCloudLPWAN::push()
-{
-  requestUpdateForAllProperties(_thing.getPropertyContainer());
-}
-
 /******************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/

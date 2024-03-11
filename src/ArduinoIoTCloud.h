@@ -70,8 +70,8 @@ class ArduinoIoTCloudClass
     virtual void update        () = 0;
     virtual int  connected     () = 0;
     virtual void printDebugInfo() = 0;
-    virtual void push          () = 0;
 
+            void push();
             bool setTimestamp(String const & prop_name, unsigned long const timestamp);
 
     inline ConnectionHandler * getConnection()          { return _connection; }
@@ -93,6 +93,7 @@ class ArduinoIoTCloudClass
 
   private:
 
+    virtual ArduinoIoTCloudPropertiesClass &getThing() = 0;
     OnCloudEventCallback _cloud_event_callback[3];
     bool _thing_id_outdated;
 };

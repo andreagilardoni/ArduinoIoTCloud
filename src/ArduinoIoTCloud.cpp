@@ -38,6 +38,22 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass()
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
+void ArduinoIoTCloudClass::push()
+{
+  requestUpdateForAllProperties(getThing().getPropertyContainer());
+}
+
+bool ArduinoIoTCloudClass::setTimestamp(String const & prop_name, unsigned long const timestamp)
+{
+  Property * p = getProperty(getThing().getPropertyContainer(), prop_name);
+
+  if (p == nullptr)
+    return false;
+
+  p->setTimestamp(timestamp);
+
+  return true;
+}
 
 void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback)
 {

@@ -79,7 +79,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual void update        () override;
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
-    virtual void push          () override;
 
     bool setTimestamp(String const & prop_name, unsigned long const timestamp);
 

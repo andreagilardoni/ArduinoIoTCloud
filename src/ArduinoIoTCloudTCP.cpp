@@ -315,23 +315,6 @@ void ArduinoIoTCloudTCP::printDebugInfo()
   DEBUG_INFO("MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
 }
 
-void ArduinoIoTCloudTCP::push()
-{
-  requestUpdateForAllProperties(_thing.getPropertyContainer());
-}
-
-bool ArduinoIoTCloudTCP::setTimestamp(String const & prop_name, unsigned long const timestamp)
-{
-  Property * p = getProperty(_thing.getPropertyContainer(), prop_name);
-
-  if (p == nullptr)
-    return false;
-
-  p->setTimestamp(timestamp);
-
-  return true;
-}
-
 /******************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
