@@ -26,6 +26,7 @@
 #include<ArduinoIoTCloudLPWAN.h>
 
 #include "cbor/CBOREncoder.h"
+#include "cbor/CBORDecoder.h"
 
 /******************************************************************************
    CONSTANTS

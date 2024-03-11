@@ -22,20 +22,7 @@
  * INCLUDE
  ******************************************************************************/
 
-#include <AIoTC_Config.h>
-
-#include <Arduino_ConnectionHandler.h>
-
-#if defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE)
-#  include <Arduino_DebugUtils.h>
-#endif
-
-#include "AIoTC_Const.h"
-
-#include "cbor/CBORDecoder.h"
-
 #include "property/Property.h"
-
 #include "property/PropertyContainer.h"
 #include "property/types/CloudWrapperBool.h"
 #include "property/types/CloudWrapperFloat.h"
@@ -43,7 +30,6 @@
 #include "property/types/CloudWrapperUnsignedInt.h"
 #include "property/types/CloudWrapperString.h"
 
-#include "utility/time/TimeService.h"
 
 
 /******************************************************************************

@@ -42,6 +42,7 @@
 
 #include <algorithm>
 #include "cbor/CBOREncoder.h"
+#include "cbor/CBORDecoder.h"
 #include "utility/watchdog/Watchdog.h"
 
 /******************************************************************************
