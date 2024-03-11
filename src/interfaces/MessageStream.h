@@ -15,10 +15,12 @@
  ******************************************************************************/
 
 #include <message/Models.h>
-#include <map>
-#include <functional>
+#if defined (MESSAGE_STREAM_HAS_RECEIVE_HASHMAP)
+  #include <map>
+  using receiveFunction=std::function<void (Message*)>;
+#endif
 
-using receiveFunction=std::function<void (Message*)>;
+#include <functional>
 using upstreamFunction=std::function<void(Message*)>;
 
 /******************************************************************************
@@ -31,6 +33,13 @@ public:
     upstream(upstream) {}
 
     /**
+     * Send message upstream
+     * @param m: message to send
+     */
+    virtual inline void sendUpstream(Message* m) { upstream(m); }
+
+#if defined (MESSAGE_STREAM_HAS_RECEIVE_HASHMAP)
+    /**
      * Send a message downstream to the handler capable of managing that message.
      * @param m: the message to be sent down stream
      * @param channel: the channel onto which sending the message
@@ -42,13 +51,7 @@ public:
             // the channel doesn't exist, ignore it
             // TODO report a warning message
         // }
-    }
-
-    /**
-     * Send message upstream
-     * @param m: message to send
-     */
-    virtual inline void sendUpstream(Message* m) { upstream(m); }
+    (())}
 
     /**
      * Add a receive function on the specified channel. If another receive function exists it will be replaced
@@ -62,8 +65,11 @@ public:
      * @param channel: the channel to empty
      */
     virtual inline void removeReceive(std::string channel) { receivers.erase(channel); }
+#endif
 
 private:
+#if defined (MESSAGE_STREAM_HAS_RECEIVE_HASHMAP)
     std::map<std::string, receiveFunction> receivers;
+#endif
     upstreamFunction upstream;
 };
