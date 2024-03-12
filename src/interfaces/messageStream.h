@@ -10,7 +10,7 @@
 
 #pragma once
 #include <models/models.h>
-#include <map>
+// #include <map>
 #include <functional>
 
 using receiveFunction=std::function<void (Message*)>;
@@ -28,7 +28,7 @@ public:
      */
     virtual inline void send(Message* m, std::string channel) {
         // try { // FIXME exception may be disabled on some cores
-            receivers.at(channel)(m);
+            // receivers.at(channel)(m);
         // } catch(std::out_of_range&) {
             // the channel doesn't exist, ignore it
             // TODO report a warning message
@@ -46,15 +46,15 @@ public:
      * @param channel: the channel onto which the receive function will be bound to
      * @param r: the receive function that will handle an incoming message
      */
-    virtual inline void addReceive(std::string channel, receiveFunction r) { receivers[channel] = r; }
+    virtual inline void addReceive(std::string channel, receiveFunction r) { /*receivers[channel] = r;*/ }
 
     /**
      * Remove a receive function that is bound to the provided channel
      * @param channel: the channel to empty
      */
-    virtual inline void removeReceive(std::string channel) { receivers.erase(channel); }
+    virtual inline void removeReceive(std::string channel) { /*receivers.erase(channel);*/ }
 
 private:
-    std::map<std::string, receiveFunction> receivers;
+    // std::map<std::string, receiveFunction> receivers;
     upstreamFunction upstream;
 };

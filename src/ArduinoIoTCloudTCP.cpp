@@ -647,7 +647,8 @@ void ArduinoIoTCloudTCP::handle_OTARequest() {
 
       strncpy(cmd.params.url, _ota_url.c_str(), URL_SIZE);
 
-      _message_stream.send((Message*) &cmd, "ota");
+      // _message_stream.send((Message*) &cmd, "ota");
+      _ota.handleMessage((Message*)&cmd);
     }
   }
 
