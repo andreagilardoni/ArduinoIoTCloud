@@ -12,6 +12,20 @@
 #define ARDUINO_IOT_CLOUD_PROCESS
 
 /******************************************************************************
+ * TYPEDEF
+ ******************************************************************************/
+
+enum class ArduinoIoTCloudProcessEvent
+{
+  RequestlastValues,
+  LastValues,
+  SendProperties,
+  Disconnect
+};
+
+typedef void (*deliverCallbackFunc)(ArduinoIoTCloudProcessEvent);
+
+/******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
 
@@ -19,8 +33,14 @@ class ArduinoIoTCloudProcess
 {
   public:
 
-    virtual void update   () = 0;
-    virtual int  connected() = 0;
+    virtual void begin(deliverCallbackFunc cb) = 0;
+    virtual void update()                      = 0;
+    virtual int  connected()                   = 0;
+
+  protected:
+
+    deliverCallbackFunc _deliver;
+
 };
 
 #endif /* ARDUINO_IOT_CLOUD_PROCESS */
