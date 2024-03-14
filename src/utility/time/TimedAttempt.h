@@ -30,6 +30,7 @@ public:
     bool isRetry();
     bool isExpired();
     unsigned int getRetryCount();
+    unsigned int getWaitTime();
 
 private:
     unsigned long _delay;

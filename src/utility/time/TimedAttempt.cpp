@@ -85,3 +85,8 @@ unsigned int TimedAttempt::getRetryCount()
 {
   return _retry_cnt;
 }
+
+unsigned int TimedAttempt::getWaitTime()
+{
+  return _retry_delay;
+}
