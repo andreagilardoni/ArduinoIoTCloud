@@ -111,8 +111,8 @@ void ArduinoIoTCloudDevice::handleMessage(ArduinoIoTCloudProcessEvent ev, char* 
     break;
 
     /* We have received a reset command */
-    case ArduinoIoTCloudProcessEvent::Disconnect:
-    _state = State::Disconnect;
+    case ArduinoIoTCloudProcessEvent::Reset:
+    _state = State::SendCapabilities;
     break;
 
     case ArduinoIoTCloudProcessEvent::SendCapabilities:
@@ -192,6 +192,7 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_AttachThing()
 
   if (_connection_attempt.getRetryCount() > AIOT_CONFIG_THING_TOPICS_SUBSCRIBE_MAX_RETRY_CNT)
   {
+    _deliver(ArduinoIoTCloudProcessEvent::Disconnect);
     return State::Disconnect;
   }
 
@@ -249,9 +250,6 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Connected()
 
 ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Disconnect()
 {
-  /* Inform Infra we need to disconnect */
-  _deliver(ArduinoIoTCloudProcessEvent::Disconnect);
-
   /* Reset attempt struct for the nex retry after disconnection */
   _connection_attempt.begin(AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms);
 
@@ -260,7 +258,7 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Disconnect()
 
   _attached = false;
 
-  return State::SendCapabilities;
+  return State::Disconnect;
 }
 
 #endif
