@@ -15,7 +15,7 @@
  * INCLUDES
  ******************************************************************************/
 
-#include <models/Models.h>
+#include <message/Models.h>
 #include <interfaces/MessageStream.h>
 #include <assert.h>
 #include <functional>
