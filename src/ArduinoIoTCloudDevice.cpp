@@ -31,8 +31,9 @@
 /******************************************************************************
    CTOR/DTOR
  ******************************************************************************/
- ArduinoIoTCloudDevice::ArduinoIoTCloudDevice()
-: _state{State::Init}
+ ArduinoIoTCloudDevice::ArduinoIoTCloudDevice(MessageStream *ms)
+: CloudProcess(ms)
+, _state{State::Init}
 , _connection_attempt(0,0)
 , _thing_id{""}
 , _attached{false}
@@ -47,10 +48,8 @@
 
 }
 
-void ArduinoIoTCloudDevice::begin(deliverCallbackFunc cb)
+void ArduinoIoTCloudDevice::begin()
 {
-  _deliver = cb;
-
 #if OTA_ENABLED
   _ota_img_sha256 = OTA::getImageSHA256();
   DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
@@ -92,38 +91,28 @@ int ArduinoIoTCloudDevice::connected()
  return _state != State::Disconnected ? 1 : 0;
 }
 
-void ArduinoIoTCloudDevice::handleMessage(ArduinoIoTCloudProcessEvent ev, char* msg)
+void ArduinoIoTCloudDevice::handleMessage(Message* m)
 {
-  String message = "";
-
-  if (msg != nullptr)
-  {
-    message = String(msg);
-  }
-
-  switch (ev)
+  Serial.println((int)m->id);
+  switch (m->id)
   {
     /* We have received a new thing id message */
-    case ArduinoIoTCloudProcessEvent::AttachThing:
-    _thing_id = message;
+    case AttachThing:
+    Serial.println(((ThingGetIdCmdDown*)m)->params.thing_id);
+    _thing_id = String(((ThingGetIdCmdDown*)m)->params.thing_id);
     _state = State::ProcessThingId;
     break;
 
     /* We have received a reset command */
-    case ArduinoIoTCloudProcessEvent::Reset:
+    case Reset:
     _state = State::Init;
     break;
 
-    case ArduinoIoTCloudProcessEvent::SendCapabilities:
-    case ArduinoIoTCloudProcessEvent::GetThingId:
-    case ArduinoIoTCloudProcessEvent::GetLastValues:
-    case ArduinoIoTCloudProcessEvent::LastValues:
-    case ArduinoIoTCloudProcessEvent::SendProperties:
-    case ArduinoIoTCloudProcessEvent::OtaUrl:
-    case ArduinoIoTCloudProcessEvent::OtaReq:
-    case ArduinoIoTCloudProcessEvent::OtaConfirm:
-    case ArduinoIoTCloudProcessEvent::OtaStart:
-    case ArduinoIoTCloudProcessEvent::OtaError:
+    case SendCapabilities:
+    case GetThingId:
+    case GetLastValues:
+    case LastValues:
+    case SendProperties:
     default:
     break;
   }
@@ -144,13 +133,15 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Init()
 ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_SendCapabilities()
 {
   /* Now: Sends message into device topic Will: LIB_VERSION? */
-  _deliver(ArduinoIoTCloudProcessEvent::SendCapabilities);
+  _message.id = SendCapabilities;
+  deliver(&_message);
 
   /* Now: Subscribe to device topic. Will: send Thing.begin() */
-  _deliver(ArduinoIoTCloudProcessEvent::GetThingId);
+  _message.id = GetThingId;
+  deliver(&_message);
 
   /* No device configuration received. Wait: 4s -> 8s -> 16s -> 32s -> 32s ...*/
-  unsigned long attach_retry_delay = _connection_attempt.retry();
+  _connection_attempt.retry();
   DEBUG_VERBOSE("CloudDevice::%s not attached. %d next configuration request in %d ms", __FUNCTION__, _connection_attempt.getRetryCount(), _connection_attempt.getWaitTime());
   return State::Connected;
 }
@@ -173,7 +164,8 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_ProcessThingId()
   }
 
   Serial.println("AttachThing");
-  _deliver(ArduinoIoTCloudProcessEvent::AttachThing);
+  _message.id = AttachThing;
+  deliver(&_message);
   _attached = true;
   _connection_attempt.begin(AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms, AIOT_CONFIG_MAX_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms);
   return State::Connected;
@@ -200,7 +192,6 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Connected()
     if (_connection_attempt.getRetryCount() > AIOT_CONFIG_DEVICE_TOPIC_MAX_RETRY_CNT)
     {
       Serial.println("Device disconnect");
-      _deliver(ArduinoIoTCloudProcessEvent::Disconnect);
       return State::Disconnected;
     }
   }
@@ -211,7 +202,8 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Connected()
   */
   if (_ota_url.length())
   {
-    _deliver(ArduinoIoTCloudProcessEvent::OtaUrl);
+    _message.id = OtaUrl;
+    deliver(&_message);
     _ota_url = "";
   }
 
@@ -228,11 +220,14 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Connected()
       /* Clear the request flag. */
       _ota_req = false;
       /* Transmit the cleared request flags to the cloud. */
-      _deliver(ArduinoIoTCloudProcessEvent::OtaReq);
+      _message.id = OtaReq;
+      deliver(&_message);
       /* Call member function to handle OTA request. */
-      _deliver(ArduinoIoTCloudProcessEvent::OtaStart);
+      _message.id = OtaStart;
+      deliver(&_message);
       /* If something fails send the OTA error to the cloud */
-      _deliver(ArduinoIoTCloudProcessEvent::OtaError);
+      _message.id = OtaError;
+      deliver(&_message);
     }
   }
 #endif

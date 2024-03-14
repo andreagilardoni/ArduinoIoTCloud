@@ -30,17 +30,17 @@
  * CLASS DECLARATION
  ******************************************************************************/
 
-class ArduinoIoTCloudDevice: public ArduinoIoTCloudProcess, public ArduinoIoTCloudPropertiesClass
+class ArduinoIoTCloudDevice: public CloudProcess, public ArduinoIoTCloudPropertiesClass
 {
   public:
 
-             ArduinoIoTCloudDevice();
+             ArduinoIoTCloudDevice(MessageStream* stream);
     virtual ~ArduinoIoTCloudDevice() { }
 
-    virtual void begin(deliverCallbackFunc cb) override;
+    virtual void begin();
     virtual void update() override;
-    virtual int  connected() override;
-    virtual void handleMessage(ArduinoIoTCloudProcessEvent ev, char* msg) override;
+    virtual int  connected();
+    virtual void handleMessage(Message* m) override;
 
     inline bool isAttached() { return _attached; };
     inline bool hasThingId() { return !_thing_id.isEmpty(); }
@@ -60,6 +60,7 @@ class ArduinoIoTCloudDevice: public ArduinoIoTCloudProcess, public ArduinoIoTClo
     TimedAttempt _connection_attempt;
     String _thing_id;
     bool _attached;
+    Message _message;
 
 #if OTA_ENABLED
     bool _ota_cap;
