@@ -384,10 +384,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     CBORDecoder::decode(_device.getPropertyContainer(), (uint8_t*)bytes, length);
     /* Unlock device state machine waiting thing_id*/
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] device configuration received", __FUNCTION__, millis());
-    if (_thing_id_property->isDifferentFromCloud()) {
-      _thing_id_property->fromCloudToLocal();
-      _device.handleMessage(ArduinoIoTCloudProcessEvent::AttachThing, (char*)_thing_id.c_str());
-    }
+    _device.handleMessage(ArduinoIoTCloudProcessEvent::AttachThing, (char*)_thing_id.c_str());
   }
 
   /* Topic for user input data */
