@@ -188,7 +188,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   p = new CloudWrapperString(_lib_version);
   addPropertyToContainer(_device.getPropertyContainer(), *p, "LIB_VERSION", Permission::Read, -1);
   p = new CloudWrapperString(_thing_id);
-  _thing_id_property = &addPropertyToContainer(_device.getPropertyContainer(), *p, "thing_id", Permission::ReadWrite, -1).writeOnDemand();
+  _thing_id_property = &addPropertyToContainer(_device.getPropertyContainer(), *p, "thing_id", Permission::ReadWrite, -1);
 
   _thing.begin(onDeliver);
   _device.begin(onDeliver);
