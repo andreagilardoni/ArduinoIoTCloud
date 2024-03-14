@@ -232,7 +232,6 @@ void ArduinoIoTCloudTCP::update()
   watchdog_reset();
 #endif
 
-
   /* Run through the state machine. */
   State next_state = _state;
   switch (_state)
@@ -246,7 +245,7 @@ void ArduinoIoTCloudTCP::update()
   _state = next_state;
 
   /* This watchdog feed is actually needed only by the RP2040 Connect because its
-   * maximum watchdog window is 8389 ms; despite this we feed it for all 
+   * maximum watchdog window is 8389 ms; despite this we feed it for all
    * supported ARCH to keep code aligned.
    */
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
@@ -276,6 +275,7 @@ void ArduinoIoTCloudTCP::printDebugInfo()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 {
+
   if (_connection->check() == NetworkConnectionState::CONNECTED)
   {
     if (!_connection_attempt.isRetry() || (_connection_attempt.isRetry() && _connection_attempt.isExpired()))
@@ -421,6 +421,7 @@ void ArduinoIoTCloudTCP::sendMessage(ArduinoIoTCloudProcessEvent id)
   case ArduinoIoTCloudProcessEvent::RequestlastValues:
     requestLastValue();
   break;
+
   case ArduinoIoTCloudProcessEvent::GetThingId:
     requestThingId();
   break;
