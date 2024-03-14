@@ -49,10 +49,27 @@ enum CommandID: uint32_t {
     ThingGetLastValueCmdDownId = 0x10600,
     TimezoneCommandDownId      = 0x10900,
 
-    // Internal messages
-    RequestlastValues          = 100,
-    SendProperties             = 200,
-    Disconnect                 = 300,
+    /* Device Events */
+    SendCapabilities           = 0x11000,
+    GetThingId,
+    ThingId,
+    AttachThing,
+
+    /* Thing Events */
+    GetLastValues,
+    LastValues,
+    SendProperties,
+
+    /* Ota Events */
+    OtaUrl,
+    OtaReq,
+    OtaConfirm,
+    OtaStart,
+    OtaError,
+
+    /* Generic Events */
+    Disconnect,
+    Reset
 };
 
 struct Command {
