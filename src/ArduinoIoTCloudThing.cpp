@@ -72,27 +72,20 @@ int ArduinoIoTCloudThing::connected()
 
 void ArduinoIoTCloudThing::handleMessage(Message* m)
 {
-  String message = "";
-
-  if (msg != nullptr)
-  {
-    message = String(msg);
-  }
-
-  switch (ev)
+  switch (m->id)
   {
     /* We have received last values */
-    case ArduinoIoTCloudProcessEvent::LastValues:
+    case LastValues:
     _state = State::Connected;
     break;
 
     /* We have received a reset command */
-    case ArduinoIoTCloudProcessEvent::Reset:
+    case Reset:
     _state = State::RequestLastValues;
     break;
 
-    case ArduinoIoTCloudProcessEvent::GetLastValues:
-    case ArduinoIoTCloudProcessEvent::SendProperties:
+    case GetLastValues:
+    case SendProperties:
     default:
     break;
   }
@@ -112,7 +105,8 @@ ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_RequestLastValues()
    */
   if (_connection_attempt.getRetryCount() > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
   {
-    _deliver(ArduinoIoTCloudProcessEvent::Disconnect);
+    _message.id = Disconnect;
+    deliver(&_message);
     return State::Disconnect;
   }
 

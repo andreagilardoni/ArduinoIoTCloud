@@ -37,9 +37,9 @@ class ArduinoIoTCloudThing: public CloudProcess , public ArduinoIoTCloudProperti
              ArduinoIoTCloudThing(MessageStream* stream);
     virtual ~ArduinoIoTCloudThing() { }
 
-    virtual void begin() override;
+    virtual void begin();
     virtual void update() override;
-    virtual int  connected() override;
+    virtual int  connected();
     virtual void handleMessage(Message* m) override;
 
   private:
