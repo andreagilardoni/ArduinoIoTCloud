@@ -539,6 +539,12 @@ void ArduinoIoTCloudTCP::attachThing()
   execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
 }
 
+void ArduinoIoTCloudTCP::detachThing()
+{
+  _mqttClient.unsubscribe(_shadowTopicIn);
+  _mqttClient.unsubscribe(_dataTopicIn);
+}
+
 int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const length)
 {
   if (_mqttClient.beginMessage(topic, length, false, 0)) {
