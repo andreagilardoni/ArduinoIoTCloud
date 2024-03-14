@@ -354,8 +354,8 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
     _mqttClient.stop();
   }
 
-  _device.handleMessage(ArduinoIoTCloudProcessEvent::Disconnect, nullptr);
-  _thing.handleMessage(ArduinoIoTCloudProcessEvent::Disconnect, nullptr);
+  _device.handleMessage(ArduinoIoTCloudProcessEvent::Reset, nullptr);
+  _thing.handleMessage(ArduinoIoTCloudProcessEvent::Reset, nullptr);
   DEBUG_INFO("Disconnected from Arduino IoT Cloud");
   execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
 

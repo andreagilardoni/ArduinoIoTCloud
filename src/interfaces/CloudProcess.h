@@ -36,7 +36,8 @@ enum class ArduinoIoTCloudProcessEvent
   OtaError,
 
   /* Generic Events */
-  Disconnect
+  Disconnect,
+  Reset
 };
 
 typedef void (*deliverCallbackFunc)(ArduinoIoTCloudProcessEvent);

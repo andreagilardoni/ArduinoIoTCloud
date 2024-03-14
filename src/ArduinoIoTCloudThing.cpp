@@ -88,8 +88,8 @@ void ArduinoIoTCloudThing::handleMessage(ArduinoIoTCloudProcessEvent ev, char* m
     break;
 
     /* We have received a reset command */
-    case ArduinoIoTCloudProcessEvent::Disconnect:
-    _state = State::Disconnect;
+    case ArduinoIoTCloudProcessEvent::Reset:
+    _state = State::RequestLastValues;
     break;
 
     case ArduinoIoTCloudProcessEvent::RequestlastValues:
@@ -113,6 +113,7 @@ ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_RequestLastValues()
    */
   if (_connection_attempt.getRetryCount() > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
   {
+    _deliver(ArduinoIoTCloudProcessEvent::Disconnect);
     return State::Disconnect;
   }
 
@@ -162,12 +163,12 @@ ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_Connected()
 ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_Disconnect()
 {
   /* Inform Infra we need to disconnect */
-  _deliver(ArduinoIoTCloudProcessEvent::Disconnect);
+  //_deliver(ArduinoIoTCloudProcessEvent::Disconnect);
 
   /* Reset attempt struct for the nex retry after disconnection */
   _connection_attempt.begin(AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms);
 
-  return State::RequestLastValues;
+  return State::Disconnect;
 }
 
 #endif /* HAS_TCP */
