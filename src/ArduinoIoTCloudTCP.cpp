@@ -317,7 +317,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 {
-  if (!_mqttClient.connected())
+  if (!_mqttClient.connected() || !_device.connected())
   {
     return State::Disconnect;
   }
@@ -422,11 +422,6 @@ void ArduinoIoTCloudTCP::sendMessage(ArduinoIoTCloudProcessEvent id)
 
   case ArduinoIoTCloudProcessEvent::AttachThing:
     attachThing();
-  break;
-
-  case ArduinoIoTCloudProcessEvent::Disconnect:
-    if (_state == State::Connected)
-      _state = State::Disconnect;
   break;
 
   default:
