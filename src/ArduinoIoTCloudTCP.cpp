@@ -412,7 +412,7 @@ void ArduinoIoTCloudTCP::sendMessage(ArduinoIoTCloudProcessEvent id)
     sendThingPropertiesToCloud();
   break;
 
-  case ArduinoIoTCloudProcessEvent::RequestlastValues:
+  case ArduinoIoTCloudProcessEvent::GetLastValues:
     requestLastValue();
   break;
 

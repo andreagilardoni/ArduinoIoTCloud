@@ -24,7 +24,7 @@ enum class ArduinoIoTCloudProcessEvent
   AttachThing,
 
   /* Thing Events */
-  RequestlastValues = 256,
+  GetLastValues = 256,
   LastValues,
   SendProperties,
 

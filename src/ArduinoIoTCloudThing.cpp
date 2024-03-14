@@ -92,7 +92,7 @@ void ArduinoIoTCloudThing::handleMessage(ArduinoIoTCloudProcessEvent ev, char* m
     _state = State::RequestLastValues;
     break;
 
-    case ArduinoIoTCloudProcessEvent::RequestlastValues:
+    case ArduinoIoTCloudProcessEvent::GetLastValues:
     case ArduinoIoTCloudProcessEvent::SendProperties:
     default:
     break;
@@ -120,7 +120,7 @@ ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_RequestLastValues()
   _connection_attempt.retry();
 
   /* Send message upstream to inform infrastructure we need to request thing last values */
-  _deliver(ArduinoIoTCloudProcessEvent::RequestlastValues);
+  _deliver(ArduinoIoTCloudProcessEvent::GetLastValues);
 
   return State::RequestLastValues;
 }
