@@ -35,6 +35,7 @@ private:
     unsigned long _delay;
     unsigned long _max_delay;
     unsigned long _next_retry_tick;
+    unsigned long _retry_delay;
     unsigned int  _retry_cnt;
 
 };

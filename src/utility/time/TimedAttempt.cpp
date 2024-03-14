@@ -34,6 +34,7 @@ void TimedAttempt::begin(unsigned long delay)
   _retry_cnt = 0;
   _delay = delay;
   _max_delay = delay;
+  reload();
 }
 
 void TimedAttempt::begin(unsigned long delay, unsigned long max_delay)
@@ -41,6 +42,7 @@ void TimedAttempt::begin(unsigned long delay, unsigned long max_delay)
    _retry_cnt = 0;
    _delay = delay;
    _max_delay = max_delay;
+   reload();
 }
 
 unsigned long TimedAttempt::reconfigure(unsigned long delay, unsigned long max_delay)
@@ -59,9 +61,9 @@ unsigned long TimedAttempt::retry()
 unsigned long TimedAttempt::reload()
 {
   unsigned long retry_delay = (1 << _retry_cnt) * _delay;
-  retry_delay = min(retry_delay, _max_delay);
+  _retry_delay = min(retry_delay, _max_delay);
   _next_retry_tick = millis() + retry_delay;
-  return retry_delay;
+  return _retry_delay;
 }
 
 void TimedAttempt::reset()
