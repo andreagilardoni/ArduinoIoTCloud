@@ -42,18 +42,18 @@ class ArduinoIoTCloudDevice: public ArduinoIoTCloudProcess, public ArduinoIoTClo
     virtual int  connected() override;
     virtual void handleMessage(ArduinoIoTCloudProcessEvent ev, char* msg) override;
 
-    inline bool attached() { return _attached; };
+    inline bool isAttached() { return _attached; };
+    inline bool hasThingId() { return !_thing_id.isEmpty(); }
 
   private:
 
     enum class State
     {
+      Disconnected,
+      Init,
       SendCapabilities,
-      RequestThingId,
       ProcessThingId,
-      AttachThing,
       Connected,
-      Disconnect,
     };
 
     State _state;
@@ -69,12 +69,11 @@ class ArduinoIoTCloudDevice: public ArduinoIoTCloudProcess, public ArduinoIoTClo
     bool _ota_req;
 #endif
 
+    State handle_Init();
     State handle_SendCapabilities();
-    State handle_RequestThingId();
     State handle_ProcessThingId();
-    State handle_AttachThing();
     State handle_Connected();
-    State handle_Disconnect();
+    State handle_Disconnected();
 };
 
 #endif /* ARDUINO_IOT_CLOUD_DEVICE_H */

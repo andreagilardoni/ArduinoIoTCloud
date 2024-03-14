@@ -324,7 +324,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 
   _device.update();
 
-  if(_device.attached())
+  if(_device.isAttached())
   {
     _thing.update();
   }

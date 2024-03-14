@@ -32,7 +32,7 @@
    CTOR/DTOR
  ******************************************************************************/
  ArduinoIoTCloudDevice::ArduinoIoTCloudDevice()
-: _state{State::SendCapabilities}
+: _state{State::Init}
 , _connection_attempt(0,0)
 , _thing_id{""}
 , _attached{false}
@@ -78,19 +78,18 @@ void ArduinoIoTCloudDevice::update()
   State next_state = _state;
   switch (_state)
   {
+  case State::Init:                 next_state = handle_Init();                break;
   case State::SendCapabilities:     next_state = handle_SendCapabilities();    break;
-  case State::RequestThingId:       next_state = handle_RequestThingId();      break;
   case State::ProcessThingId:       next_state = handle_ProcessThingId();      break;
-  case State::AttachThing:          next_state = handle_AttachThing();         break;
   case State::Connected:            next_state = handle_Connected();           break;
-  case State::Disconnect:           next_state = handle_Disconnect();          break;
+  case State::Disconnected:         next_state = handle_Disconnected();        break;
   }
   _state = next_state;
 }
 
 int ArduinoIoTCloudDevice::connected()
 {
-
+ return _state != State::Disconnected ? 1 : 0;
 }
 
 void ArduinoIoTCloudDevice::handleMessage(ArduinoIoTCloudProcessEvent ev, char* msg)
@@ -112,12 +111,12 @@ void ArduinoIoTCloudDevice::handleMessage(ArduinoIoTCloudProcessEvent ev, char* 
 
     /* We have received a reset command */
     case ArduinoIoTCloudProcessEvent::Reset:
-    _state = State::SendCapabilities;
+    _state = State::Init;
     break;
 
     case ArduinoIoTCloudProcessEvent::SendCapabilities:
     case ArduinoIoTCloudProcessEvent::GetThingId:
-    case ArduinoIoTCloudProcessEvent::RequestlastValues:
+    case ArduinoIoTCloudProcessEvent::GetLastValues:
     case ArduinoIoTCloudProcessEvent::LastValues:
     case ArduinoIoTCloudProcessEvent::SendProperties:
     case ArduinoIoTCloudProcessEvent::OtaUrl:
@@ -129,90 +128,83 @@ void ArduinoIoTCloudDevice::handleMessage(ArduinoIoTCloudProcessEvent ev, char* 
     break;
   }
 }
+ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Init()
+{
+  /* Reset attempt struct for the nex retry after disconnection */
+  _connection_attempt.begin(AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms, AIOT_CONFIG_MAX_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms);
+
+  /* Reset thing id */
+  _thing_id = "";
+
+  _attached = false;
+
+  return State::SendCapabilities;
+}
 
 ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_SendCapabilities()
 {
+  /* Now: Sends message into device topic Will: LIB_VERSION? */
   _deliver(ArduinoIoTCloudProcessEvent::SendCapabilities);
-  return State::RequestThingId;
-}
 
-ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_RequestThingId()
-{
-  if (_connection_attempt.isRetry() && !_connection_attempt.isExpired())
-    return State::RequestThingId;
-
-  if (_connection_attempt.isRetry())
-  {
-    /* Configuration not received or device not attached to a valid thing. Try to resubscribe */
-    DEBUG_ERROR("CloudDevice::%s device waiting for valid thing_id %d", __FUNCTION__, getTime());
-  }
-
-  DEBUG_VERBOSE("CloudDevice::%s request device configuration %d", __FUNCTION__, getTime());
-
-  /* If device_id is wrong the board can't connect to the broker so subscribe to device topic
-   * should never happen. TODO investigate if we need to check for errors and how.
-   */
+  /* Now: Subscribe to device topic. Will: send Thing.begin() */
   _deliver(ArduinoIoTCloudProcessEvent::GetThingId);
 
-  /* Max retry than disconnect */
-  if (_connection_attempt.getRetryCount() > AIOT_CONFIG_DEVICE_TOPIC_MAX_RETRY_CNT)
-  {
-    return State::Disconnect;
-  }
-
   /* No device configuration received. Wait: 4s -> 8s -> 16s -> 32s -> 32s ...*/
-  unsigned long subscribe_retry_delay = _connection_attempt.retry();
-  DEBUG_VERBOSE("CloudDevice::%s %d next configuration request in %d ms", __FUNCTION__, _connection_attempt.getRetryCount(), subscribe_retry_delay);
-
-  return State::RequestThingId;
+  unsigned long attach_retry_delay = _connection_attempt.retry();
+  DEBUG_VERBOSE("CloudDevice::%s not attached. %d next configuration request in %d ms", __FUNCTION__, _connection_attempt.getRetryCount(), _connection_attempt.getWaitTime());
+  return State::Connected;
 }
 
 ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_ProcessThingId()
 {
-  /* Temporary solution find a better way to understand if we have a valid thing_id*/
-  if (_thing_id.length() == 0)
+  /* ToDo detach only if thing_id is different */
+  if (_attached)
   {
-    /* Device configuration received, but invalid thing_id. Do not increase counter, but recompute delay.
-    * Device not attached. Wait: 40s -> 80s -> 160s -> 320s -> 640s -> 1280s -> 1280s ...
-    */
-    unsigned long attach_retry_delay = _connection_attempt.reconfigure(AIOT_CONFIG_DEVICE_TOPIC_ATTACH_RETRY_DELAY_ms, AIOT_CONFIG_MAX_DEVICE_TOPIC_ATTACH_RETRY_DELAY_ms);
-    DEBUG_VERBOSE("CloudDevice::%s device not attached, next configuration request in %d ms", __FUNCTION__, attach_retry_delay);
-    return State::RequestThingId;
+    Serial.println("Disconnect");
+    return State::Disconnected;
+    _attached = false;
   }
 
-  /* Received valid thing_id, reconfigure timers for next state and go on */
-  _connection_attempt.begin(AIOT_CONFIG_THING_TOPICS_SUBSCRIBE_RETRY_DELAY_ms);
-  return State::AttachThing;
-}
-
-ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_AttachThing()
-{
-  if (_connection_attempt.isRetry() && !_connection_attempt.isExpired())
-    return State::AttachThing;
-
-  if (_connection_attempt.getRetryCount() > AIOT_CONFIG_THING_TOPICS_SUBSCRIBE_MAX_RETRY_CNT)
+  /* Temporary solution find a better way to understand if we have a valid thing_id */
+  if (!hasThingId())
   {
-    _deliver(ArduinoIoTCloudProcessEvent::Disconnect);
-    return State::Disconnect;
+    Serial.println("Not Attached");
+    return State::Connected;
   }
 
-  _connection_attempt.retry();
-
-  /* We receive the thing from the cloud so subscribe to thing topic should never fail
-   * TODO investigate if we need to check for errors and how.
-   */
-  _attached = false;
+  Serial.println("AttachThing");
   _deliver(ArduinoIoTCloudProcessEvent::AttachThing);
-
-  DEBUG_VERBOSE("CloudDevice::%s device attached to a new valid thing_id %s %d", __FUNCTION__, _thing_id.c_str(), getTime());
   _attached = true;
-
   _connection_attempt.begin(AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms, AIOT_CONFIG_MAX_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms);
   return State::Connected;
 }
 
 ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Connected()
 {
+  if (!_attached)
+  {
+    if (_connection_attempt.isExpired())
+    {
+      if (!hasThingId())
+      {
+        /* Device configuration received, but invalid thing_id. Do not increase counter, but recompute delay.
+         * Device not attached. Wait: 4s -> 80s -> 160s -> 320s -> 640s -> 1280s -> 1280s ...
+         */
+        _connection_attempt.reconfigure(AIOT_CONFIG_DEVICE_TOPIC_ATTACH_RETRY_DELAY_ms, AIOT_CONFIG_MAX_DEVICE_TOPIC_ATTACH_RETRY_DELAY_ms);
+        //DEBUG_VERBOSE("CloudDevice::%s not attached. %d next configuration request in %d ms", __FUNCTION__, _connection_attempt.getRetryCount(), _connection_attempt.getWaitTime());
+      }
+      return State::SendCapabilities;
+    }
+
+    /* Max retry than disconnect */
+    if (_connection_attempt.getRetryCount() > AIOT_CONFIG_DEVICE_TOPIC_MAX_RETRY_CNT)
+    {
+      Serial.println("Device disconnect");
+      _deliver(ArduinoIoTCloudProcessEvent::Disconnect);
+      return State::Disconnected;
+    }
+  }
+
 #if OTA_ENABLED
   /* Check if we have received the OTA_URL property and provide
   * echo to the cloud.
@@ -248,17 +240,9 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Connected()
   return State::Connected;
 }
 
-ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Disconnect()
+ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Disconnected()
 {
-  /* Reset attempt struct for the nex retry after disconnection */
-  _connection_attempt.begin(AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms);
-
-  /* Reset thing id*/
-  _thing_id = "";
-
-  _attached = false;
-
-  return State::Disconnect;
+  return State::Disconnected;
 }
 
 #endif
