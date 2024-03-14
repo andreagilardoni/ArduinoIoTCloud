@@ -22,6 +22,7 @@ enum class ArduinoIoTCloudProcessEvent
   GetThingId,
   ThingId,
   AttachThing,
+  DetachThing,
 
   /* Thing Events */
   GetLastValues = 256,
