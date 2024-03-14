@@ -82,6 +82,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _dataTopicIn("")
 , _message_stream(std::bind(&ArduinoIoTCloudTCP::sendMessage, this, std::placeholders::_1))
 , _thing(&_message_stream)
+, _device(&_message_stream)
 #if OTA_ENABLED
 , _ask_user_before_executing_ota{false}
 , _get_ota_confirmation{nullptr}
@@ -353,8 +354,10 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
     _mqttClient.stop();
   }
 
-  _device.handleMessage(ArduinoIoTCloudProcessEvent::Reset, nullptr);
-  _thing.handleMessage(ArduinoIoTCloudProcessEvent::Reset, nullptr);
+  Message message;
+  message.id = Reset;
+  _device.handleMessage(&message);
+  _thing.handleMessage(&message);
   DEBUG_INFO("Disconnected from Arduino IoT Cloud");
   execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
 
@@ -383,7 +386,11 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     CBORDecoder::decode(_device.getPropertyContainer(), (uint8_t*)bytes, length);
     /* Unlock device state machine waiting thing_id*/
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] device configuration received", __FUNCTION__, millis());
-    _device.handleMessage(ArduinoIoTCloudProcessEvent::AttachThing, (char*)_thing_id.c_str());
+    ThingGetIdCmdDown message;
+    message.c.id = AttachThing;
+    strcpy(message.params.thing_id, _thing_id.c_str());
+    Serial.println(_thing_id.c_str());
+    _device.handleMessage((Message*)&message);
   }
 
   /* Topic for user input data */
@@ -397,13 +404,16 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     CBORDecoder::decode(_thing.getPropertyContainer(), (uint8_t*)bytes, length, true);
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     /* Unlock thing state machine waiting last values */
-    _thing.handleMessage(ArduinoIoTCloudProcessEvent::LastValues, nullptr);
+    Message message;
+    message.id = LastValues;
+    _thing.handleMessage(&message);
   }
 }
 
 void ArduinoIoTCloudTCP::sendMessage(Message * msg)
 {
-  if (msg->id < OtaBeginUpId)
+  /* Send fake messages with properties */
+  if (msg->id >= SendCapabilities)
   {
     switch (msg->id)
     {
@@ -430,8 +440,9 @@ void ArduinoIoTCloudTCP::sendMessage(Message * msg)
   }
   else
   {
-    uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
-    int bytes_encoded = 0;
+    /* Send real messages */
+    //uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
+    //int bytes_encoded = 0;
     //CborError err = MessageEncoder::encode(msg, data, sizeof(data), bytes_encoded);
     //write(_messageTopicOut, data, bytes_encoded);
   }
