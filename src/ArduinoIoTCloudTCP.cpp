@@ -60,8 +60,8 @@ unsigned long getTime()
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 : _state{State::ConnectPhy}
-, _device_id{"."}
-, _thing_id{"."}
+, _device_id{""}
+, _thing_id{""}
 , _thing_id_property{nullptr}
 , _connection_attempt(0,0)
 , _mqtt_data_buf{0}
