@@ -205,17 +205,17 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 
 #if  OTA_ENABLED
   p = new CloudWrapperBool(_ota_cap);
-  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_CAP", Permission::Read, -1);
+  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_CAP", Permission::Read, -1).publishOnChange(0.0f, 0);
   p = new CloudWrapperInt(_ota_error);
-  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_ERROR", Permission::Read, -1);
+  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_ERROR", Permission::Read, -1).publishOnChange(0.0f, 0);
   p = new CloudWrapperString(_ota_progress);
-  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_PROGRESS", Permission::Read, -1);
+  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_PROGRESS", Permission::Read, -1).publishOnChange(0.0f, 0);
   p = new CloudWrapperString(_ota_img_sha256);
-  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_SHA256", Permission::Read, -1);
+  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_SHA256", Permission::Read, -1).publishOnChange(0.0f, 0);
   p = new CloudWrapperString(_ota_url);
-  _ota_url_property = &addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_URL", Permission::ReadWrite, -1).writeOnDemand();
+  _ota_url_property = &addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_URL", Permission::ReadWrite, -1).publishOnChange(0.0f, 0).writeOnDemand();
   p = new CloudWrapperBool(_ota_req);
-  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_REQ", Permission::ReadWrite, -1);
+  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_REQ", Permission::ReadWrite, -1).publishOnChange(0.0f, 0);
 
   _ota_cap =_ota.isOtaCapable();
 
