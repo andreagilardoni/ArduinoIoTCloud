@@ -73,9 +73,14 @@ void ArduinoIoTCloudDevice::handleMessage(Message* m)
   {
     /* We have received a new thing id message */
     case AttachThing:
-    Serial.println(((ThingGetIdCmdDown*)m)->params.thing_id);
-    _thing_id = String(((ThingGetIdCmdDown*)m)->params.thing_id);
-    _state = State::ProcessThingId;
+    {
+      Serial.println(((ThingGetIdCmdDown*)m)->params.thing_id);
+      String thing_id_msg = String(((ThingGetIdCmdDown*)m)->params.thing_id);
+      if((_thing_id != thing_id_msg) || thing_id_msg.isEmpty()) {
+        _thing_id = String(((ThingGetIdCmdDown*)m)->params.thing_id);
+        _state = State::ProcessThingId;
+      }
+    }
     break;
 
     /* We have received a reset command */
