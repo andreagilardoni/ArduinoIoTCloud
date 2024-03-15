@@ -37,7 +37,7 @@
 #endif
 
 #if OTA_ENABLED
-  #include "utility/ota/OTA.h"
+  #include "ota/OTA.h"
 #endif
 
 #include <algorithm>
@@ -84,6 +84,13 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _thing(&_message_stream)
 , _device(&_message_stream)
 #if OTA_ENABLED
+, _ota(&_message_stream)
+, _ota_cap{false}
+, _ota_error{static_cast<int>(ota::OTAError::None)}
+, _ota_progress{"Resume"}
+, _ota_img_sha256{"Inv."}
+, _ota_url{""}
+, _ota_req{false}
 , _ask_user_before_executing_ota{false}
 , _get_ota_confirmation{nullptr}
 #endif /* OTA_ENABLED */
@@ -195,6 +202,29 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 
   _thing.begin();
   _device.begin();
+
+#if  OTA_ENABLED
+  p = new CloudWrapperBool(_ota_cap);
+  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_CAP", Permission::Read, -1);
+  p = new CloudWrapperInt(_ota_error);
+  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_ERROR", Permission::Read, -1);
+  p = new CloudWrapperString(_ota_progress);
+  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_PROGRESS", Permission::Read, -1);
+  p = new CloudWrapperString(_ota_img_sha256);
+  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_SHA256", Permission::Read, -1);
+  p = new CloudWrapperString(_ota_url);
+  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_URL", Permission::ReadWrite, -1);
+  p = new CloudWrapperBool(_ota_req);
+  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_REQ", Permission::ReadWrite, -1);
+
+  _ota_cap =_ota.isOtaCapable();
+
+  // Sha256 is calculated when the ota fsm reaches its second state
+  _ota.update();
+  _ota.update();
+
+  _ota.setConnectionHandler(_connection);
+#endif // OTA_ENABLED
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
   if (String(WiFi.firmwareVersion()) < String("1.4.4")) {
@@ -326,6 +356,10 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
   }
 
   _device.update();
+#if  OTA_ENABLED
+   handle_OTARequest();
+  _ota.update();
+#endif // OTA_ENABLED
 
   if(_device.isAttached())
   {
@@ -341,6 +375,46 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
   }
   return State::Connected;
 }
+
+#if OTA_ENABLED
+void ArduinoIoTCloudTCP::handle_OTARequest() {
+  /* Request a OTA download if the hidden property
+  * OTA request has been set.
+  */
+
+  if (_ota_req)
+  {
+    bool const ota_execution_allowed_by_user = (_get_ota_confirmation != nullptr && _get_ota_confirmation());
+    bool const perform_ota_now = ota_execution_allowed_by_user || !_ask_user_before_executing_ota;
+    if (perform_ota_now) {
+      /* Clear the error flag. */
+      _ota_error = static_cast<int>(ota::OTAError::None);
+      /* Clear the request flag. */
+      _ota_req = false;
+      /* Transmit the cleared request flags to the cloud. */
+      sendDevicePropertyToCloud("OTA_REQ");
+      /* Call member function to handle OTA request. */
+      //_ota_error = OTA::onRequest(_ota_url, _connection->getInterface());
+      /* If something fails send the OTA error to the cloud */
+      sendDevicePropertyToCloud("OTA_ERROR");
+
+      struct OtaUpdateCmdDown cmd = {
+        OtaUpdateCmdDownId,
+        "123456",
+      };
+
+      strncpy(cmd.params.url, _ota_url.c_str(), URL_SIZE);
+
+      _ota.handleMessage((Message*) &cmd);
+    }
+  }
+
+  /* Check if we have received the OTA_URL property and provide
+  * echo to the cloud.
+  */
+  sendDevicePropertyToCloud("OTA_URL");
+}
+#endif /* OTA_ENABLED */
 
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
@@ -412,41 +486,48 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
 
 void ArduinoIoTCloudTCP::sendMessage(Message * msg)
 {
-  /* Send fake messages with properties */
-  if (msg->id >= SendCapabilities)
+  switch (msg->id)
   {
-    switch (msg->id)
+    case SendProperties:
+    sendThingPropertiesToCloud();
+    break;
+    case GetLastValues:
+    requestLastValue();
+    break;
+    case GetThingId:
+    requestThingId();
+    break;
+    case AttachThing:
+    attachThing();
+    break;
+#if OTA_ENABLED
+    case OtaBeginUpId:
     {
-      case SendProperties:
-      sendThingPropertiesToCloud();
-      break;
-
-      case GetLastValues:
-      requestLastValue();
-      break;
-
-      case GetThingId:
-      requestThingId();
-      break;
-
-      case AttachThing:
-      attachThing();
-      break;
-
-      default:
-      break;
+    OtaBeginUp *ota_begin_cmd = (OtaBeginUp*)msg;
+    String sha256_str;
+    std::for_each(ota_begin_cmd->params.sha,
+      ota_begin_cmd->params.sha + SHA256::HASH_SIZE,
+      [&sha256_str](uint8_t const elem) {
+        char buf[4];
+        snprintf(buf, 4, "%02X", elem);
+        sha256_str += buf;
+      });
+      _ota_img_sha256 = sha256_str;
     }
-
+    break;
+    case OtaProgressCmdUpId:
+    {
+    OtaProgressCmdUp *ota_progress_cmd = (OtaProgressCmdUp*)msg;
+    _ota_progress = OTACloudProcessInterface::STATE_NAMES[ota_progress_cmd->params.state < 0? OTACloudProcessInterface::Fail - ota_progress_cmd->params.state : ota_progress_cmd->params.state];
+    Serial.println("This is not a bug from Andrea code");
+    /* If something fails send the OTA error to the cloud */
+    sendDevicePropertyToCloud("OTA_PROGRESS");
+    }
+    break;
+#endif
+    default:
+    break;
   }
-  else
-  {
-    /* Send real messages */
-    //uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
-    //int bytes_encoded = 0;
-    //CborError err = MessageEncoder::encode(msg, data, sizeof(data), bytes_encoded);
-    //write(_messageTopicOut, data, bytes_encoded);
-  }
-
 }
 
 void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(String const topic, PropertyContainer & container, unsigned int & current_property_index)

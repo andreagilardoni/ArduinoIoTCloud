@@ -52,6 +52,10 @@
   #include <WiFiClientSecure.h>
 #endif
 
+#if OTA_ENABLED
+#include <ota/OTA.h>
+#endif
+
 /******************************************************************************
    CONSTANTS
  ******************************************************************************/
@@ -127,9 +131,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _thing_id;
     Property * _thing_id_property;
 
-    ArduinoIoTCloudThing _thing;
-    ArduinoIoTCloudDevice _device;
-
     TimedAttempt _connection_attempt;
 
     String _brokerAddress;
@@ -175,8 +176,17 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _dataTopicIn;
 
     MessageStream _message_stream;
+    ArduinoIoTCloudThing _thing;
+    ArduinoIoTCloudDevice _device;
 
 #if OTA_ENABLED
+    OTACloudProcess _ota;
+    bool _ota_cap;
+    int _ota_error;
+    String _ota_img_sha256;
+    String _ota_url;
+    String _ota_progress;
+    bool _ota_req;
     bool _ask_user_before_executing_ota;
     onOTARequestCallbackFunc _get_ota_confirmation;
 #endif /* OTA_ENABLED */
@@ -193,6 +203,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     State handle_ConnectMqttBroker();
     State handle_Connected();
     State handle_Disconnect();
+    void  handle_OTARequest();
 
     static void onMessage(int length);
     void handleMessage(int length);

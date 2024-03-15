@@ -25,7 +25,7 @@
 
 #include <ArduinoIoTCloudTCP.h>
 #if OTA_ENABLED
-#include <utility/ota/OTA.h>
+#include <ota/OTA.h>
 #endif
 
 /******************************************************************************
@@ -37,37 +37,12 @@
 , _connection_attempt(0,0)
 , _thing_id{""}
 , _attached{false}
-#if OTA_ENABLED
-, _ota_cap{false}
-, _ota_error{static_cast<int>(OTAError::None)}
-, _ota_img_sha256{"Inv."}
-, _ota_url{""}
-, _ota_req{false}
-#endif
 {
 
 }
 
 void ArduinoIoTCloudDevice::begin()
 {
-#if OTA_ENABLED
-  _ota_img_sha256 = OTA::getImageSHA256();
-  DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
-  _ota_cap = OTA::isCapable();
-
-  Property* p;
-  p = new CloudWrapperBool(_ota_cap);
-  addPropertyToContainer(getPropertyContainer(), *p, "OTA_CAP", Permission::Read, -1);
-  p = new CloudWrapperInt(_ota_error);
-  addPropertyToContainer(getPropertyContainer(), *p, "OTA_ERROR", Permission::Read, -1);
-  p = new CloudWrapperString(_ota_img_sha256);
-  addPropertyToContainer(getPropertyContainer(), *p, "OTA_SHA256", Permission::Read, -1);
-  p = new CloudWrapperString(_ota_url);
-  addPropertyToContainer(getPropertyContainer(), *p, "OTA_URL", Permission::ReadWrite, -1);
-  p = new CloudWrapperBool(_ota_req);
-  addPropertyToContainer(getPropertyContainer(), *p, "OTA_REQ", Permission::ReadWrite, -1);
-#endif /* OTA_ENABLED */
-
   _connection_attempt.begin(AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms, AIOT_CONFIG_MAX_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms);
 }
 
@@ -195,43 +170,6 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Connected()
       return State::Disconnected;
     }
   }
-
-#if OTA_ENABLED
-  /* Check if we have received the OTA_URL property and provide
-  * echo to the cloud.
-  */
-  if (_ota_url.length())
-  {
-    _message.id = OtaUrl;
-    deliver(&_message);
-    _ota_url = "";
-  }
-
-  /* Request a OTA download if the hidden property
-  * OTA request has been set.
-  */
-  if (_ota_req)
-  {
-    /* TODO find a way to restore deferred OTA capabilities */
-    bool const perform_ota_now = true;
-    if (perform_ota_now) {
-      /* Clear the error flag. */
-      _ota_error = static_cast<int>(OTAError::None);
-      /* Clear the request flag. */
-      _ota_req = false;
-      /* Transmit the cleared request flags to the cloud. */
-      _message.id = OtaReq;
-      deliver(&_message);
-      /* Call member function to handle OTA request. */
-      _message.id = OtaStart;
-      deliver(&_message);
-      /* If something fails send the OTA error to the cloud */
-      _message.id = OtaError;
-      deliver(&_message);
-    }
-  }
-#endif
-
   return State::Connected;
 }
 
