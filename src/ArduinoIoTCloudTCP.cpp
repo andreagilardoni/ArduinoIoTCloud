@@ -213,7 +213,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   p = new CloudWrapperString(_ota_img_sha256);
   addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_SHA256", Permission::Read, -1);
   p = new CloudWrapperString(_ota_url);
-  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_URL", Permission::ReadWrite, -1);
+  _ota_url_property = &addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_URL", Permission::ReadWrite, -1).writeOnDemand();
   p = new CloudWrapperBool(_ota_req);
   addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_REQ", Permission::ReadWrite, -1);
 
@@ -412,7 +412,10 @@ void ArduinoIoTCloudTCP::handle_OTARequest() {
   /* Check if we have received the OTA_URL property and provide
   * echo to the cloud.
   */
-  sendDevicePropertyToCloud("OTA_URL");
+  if (_ota_url_property->isDifferentFromCloud()) {
+    _ota_url_property->fromCloudToLocal();
+    sendDevicePropertyToCloud("OTA_URL");
+  }
 }
 #endif /* OTA_ENABLED */
 

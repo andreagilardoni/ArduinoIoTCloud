@@ -189,6 +189,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     bool _ota_req;
     bool _ask_user_before_executing_ota;
     onOTARequestCallbackFunc _get_ota_confirmation;
+    Property * _ota_url_property;
 #endif /* OTA_ENABLED */
 
     inline String getTopic_deviceout() { return String("/a/d/" + getDeviceId() + "/e/o");}
