@@ -50,9 +50,8 @@
   #include <WiFiClientSecure.h>
 #endif
 
-#include "interfaces/messageStream.h"
-
 #if OTA_ENABLED
+#include "interfaces/messageStream.h"
 #include "utility/ota/OTA.h"
 #endif // OTA_ENABLED
 
