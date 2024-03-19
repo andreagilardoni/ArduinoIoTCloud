@@ -22,19 +22,8 @@
 #include <AIoTC_Config.h>
 
 #ifdef HAS_TCP
+
 #include <ArduinoIoTCloudTCP.h>
-
-#if defined(BOARD_HAS_SECRET_KEY)
-  #include "tls/AIoTCUPCert.h"
-#endif
-
-#ifdef BOARD_HAS_ECCX08
-  #include "tls/BearSSLTrustAnchors.h"
-#endif
-
-#if defined(BOARD_HAS_SE050) || defined(BOARD_HAS_SOFTSE)
-  #include "tls/AIoTCSSCert.h"
-#endif
 
 #if OTA_ENABLED
   #include "ota/OTA.h"
@@ -67,9 +56,6 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
 , _mqtt_data_request_retransmit{false}
-#ifdef BOARD_HAS_ECCX08
-, _sslClient(nullptr, ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM, getTime)
-#endif
 #ifdef BOARD_HAS_SECRET_KEY
 , _password("")
 #endif
@@ -112,8 +98,16 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   _brokerPort = brokerPort;
 #endif
 
+  /* Setup broker TLS client */
+  _brokerClient.begin(connection);
+
+#if  OTA_ENABLED
+  /* Setup OTA TLS client */
+  _otaClient.begin(connection);
+#endif
+
   /* Setup TimeService */
-  _time_service.begin(&connection);
+  _time_service.begin(_connection);
 
   /* Setup retry timers */
   _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
@@ -153,33 +147,19 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
       DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device certificate.", __FUNCTION__);
       return 0;
     }
-    _sslClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
+    _brokerClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
+    #if  OTA_ENABLED
+    _otaClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
+    #endif
   #endif
 #endif
+
 #if defined(BOARD_HAS_SECRET_KEY)
   }
 #endif
 
-#if defined(BOARD_HAS_OFFLOADED_ECCX08)
+  _mqttClient.setClient(_brokerClient);
 
-#elif defined(BOARD_HAS_ECCX08)
-  _sslClient.setClient(_connection->getClient());
-#elif defined(ARDUINO_PORTENTA_C33)
-  _sslClient.setClient(_connection->getClient());
-  _sslClient.setCACert(AIoTSSCert);
-#elif defined(ARDUINO_NICLA_VISION)
-  _sslClient.appendCustomCACert(AIoTSSCert);
-#elif defined(ARDUINO_EDGE_CONTROL)
-  _sslClient.appendCustomCACert(AIoTUPCert);
-#elif defined(ARDUINO_UNOR4_WIFI)
-
-#elif defined(ARDUINO_ARCH_ESP32)
-  _sslClient.setCACertBundle(x509_crt_bundle);
-#elif defined(ARDUINO_ARCH_ESP8266)
-  _sslClient.setInsecure();
-#endif
-
-  _mqttClient.setClient(_sslClient);
 #ifdef BOARD_HAS_SECRET_KEY
   if(_password.length())
   {

@@ -36,21 +36,8 @@
   #endif
 #endif
 
-#if defined(BOARD_HAS_OFFLOADED_ECCX08)
-  #include "WiFiSSLClient.h"
-#elif defined(BOARD_HAS_ECCX08)
-  #include "tls/BearSSLClient.h"
-#elif defined(ARDUINO_PORTENTA_C33)
-  #include <SSLClient.h>
-#elif defined(ARDUINO_NICLA_VISION)
-  #include <WiFiSSLSE050Client.h>
-#elif defined(ARDUINO_EDGE_CONTROL)
-  #include <GSMSSLClient.h>
-#elif defined(ARDUINO_UNOR4_WIFI)
-  #include <WiFiSSLClient.h>
-#elif defined(BOARD_ESP)
-  #include <WiFiClientSecure.h>
-#endif
+#include <tls/utility/TLSClientMqtt.h>
+#include <tls/utility/TLSClientOta.h>
 
 #if OTA_ENABLED
 #include <ota/OTA.h>
@@ -150,22 +137,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
   #endif
 #endif
 
-#if defined(BOARD_HAS_OFFLOADED_ECCX08)
-    WiFiBearSSLClient _sslClient;
-#elif defined(BOARD_HAS_ECCX08)
-    BearSSLClient _sslClient;
-#elif defined(ARDUINO_PORTENTA_C33)
-    SSLClient _sslClient;
-#elif defined(ARDUINO_NICLA_VISION)
-    WiFiSSLSE050Client _sslClient;
-#elif defined(ARDUINO_EDGE_CONTROL)
-    GSMSSLClient _sslClient;
-#elif defined(ARDUINO_UNOR4_WIFI)
-    WiFiSSLClient _sslClient;
-#elif defined(BOARD_ESP)
-    WiFiClientSecure _sslClient;
-#endif
-
+    TLSClientMqtt _brokerClient;
     MqttClient _mqttClient;
 
     String _deviceTopicOut;
@@ -180,6 +152,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     ArduinoIoTCloudDevice _device;
 
 #if OTA_ENABLED
+    TLSClientOta _otaClient;
     OTACloudProcess _ota;
     bool _ota_cap;
     int _ota_error;
