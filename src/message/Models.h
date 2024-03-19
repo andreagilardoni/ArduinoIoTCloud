@@ -15,6 +15,7 @@
  ******************************************************************************/
 
 #include <stdint.h>
+#include <stddef.h>
 
 #if __cplusplus >= 201402L // Cpp14
 #include <algorithm>
@@ -31,45 +32,35 @@
 #define MAX_LIB_VERSION_SIZE        10
 
 /******************************************************************************
-   TYPEDEF
+    TYPEDEF
  ******************************************************************************/
 
 enum CommandID: uint32_t {
     // Commands UP
-    OtaBeginUpId               = 0x10000,
-    ThingGetIdCmdUpId          = 0x10300,
-    ThingGetLastValueCmdUpId   = 0x10500,
-    DeviceBeginCmdUpId         = 0x10700,
-    OtaProgressCmdUpId         = 0x10200,
-    TimezoneCommandUpId        = 0x10800,
+    OtaBeginUpId,
+    ThingGetIdCmdUpId,
+    ThingGetLastValueCmdUpId,
+    DeviceBeginCmdUpId,
+    OtaProgressCmdUpId,
+    TimezoneCommandUpId,
 
     // Commands DOWN
-    OtaUpdateCmdDownId         = 0x10100,
-    ThingGetIdCmdDownId        = 0x10400,
-    ThingGetLastValueCmdDownId = 0x10600,
-    TimezoneCommandDownId      = 0x10900,
+    OtaUpdateCmdDownId,
+    ThingGetIdCmdDownId,
+    ThingGetLastValueCmdDownId,
+    TimezoneCommandDownId,
 
     /* Device Events */
-    SendCapabilities           = 0x11000,
-    GetThingId,
-    ThingId,
     AttachThing,
 
     /* Thing Events */
-    GetLastValues,
-    LastValues,
     SendProperties,
 
-    /* Ota Events */
-    OtaUrl,
-    OtaReq,
-    OtaConfirm,
-    OtaStart,
-    OtaError,
-
     /* Generic Events */
-    Disconnect,
-    Reset
+    Reset,
+
+    /* Unknown command id */
+    UnknownCmdId
 };
 
 struct Command {
