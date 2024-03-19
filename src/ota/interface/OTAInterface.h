@@ -45,7 +45,7 @@
 
 class OTACloudProcessInterface: public CloudProcess {
 public:
-  OTACloudProcessInterface(MessageStream *ms, ConnectionHandler* connection_handler=nullptr);
+  OTACloudProcessInterface(MessageStream *ms, Client* client=nullptr);
   OTACloudProcessInterface(const OTACloudProcessInterface&) = delete;
   OTACloudProcessInterface(OTACloudProcessInterface&&) = delete;
 
@@ -110,7 +110,7 @@ public:
 
   inline State getState() { return state; }
 
-  inline virtual void setConnectionHandler(ConnectionHandler* c) { connection_handler = c; }
+  inline virtual void setClient(Client* c) { client = c; }
 
   virtual bool isOtaCapable() = 0;
 protected:
@@ -195,12 +195,12 @@ private:
 
   State state, previous_state;
 
-  ConnectionHandler*  connection_handler;
+  Client*             client;
+
 #ifndef OFFLOADED_DOWNLOAD
   void parseOta(uint8_t* buffer, size_t buf_len);
 
   HttpClient*         http_client;
-  Client*             client;
 
   enum OTADownloadState: uint8_t {
     OtaDownloadHeader,

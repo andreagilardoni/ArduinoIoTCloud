@@ -15,7 +15,7 @@
 
 class SAMDOTACloudProcess: public OTACloudProcessInterface {
 public:
-  SAMDOTACloudProcess(MessageStream *ms, ConnectionHandler* connection_handler=nullptr);
+  SAMDOTACloudProcess(MessageStream *ms, Client* client=nullptr);
 
   virtual bool isOtaCapable() override;
 protected:

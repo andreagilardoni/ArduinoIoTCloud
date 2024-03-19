@@ -23,8 +23,8 @@
 const char NANO_RP2040OTACloudProcess::UPDATE_FILE_NAME[] = FULL_UPDATE_FILE_PATH;
 
 
-NANO_RP2040OTACloudProcess::NANO_RP2040OTACloudProcess(MessageStream *ms, ConnectionHandler* connection_handler)
-: OTACloudProcessInterface(ms, connection_handler)
+NANO_RP2040OTACloudProcess::NANO_RP2040OTACloudProcess(MessageStream *ms, Client* client)
+: OTACloudProcessInterface(ms, client)
 , flash((uint32_t)appStartAddress() + 0xF00000, 0x100000) // TODO make this numbers a constant
 , decompressed(nullptr)
 , fs(nullptr) {

@@ -17,7 +17,7 @@
 
 class NANO_RP2040OTACloudProcess: public OTACloudProcessInterface {
 public:
-  NANO_RP2040OTACloudProcess(MessageStream *ms, ConnectionHandler* connection_handler=nullptr);
+  NANO_RP2040OTACloudProcess(MessageStream *ms, Client* client=nullptr);
   ~NANO_RP2040OTACloudProcess();
 
   virtual bool isOtaCapable() override;

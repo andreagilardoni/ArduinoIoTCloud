@@ -16,7 +16,7 @@
 
 class UNOR4OTACloudProcess: public OTACloudProcessInterface {
 public:
-  UNOR4OTACloudProcess(MessageStream *ms, ConnectionHandler* connection_handler=nullptr);
+  UNOR4OTACloudProcess(MessageStream *ms, Client* client=nullptr);
 
   bool isOtaCapable() override;
 protected:

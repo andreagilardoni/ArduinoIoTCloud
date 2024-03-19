@@ -19,8 +19,6 @@
 #include "OTAInterface.h"
 #include "../OTA.h"
 #include "URLParser.h"
-#include <utility/clients/client.h>
-#include <utility/clients/sslclient.h>
 
 #ifndef OFFLOADED_DOWNLOAD
 static uint32_t crc_update(uint32_t crc, const void * data, size_t data_len);
@@ -69,12 +67,12 @@ const char* const OTACloudProcessInterface::STATE_NAMES[] = { // used only for d
 };
 #endif // DEBUG_VERBOSE
 
-OTACloudProcessInterface::OTACloudProcessInterface(MessageStream *ms, ConnectionHandler* connection_handler)
+OTACloudProcessInterface::OTACloudProcessInterface(MessageStream *ms, Client* client)
 : CloudProcess(ms)
 , policies(None)
 , state(Resume)
 , previous_state(Resume)
-, connection_handler(connection_handler)
+, client(client)
 #ifndef OFFLOADED_DOWNLOAD
 , http_client(nullptr)
 #endif // OFFLOADED_DOWNLOAD
@@ -193,17 +191,14 @@ OTACloudProcessInterface::State OTACloudProcessInterface::otaAvailable() {
 
 #ifndef OFFLOADED_DOWNLOAD
 OTACloudProcessInterface::State OTACloudProcessInterface::startOTA() {
-  assert("ERROR client wasn't set in OTACloudProcess" && client == nullptr);
+  assert("ERROR client wasn't set in OTACloudProcess" && client != nullptr);
 
   // make the http get request
-  if(strcmp(context->parsed_url.schema(), "http") == 0) {
-    client = connectionHandler::getNewClient(connection_handler->getInterface());
-  } else if(strcmp(context->parsed_url.schema(), "https") == 0) {
-    client = connectionHandler::getNewSSLClient(connection_handler->getInterface());
+  if(strcmp(context->parsed_url.schema(), "https") == 0) {
+    http_client = new HttpClient(*client, context->parsed_url.host(), context->parsed_url.port());
   } else {
     return UrlParseErrorFail;
   }
-  http_client = new HttpClient(*client, context->parsed_url.host(), context->parsed_url.port());
 
   auto res = http_client->get(context->parsed_url.path());
 
@@ -283,8 +278,7 @@ exit:
     http_client = nullptr;
 
     if(client!=nullptr) {
-      delete client;
-      client=nullptr;
+      client->stop();
     }
   }
   return res;
@@ -364,8 +358,7 @@ void OTACloudProcessInterface::clean() {
   }
 
   if(client!=nullptr) {
-    delete client;
-    client=nullptr;
+    client->stop();
   }
 #endif // OFFLOADED_DOWNLOAD
 

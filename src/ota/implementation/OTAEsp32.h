@@ -14,7 +14,7 @@
 
 class ESP32OTACloudProcess: public OTACloudProcessInterface {
 public:
-  ESP32OTACloudProcess(MessageStream *ms, ConnectionHandler* connection_handler=nullptr);
+  ESP32OTACloudProcess(MessageStream *ms, Client* client=nullptr);
 
   virtual bool isOtaCapable() override;
 protected:

@@ -26,8 +26,8 @@ const char UNOR4OTACloudProcess::UPDATE_FILE_NAME[] = "/update.bin";
 
 static OTACloudProcessInterface::State convertUnor4ErrorToState(int error_code);
 
-UNOR4OTACloudProcess::UNOR4OTACloudProcess(MessageStream *ms, ConnectionHandler* connection_handler)
-: OTACloudProcessInterface(ms, connection_handler){
+UNOR4OTACloudProcess::UNOR4OTACloudProcess(MessageStream *ms, Client* client)
+: OTACloudProcessInterface(ms, client){
 
 }
 

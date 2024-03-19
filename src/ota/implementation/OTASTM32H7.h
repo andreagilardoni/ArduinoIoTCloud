@@ -46,7 +46,7 @@ namespace portenta {
 template<portenta::StorageType storage=portenta::QSPI_FLASH_FATFS_MBR, uint32_t data_offset=2>
 class STM32H7OTACloudProcess: public OTACloudProcessInterface {
 public:
-  STM32H7OTACloudProcess(MessageStream *ms, ConnectionHandler* connection_handler=nullptr);
+  STM32H7OTACloudProcess(MessageStream *ms, Client* client=nullptr);
   ~STM32H7OTACloudProcess();
   void update() override;
 

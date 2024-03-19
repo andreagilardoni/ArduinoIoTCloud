@@ -20,8 +20,8 @@ static bool findProgramLength(DIR * dir, uint32_t & program_length);
 static const char UPDATE_FILE_NAME[] = "/fs/UPDATE.BIN";
 
 template<portenta::StorageType storage, uint32_t data_offset>
-STM32H7OTACloudProcess<storage, data_offset>::STM32H7OTACloudProcess(MessageStream *ms, ConnectionHandler* connection_handler)
-: OTACloudProcessInterface(ms, connection_handler)
+STM32H7OTACloudProcess<storage, data_offset>::STM32H7OTACloudProcess(MessageStream *ms, Client* client)
+: OTACloudProcessInterface(ms, client)
 , decompressed(nullptr)
 , _bd_raw_qspi(nullptr)
 , _program_length(0)

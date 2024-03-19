@@ -223,7 +223,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   _ota.update();
   _ota.update();
 
-  _ota.setConnectionHandler(_connection);
+  _ota.setClient(&_otaClient);
 #endif // OTA_ENABLED
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08

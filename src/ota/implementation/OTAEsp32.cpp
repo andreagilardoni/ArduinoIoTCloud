@@ -14,8 +14,8 @@
 #include <esp_ota_ops.h>
 #include <Update.h>
 
-ESP32OTACloudProcess::ESP32OTACloudProcess(MessageStream *ms, ConnectionHandler* connection_handler)
-: OTACloudProcessInterface(ms, connection_handler), rom_partition(nullptr) {
+ESP32OTACloudProcess::ESP32OTACloudProcess(MessageStream *ms, Client* client)
+: OTACloudProcessInterface(ms, client), rom_partition(nullptr) {
 
 }
 
