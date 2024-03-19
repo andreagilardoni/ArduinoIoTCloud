@@ -488,6 +488,9 @@ void ArduinoIoTCloudTCP::sendMessage(Message * msg)
 {
   switch (msg->id)
   {
+    case SendCapabilities:
+    sendDevicePropertiesToCloud();
+    break;
     case SendProperties:
     sendThingPropertiesToCloud();
     break;
