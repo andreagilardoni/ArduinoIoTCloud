@@ -87,9 +87,9 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _ota(&_message_stream)
 , _ota_cap{false}
 , _ota_error{static_cast<int>(ota::OTAError::None)}
-, _ota_progress{"Resume"}
 , _ota_img_sha256{"Inv."}
 , _ota_url{""}
+, _ota_progress{"Resume"}
 , _ota_req{false}
 , _ask_user_before_executing_ota{false}
 , _get_ota_confirmation{nullptr}
