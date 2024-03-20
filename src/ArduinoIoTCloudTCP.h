@@ -92,9 +92,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     inline ArduinoIoTCloudThing &getThing() { return _thing; }
 
-    void decode();
-    void encode();
-
 #if OTA_ENABLED
     /* The callback is triggered when the OTA is initiated and it gets executed until _ota_req flag is cleared.
      * It should return true when the OTA can be applied or false otherwise.
@@ -122,7 +119,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     String _device_id;
     String _thing_id;
-    Property * _thing_id_property;
 
     TimedAttempt _connection_attempt;
 
@@ -146,12 +142,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     TLSClientMqtt _brokerClient;
     MqttClient _mqttClient;
 
-    String _deviceTopicOut;
-    String _deviceTopicIn;
     String _messageTopicOut;
     String _messageTopicIn;
-    String _shadowTopicOut;
-    String _shadowTopicIn;
     String _dataTopicOut;
     String _dataTopicIn;
 
@@ -162,23 +154,13 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 #if OTA_ENABLED
     TLSClientOta _otaClient;
     OTACloudProcess _ota;
-    bool _ota_cap;
-    int _ota_error;
-    String _ota_img_sha256;
-    String _ota_url;
-    String _ota_progress;
-    bool _ota_req;
     bool _ask_user_before_executing_ota;
     onOTARequestCallbackFunc _get_ota_confirmation;
-    Property * _ota_url_property;
 #endif /* OTA_ENABLED */
 
-    inline String getTopic_deviceout() { return String("/a/d/" + getDeviceId() + "/e/o");}
-    inline String getTopic_devicein () { return String("/a/d/" + getDeviceId() + "/e/i");}
     inline String getTopic_messageout() { return String("/a/d/" + getDeviceId() + "/c/up");}
     inline String getTopic_messagein () { return String("/a/d/" + getDeviceId() + "/c/dw");}
-    inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/shadow/o"); }
-    inline String getTopic_shadowin () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/shadow/i"); }
+
     inline String getTopic_dataout  () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/e/o"); }
     inline String getTopic_datain   () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/e/i"); }
 
@@ -194,16 +176,10 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     void sendPropertyContainerToCloud(String const topic, PropertyContainer & property_container, unsigned int & current_property_index);
     void sendThingPropertiesToCloud();
-    void sendDevicePropertiesToCloud();
-    void requestLastValue();
-    void requestThingId();
+
     void attachThing();
     int write(String const topic, byte const data[], int const length);
     void sendMessage(Message * msg);
-
-#if OTA_ENABLED
-    void sendDevicePropertyToCloud(String const name);
-#endif
 
 };
 
