@@ -75,7 +75,7 @@ void ArduinoIoTCloudThing::handleMessage(Message* m)
   switch (m->id)
   {
     /* We have received last values */
-    case LastValues:
+    case ThingGetLastValueCmdDownId:
     _state = State::Connected;
     break;
 
@@ -84,8 +84,6 @@ void ArduinoIoTCloudThing::handleMessage(Message* m)
     _state = State::RequestLastValues;
     break;
 
-    case GetLastValues:
-    case SendProperties:
     default:
     break;
   }
@@ -105,18 +103,14 @@ ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_RequestLastValues()
    */
   if (_connection_attempt.getRetryCount() > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
   {
-    _message.id = Disconnect;
-    deliver(&_message);
     return State::Disconnect;
   }
 
   _connection_attempt.retry();
 
   /* Send message upstream to inform infrastructure we need to request thing last values */
-
-  _message.id = GetLastValues;
-  deliver(&_message);
-
+  ThingGetLastValueCmdUp getLastValues = { { ThingGetLastValueCmdUpId } };
+  deliver(reinterpret_cast<Message*>(&getLastValues));
   return State::RequestLastValues;
 }
 
