@@ -72,7 +72,7 @@ void ArduinoIoTCloudDevice::handleMessage(Message* m)
   switch (m->id)
   {
     /* We have received a new thing id message */
-    case AttachThing:
+    case ThingGetIdCmdDownId:
     {
       Serial.println(((ThingGetIdCmdDown*)m)->params.thing_id);
       String thing_id_msg = String(((ThingGetIdCmdDown*)m)->params.thing_id);
@@ -88,11 +88,6 @@ void ArduinoIoTCloudDevice::handleMessage(Message* m)
     _state = State::Init;
     break;
 
-    case SendCapabilities:
-    case GetThingId:
-    case GetLastValues:
-    case LastValues:
-    case SendProperties:
     default:
     break;
   }
@@ -113,12 +108,13 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Init()
 ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_SendCapabilities()
 {
   /* Now: Sends message into device topic Will: LIB_VERSION? */
-  _message.id = SendCapabilities;
-  deliver(&_message);
+  DeviceBeginCmdUp deviceBegin = { { DeviceBeginCmdUpId }, { AIOT_CONFIG_LIB_VERSION } };
+  deliver(reinterpret_cast<Message*>(&deviceBegin));
 
   /* Now: Subscribe to device topic. Will: send Thing.begin() */
-  _message.id = GetThingId;
-  deliver(&_message);
+  ThingGetIdCmdUp thingBegin = { { ThingGetIdCmdUpId } };
+  strcpy(thingBegin.params.thing_id, _thing_id.begin());
+  deliver(reinterpret_cast<Message*>(&thingBegin));
 
   /* No device configuration received. Wait: 4s -> 8s -> 16s -> 32s -> 32s ...*/
   _connection_attempt.retry();
@@ -182,5 +178,4 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Disconnected()
 {
   return State::Disconnected;
 }
-
 #endif
