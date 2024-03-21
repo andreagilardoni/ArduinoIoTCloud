@@ -111,6 +111,7 @@ ArduinoIoTCloudThing::State ArduinoIoTCloudThing::handle_RequestLastValues()
   /* Send message upstream to inform infrastructure we need to request thing last values */
   ThingGetLastValueCmdUp getLastValues = { { ThingGetLastValueCmdUpId } };
   deliver(reinterpret_cast<Message*>(&getLastValues));
+  DEBUG_VERBOSE("CloudThing::%s getLastValues. %d next request in %d ms", __FUNCTION__, _connection_attempt.getRetryCount(), _connection_attempt.getWaitTime());
   return State::RequestLastValues;
 }
 
