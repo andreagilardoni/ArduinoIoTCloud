@@ -48,7 +48,8 @@ void aiotc_client_profile_init(br_ssl_client_context *cc, br_x509_minimal_contex
    *    strong enough, and AES-256 is 40% more expensive).
    */
   static const uint16_t suites[] = {
-    BR_TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+    BR_TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+    BR_TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
   };
 
   /*
@@ -73,6 +74,10 @@ void aiotc_client_profile_init(br_ssl_client_context *cc, br_x509_minimal_contex
   br_ssl_engine_set_suites(&cc->eng, suites, (sizeof suites) / (sizeof suites[0]));
   br_ssl_engine_set_default_ecdsa(&cc->eng);
   br_x509_minimal_set_ecdsa(xc, br_ssl_engine_get_ec(&cc->eng), br_ssl_engine_get_ecdsa(&cc->eng));
+
+	br_ssl_client_set_default_rsapub(cc);
+	br_ssl_engine_set_default_rsavrfy(&cc->eng);
+	br_x509_minimal_set_rsa(xc, br_ssl_engine_get_rsavrfy(&cc->eng));
 
   /*
    * Set supported hash functions, for the SSL engine and for the
