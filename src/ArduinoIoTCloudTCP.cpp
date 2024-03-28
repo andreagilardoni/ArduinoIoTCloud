@@ -431,10 +431,11 @@ void ArduinoIoTCloudTCP::sendMessage(Message * msg)
   size_t bytes_encoded = sizeof(data);
   CBORMessageEncoder encoder;
 
-  if (encoder.encode(msg, data, bytes_encoded) == Encoder::Status::Complete) {
-    if (bytes_encoded > 0) {
-      write(_messageTopicOut, data, bytes_encoded);
-    }
+  if (encoder.encode(msg, data, bytes_encoded) == Encoder::Status::Complete &&
+      bytes_encoded > 0) {
+    write(_messageTopicOut, data, bytes_encoded);
+  } else {
+    DEBUG_ERROR("error encoding %d", msg->id);
   }
 }
 
