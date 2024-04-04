@@ -24,7 +24,7 @@ const char NANO_RP2040OTACloudProcess::UPDATE_FILE_NAME[] = FULL_UPDATE_FILE_PAT
 
 
 NANO_RP2040OTACloudProcess::NANO_RP2040OTACloudProcess(MessageStream *ms, Client* client)
-: OTACloudProcessInterface(ms, client)
+: OTADefaultCloudProcessInterface(ms, client)
 , flash((uint32_t)appStartAddress() + 0xF00000, 0x100000) // TODO make this numbers a constant
 , decompressed(nullptr)
 , fs(nullptr) {
@@ -69,7 +69,7 @@ OTACloudProcessInterface::State NANO_RP2040OTACloudProcess::startOTA() {
   }
 
   // we start the download here
-  return OTACloudProcessInterface::startOTA();;
+  return OTADefaultCloudProcessInterface::startOTA();;
 }
 
 
@@ -91,6 +91,7 @@ OTACloudProcessInterface::State NANO_RP2040OTACloudProcess::reboot() {
 }
 
 void NANO_RP2040OTACloudProcess::reset() {
+  OTADefaultCloudProcessInterface::reset();
 
   close_fs();
 }

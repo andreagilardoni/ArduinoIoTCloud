@@ -10,12 +10,12 @@
 
 #pragma once
 
-#include "ota/interface/OTAInterface.h"
+#include "ota/interface/OTAInterfaceDefault.h"
 
 #include "FATFileSystem.h"
 #include "FlashIAPBlockDevice.h"
 
-class NANO_RP2040OTACloudProcess: public OTACloudProcessInterface {
+class NANO_RP2040OTACloudProcess: public OTADefaultCloudProcessInterface {
 public:
   NANO_RP2040OTACloudProcess(MessageStream *ms, Client* client=nullptr);
   ~NANO_RP2040OTACloudProcess();
