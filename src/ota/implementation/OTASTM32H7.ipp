@@ -21,7 +21,7 @@ static const char UPDATE_FILE_NAME[] = "/fs/UPDATE.BIN";
 
 template<portenta::StorageType storage, uint32_t data_offset>
 STM32H7OTACloudProcess<storage, data_offset>::STM32H7OTACloudProcess(MessageStream *ms, Client* client)
-: OTACloudProcessInterface(ms, client)
+: OTADefaultCloudProcessInterface(ms, client)
 , decompressed(nullptr)
 , _bd_raw_qspi(nullptr)
 , _program_length(0)
@@ -52,7 +52,7 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess<storage, data_offset>::re
 
 template<portenta::StorageType storage, uint32_t data_offset>
 void STM32H7OTACloudProcess<storage, data_offset>::update() {
-  OTACloudProcessInterface::update();
+  OTADefaultCloudProcessInterface::update();
   watchdog_reset(); // FIXME this should npot be performed here
 }
 
@@ -90,7 +90,7 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess<storage, data_offset>::st
   decompressed = fopen(UPDATE_FILE_NAME, "wb");
 
   // start the download if the setup for ota storage is successful
-  return OTACloudProcessInterface::startOTA();
+  return OTADefaultCloudProcessInterface::startOTA();
 }
 
 
@@ -125,6 +125,7 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess<storage, data_offset>::re
 
 template<portenta::StorageType storage, uint32_t data_offset>
 void STM32H7OTACloudProcess<storage, data_offset>::reset() {
+  OTADefaultCloudProcessInterface::reset();
 
   remove(UPDATE_FILE_NAME);
 

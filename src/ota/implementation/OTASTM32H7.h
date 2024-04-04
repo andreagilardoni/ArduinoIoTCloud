@@ -9,7 +9,7 @@
 */
 
 #pragma once
-#include "ota/interface/OTAInterface.h"
+#include "ota/interface/OTAInterfaceDefault.h"
 
 #if defined(ARDUINO_PORTENTA_OTA_QSPI_SUPPORT)
   #include <QSPIFBlockDevice.h>
@@ -44,7 +44,7 @@ namespace portenta {
 }
 
 template<portenta::StorageType storage=portenta::QSPI_FLASH_FATFS_MBR, uint32_t data_offset=2>
-class STM32H7OTACloudProcess: public OTACloudProcessInterface {
+class STM32H7OTACloudProcess: public OTADefaultCloudProcessInterface {
 public:
   STM32H7OTACloudProcess(MessageStream *ms, Client* client=nullptr);
   ~STM32H7OTACloudProcess();
