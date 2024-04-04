@@ -16,7 +16,7 @@
 
 class UNOR4OTACloudProcess: public OTACloudProcessInterface {
 public:
-  UNOR4OTACloudProcess(MessageStream *ms, Client* client=nullptr);
+  UNOR4OTACloudProcess(MessageStream *ms);
 
   bool isOtaCapable() override;
 protected:
@@ -29,10 +29,10 @@ protected:
   virtual OTACloudProcessInterface::State fetch() override;
 
   // whene the download is correctly finished we set the mcu to use the newly downloaded binary
-  virtual OTACloudProcessInterface::State flashOTA();
+  virtual OTACloudProcessInterface::State flashOTA() override;
 
   // we reboot the device
-  virtual OTACloudProcessInterface::State reboot();
+  virtual OTACloudProcessInterface::State reboot() override;
 
   virtual void reset() override;
 

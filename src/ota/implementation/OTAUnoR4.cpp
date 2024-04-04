@@ -17,6 +17,7 @@
 #include "tls/utility/SHA256.h"
 #include "fsp_common_api.h"
 #include "r_flash_lp.h"
+#include "WiFi.h"
 
 /******************************************************************************
  * DEFINES
@@ -26,8 +27,8 @@ const char UNOR4OTACloudProcess::UPDATE_FILE_NAME[] = "/update.bin";
 
 static OTACloudProcessInterface::State convertUnor4ErrorToState(int error_code);
 
-UNOR4OTACloudProcess::UNOR4OTACloudProcess(MessageStream *ms, Client* client)
-: OTACloudProcessInterface(ms, client){
+UNOR4OTACloudProcess::UNOR4OTACloudProcess(MessageStream *ms)
+: OTACloudProcessInterface(ms){
 
 }
 
