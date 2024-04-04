@@ -10,9 +10,9 @@
 
 #pragma once
 
-#include "ota/interface/OTAInterface.h"
+#include "ota/interface/OTAInterfaceDefault.h"
 
-class ESP32OTACloudProcess: public OTACloudProcessInterface {
+class ESP32OTACloudProcess: public OTADefaultCloudProcessInterface {
 public:
   ESP32OTACloudProcess(MessageStream *ms, Client* client=nullptr);
 
@@ -23,16 +23,11 @@ protected:
   // we are overriding the method of startOTA in order to download ota file on ESP32
   virtual OTACloudProcessInterface::State startOTA() override;
 
-  // when the download is completed we verify for integrity and correctness of the downloaded binary
-  // virtual State verifyOTA(Message* msg=nullptr); // TODO this may be performed inside download
-
   // whene the download is correctly finished we set the mcu to use the newly downloaded binary
-  virtual State flashOTA();
+  virtual State flashOTA() override;
 
   // we reboot the device
-  virtual State reboot();
-
-  void reset() override {};
+  virtual State reboot() override;
 
   // write the decompressed char buffer of the incoming ota
   virtual int writeFlash(uint8_t* const buffer, size_t len) override;

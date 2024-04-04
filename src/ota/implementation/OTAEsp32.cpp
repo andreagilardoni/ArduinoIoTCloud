@@ -15,7 +15,7 @@
 #include <Update.h>
 
 ESP32OTACloudProcess::ESP32OTACloudProcess(MessageStream *ms, Client* client)
-: OTACloudProcessInterface(ms, client), rom_partition(nullptr) {
+: OTADefaultCloudProcessInterface(ms), rom_partition(nullptr) {
 
 }
 
@@ -35,7 +35,7 @@ OTACloudProcessInterface::State ESP32OTACloudProcess::startOTA() {
     return OtaStorageInitFail;
   }
 
-  return OTACloudProcessInterface::startOTA();
+  return OTADefaultCloudProcessInterface::startOTA();
 }
 
 OTACloudProcessInterface::State ESP32OTACloudProcess::flashOTA() {
