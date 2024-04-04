@@ -23,6 +23,7 @@
 
 #include <AIoTC_Config.h>
 
+#if OTA_ENABLED
 #include "../OTATypes.h"
 #include "tls/utility/SHA256.h"
 
@@ -188,3 +189,4 @@ protected:
   } *context;
 };
 
+#endif // OTA_ENABLED
