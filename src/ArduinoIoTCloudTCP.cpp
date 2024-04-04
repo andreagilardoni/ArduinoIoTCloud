@@ -170,9 +170,13 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   _thing.begin();
   _device.begin();
 
-#if  OTA_ENABLED
+#if OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
   _ota.setClient(&_otaClient);
-#endif // OTA_ENABLED
+#endif // OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
+
+#if OTA_ENABLED && defined(OTA_BASIC_AUTH)
+  _ota.setAuthentication(_device_id.c_str(), _password.c_str());
+#endif // OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD) && defined(OTA_BASIC_AUTH)
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
   if (String(WiFi.firmwareVersion()) < String("1.4.4")) {
