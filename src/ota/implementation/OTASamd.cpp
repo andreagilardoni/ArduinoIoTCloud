@@ -19,8 +19,8 @@
 #  include <WiFiNINA.h> /* WiFiStorage */
 #endif
 
-SAMDOTACloudProcess::SAMDOTACloudProcess(MessageStream *ms, Client* client)
-: OTACloudProcessInterface(ms, client){
+SAMDOTACloudProcess::SAMDOTACloudProcess(MessageStream *ms)
+: OTACloudProcessInterface(ms){
 
 }
 
