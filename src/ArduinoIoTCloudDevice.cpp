@@ -108,11 +108,11 @@ ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_Init()
 ArduinoIoTCloudDevice::State ArduinoIoTCloudDevice::handle_SendCapabilities()
 {
   /* Now: Sends message into device topic Will: LIB_VERSION? */
-  DeviceBeginCmdUp deviceBegin = { { DeviceBeginCmdUpId }, { AIOT_CONFIG_LIB_VERSION } };
+  DeviceBeginCmdUp deviceBegin = { DeviceBeginCmdUpId, AIOT_CONFIG_LIB_VERSION };
   deliver(reinterpret_cast<Message*>(&deviceBegin));
 
   /* Now: Subscribe to device topic. Will: send Thing.begin() */
-  ThingGetIdCmdUp thingBegin = { { ThingGetIdCmdUpId } };
+  ThingGetIdCmdUp thingBegin = { ThingGetIdCmdUpId };
   strcpy(thingBegin.params.thing_id, _thing_id.begin());
   deliver(reinterpret_cast<Message*>(&thingBegin));
 
