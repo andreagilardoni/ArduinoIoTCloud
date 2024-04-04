@@ -23,21 +23,11 @@
 
 #include <AIoTC_Config.h>
 
-#if OTA_ENABLED
-#include <Arduino.h>
-#include "../OTAConfig.h"
 #include "../OTATypes.h"
-#include "../../tls/utility/SHA256.h"
+#include "tls/utility/SHA256.h"
 
-#include <Arduino_ConnectionHandler.h>
 #include <interfaces/CloudProcess.h>
 #include <Arduino_DebugUtils.h>
-
-#ifndef OFFLOADED_DOWNLOAD
-#include <ArduinoHttpClient.h>
-#include <URLParser.h>
-#include "utility/lzss/lzss.h"
-#endif // OFFLOADED_DOWNLOAD
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -45,9 +35,7 @@
 
 class OTACloudProcessInterface: public CloudProcess {
 public:
-  OTACloudProcessInterface(MessageStream *ms, Client* client=nullptr);
-  OTACloudProcessInterface(const OTACloudProcessInterface&) = delete;
-  OTACloudProcessInterface(OTACloudProcessInterface&&) = delete;
+  OTACloudProcessInterface(MessageStream *ms);
 
   virtual ~OTACloudProcessInterface();
 
@@ -110,8 +98,6 @@ public:
 
   inline State getState() { return state; }
 
-  inline virtual void setClient(Client* c) { client = c; }
-
   virtual bool isOtaCapable() = 0;
 protected:
   // The following methods represent the FSM actions performed in each state
@@ -132,21 +118,12 @@ protected:
   // start the ota or wait for an user interaction
   virtual State otaAvailable();
 
-#ifndef OFFLOADED_DOWNLOAD
   // we start the process of ota update and wait for the server to respond with the ota url and other info
-  virtual State startOTA();
+  virtual State startOTA() = 0;
 
   // we start the download and decompress process
-  virtual State fetch();
-
-  // this method will be called by fetch to write the ota binary on the device flash
-  // this method is directly called by fetch.
-  // This method will be overridden by the actual board implementation
-  virtual int writeFlash(uint8_t* const buffer, size_t len) = 0;
-#else
-  virtual State startOTA() = 0;
   virtual State fetch() = 0;
-#endif // OFFLOADED_DOWNLOAD
+
   // whene the download is correctly finished we set the mcu to use the newly downloaded binary
   virtual State flashOTA() = 0;
 
@@ -195,54 +172,19 @@ private:
 
   State state, previous_state;
 
-  Client*             client;
-
-#ifndef OFFLOADED_DOWNLOAD
-  void parseOta(uint8_t* buffer, size_t buf_len);
-
-  HttpClient*         http_client;
-
-  enum OTADownloadState: uint8_t {
-    OtaDownloadHeader,
-    OtaDownloadFile,
-    OtaDownloadCompleted,
-    OtaDownloadMagicNumberMismatch,
-    OtaDownloadError
-  };
-#endif // OFFLOADED_DOWNLOAD
-
 protected:
   struct OtaContext {
     OtaContext(
       uint8_t id[ID_SIZE], const char* url,
-      uint8_t initialSha256[32], uint8_t finalSha256[32]
-#ifndef OFFLOADED_DOWNLOAD
-      , std::function<void(uint8_t)> putc
-#endif // OFFLOADED_DOWNLOAD
-      );
+      uint8_t initialSha256[32], uint8_t finalSha256[32]);
     ~OtaContext();
+
     // parameters present in the ota available message that are of interest of the process
     uint8_t     id[ID_SIZE];
     char* const url;
     uint8_t     initialSha256[32];
     uint8_t     finalSha256[32];
-
-#ifndef OFFLOADED_DOWNLOAD
-    ParsedUrl   parsed_url; // TODO replace with parsed url struct
-    ota::OTAHeader    header;
-    OTADownloadState  downloadState;
-    uint32_t          calculatedCrc32;
-    uint32_t          headerCopiedBytes;
-    uint32_t          downloadedSize;
-
-    // LZSS decoder
-    LZSSDecoder       decoder;
-#endif // OFFLOADED_DOWNLOAD
-
-    uint16_t          report_couter;
+    uint16_t    report_couter;
   } *context;
 };
 
-
-
-#endif /* OTA_ENABLED */
