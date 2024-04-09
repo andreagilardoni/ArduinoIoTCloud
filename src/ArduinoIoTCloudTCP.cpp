@@ -398,6 +398,13 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
           CBORDecoder::decode(getThing().getPropertyContainer(), (uint8_t*)msg->params.last_values, msg->params.length, true);
           _thing.handleMessage((Message*)&command);
           execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
+
+          /*
+           * NOTE: in this current version properties are not properly integrated with the new paradigm of
+           * modeling the messages with C structs. The current CBOR library allocates an array in the heap
+           * thus we need to delete it after decoding it with the old CBORDecoder
+           */
+          free(msg->params.last_values);
         }
         break;
 
