@@ -99,9 +99,8 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
   http_res = http_client->read(buffer, buf_len);
 
   if(http_res < 0) {
+    DEBUG_INFO("Download read error %d", http_res);
     res = OtaDownloadFail;
-    Serial.println("Fail");
-
     goto exit;
   }
 
