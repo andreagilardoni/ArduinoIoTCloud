@@ -178,7 +178,7 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) 
       cursor += buf_len - (cursor-buffer);
       context->downloadedSize += (cursor-buffer);
 
-      DEBUG_INFO("Download %d/%d", context->downloadedSize, http_client->contentLength());
+      DEBUG_VERBOSE("Download %d/%d", context->downloadedSize, http_client->contentLength());
 
       // TODO there should be no more bytes available when the download is completed
       if(context->downloadedSize == http_client->contentLength()) {
