@@ -98,7 +98,7 @@ CBORMessageEncoder::EncoderState CBORMessageEncoder::handle_EncodeArray(CborEnco
   case CommandID::ThingGetLastValueCmdUpId:
     break;
   case CommandID::OtaProgressCmdUpId:
-    array_size = 5;
+    array_size = 4;
     break;
   case CommandID::TimezoneCommandUpId:
     break;
@@ -185,7 +185,6 @@ CborError CBORMessageEncoder::encodeOtaProgressCmdUp(CborEncoder * array_encoder
   CHECK_CBOR(cbor_encode_simple_value(array_encoder, ota->params.state));
   CHECK_CBOR(cbor_encode_int(array_encoder, ota->params.state_data));
   CHECK_CBOR(cbor_encode_uint(array_encoder, ota->params.time));
-  CHECK_CBOR(cbor_encode_uint(array_encoder, ota->params.count));
   return CborNoError;
 }
 
