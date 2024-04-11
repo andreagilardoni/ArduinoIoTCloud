@@ -199,8 +199,7 @@ void OTACloudProcessInterface::reportStatus() {
 
   memcpy(msg.params.id, context->id, ID_SIZE);
   msg.params.state      = state>=0 ? state : State::Fail;
-  msg.params.time       = getTime();
-  msg.params.count      = context->report_couter++;
+  msg.params.time       = getTime()*1e6 + context->report_couter++;
   msg.params.state_data = static_cast<int32_t>(state<0? state : 0);
 
   deliver((Message*)&msg);
