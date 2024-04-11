@@ -100,8 +100,7 @@ struct OtaProgressCmdUp {
         uint8_t  id[ID_SIZE];
         uint8_t  state;
         int32_t  state_data;
-        uint32_t time;
-        uint32_t count;
+        uint64_t time;
     } params;
 };
 
