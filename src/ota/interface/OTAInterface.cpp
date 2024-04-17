@@ -191,6 +191,9 @@ void OTACloudProcessInterface::reportStatus() {
     // FIXME handle this case: ota not in progress
     return;
   }
+  static uint32_t last_timestamp = getTime();
+  static uint32_t counter = 0;
+  uint32_t new_timestamp = getTime();
 
   struct OtaProgressCmdUp msg = {
     OtaProgressCmdUpId,
@@ -199,7 +202,15 @@ void OTACloudProcessInterface::reportStatus() {
 
   memcpy(msg.params.id, context->id, ID_SIZE);
   msg.params.state      = state>=0 ? state : State::Fail;
-  msg.params.time       = getTime()*1e6 + context->report_couter++;
+
+  if(new_timestamp == last_timestamp) {
+    msg.params.time       = new_timestamp*1e6 + ++counter;
+  } else {
+    msg.params.time       = new_timestamp*1e6;
+    counter = 0;
+    last_timestamp = new_timestamp;
+  }
+
   msg.params.state_data = static_cast<int32_t>(state<0? state : 0);
 
   deliver((Message*)&msg);
@@ -209,8 +220,7 @@ void OTACloudProcessInterface::reportStatus() {
 OTACloudProcessInterface::OtaContext::OtaContext(
     uint8_t id[ID_SIZE], const char* url,
     uint8_t* initialSha256, uint8_t* finalSha256
-    ) : url((char*) malloc(strlen(url) + 1))
-    , report_couter(0) {
+    ) : url((char*) malloc(strlen(url) + 1)) {
 
   memcpy(this->id, id, ID_SIZE);
   strcpy(this->url, url);

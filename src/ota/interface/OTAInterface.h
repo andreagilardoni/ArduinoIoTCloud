@@ -185,7 +185,6 @@ protected:
     char* const url;
     uint8_t     initialSha256[32];
     uint8_t     finalSha256[32];
-    uint16_t    report_couter;
   } *context;
 };
 
