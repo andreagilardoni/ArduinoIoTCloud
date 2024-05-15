@@ -75,8 +75,7 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::startOTA() {
 
 
 OTACloudProcessInterface::State STM32H7OTACloudProcess::flashOTA() {
-  fclose(decompressed);
-  decompressed = nullptr;
+  storageClean();
 
   /* Schedule the firmware update. */
   if(!storageOpen()) {
@@ -113,7 +112,9 @@ void STM32H7OTACloudProcess::storageClean() {
   DEBUG_VERBOSE(F("storage clean"));
 
   if(decompressed != nullptr) {
-    fclose(decompressed);
+    int res = fclose(decompressed);
+    DEBUG_VERBOSE("error on fclose %d", res);
+
     decompressed = nullptr;
   }
 
