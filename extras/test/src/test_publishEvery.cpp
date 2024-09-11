@@ -6,7 +6,7 @@
    INCLUDE
  **************************************************************************************/
 
-#include <catch2/catch_test_macros.hpp>
+#include <catch_amalgamated.hpp>
 
 #include <util/CBORTestUtil.h>
 #include <AIoTC_Const.h>
