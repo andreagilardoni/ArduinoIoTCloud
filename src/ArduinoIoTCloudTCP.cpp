@@ -48,7 +48,7 @@ unsigned long getTime()
  ******************************************************************************/
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
-: _state{State::ConnectPhy}
+: _state{State::ConfigPhy}
 , _connection_attempt(0,0)
 , _message_stream(std::bind(&ArduinoIoTCloudTCP::sendMessage, this, std::placeholders::_1))
 , _thing(&_message_stream)
