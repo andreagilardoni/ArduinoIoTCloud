@@ -25,6 +25,7 @@
 #include <AIoTC_Config.h>
 
 #include <Arduino_ConnectionHandler.h>
+#include <NetworkConfigurator.h>
 
 #if defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE)
 #  include <Arduino_DebugUtils.h>
@@ -146,6 +147,7 @@ class ArduinoIoTCloudClass
   protected:
 
     ConnectionHandler * _connection;
+    NetworkConfigurator * _configurator;
     TimeServiceClass & _time_service;
     String _thing_id;
     String _lib_version;
