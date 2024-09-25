@@ -223,6 +223,7 @@ void ArduinoIoTCloudTCP::update()
   State next_state = _state;
   switch (_state)
   {
+  case State::ConfigPhy:            next_state = handle_ConfigPhy();            break;
   case State::ConnectPhy:           next_state = handle_ConnectPhy();           break;
   case State::SyncTime:             next_state = handle_SyncTime();             break;
   case State::ConnectMqttBroker:    next_state = handle_ConnectMqttBroker();    break;
@@ -255,6 +256,16 @@ void ArduinoIoTCloudTCP::printDebugInfo()
 /******************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
+
+ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConfigPhy()
+{
+  if (_configurator == nullptr || _configurator->poll() == NetworkConfiguratorStates::CONFIGURED)
+  {
+    return State::ConnectPhy;
+  }
+
+  return State::ConfigPhy;
+}
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 {
