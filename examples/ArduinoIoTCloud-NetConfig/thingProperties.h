@@ -1,5 +1,7 @@
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
+#include <ConfiguratorAgents/AgentsConfiguratorManager.h>
+#include <ConfiguratorAgents/agents/BLE/BLEConfiguratorAgent.h>
 #include "arduino_secrets.h"
 
 #if !(defined(HAS_TCP) || defined(HAS_LORA))
@@ -29,6 +31,7 @@ void initProperties() {
   ArduinoCloud.addProperty(led, Permission::Write).onUpdate(onLedChange);
   ArduinoCloud.addProperty(potentiometer, Permission::Read).publishOnChange(10);
   ArduinoCloud.addProperty(seconds, Permission::Read).publishOnChange(1);
+  ConfiguratorManager.addAgent(BLEAgent);
 #elif defined(HAS_LORA)
   ArduinoCloud.addProperty(led, 1, Permission::ReadWrite).onUpdate(onLedChange);
   ArduinoCloud.addProperty(potentiometer, 2, Permission::Read).publishOnChange(10);
@@ -56,3 +59,5 @@ void initProperties() {
 #elif defined(BOARD_HAS_CELLULAR)
   CellularConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
 #endif
+
+NetworkConfigurator NetworkConf(ConfiguratorManager, ArduinoIoTPreferredConnection);

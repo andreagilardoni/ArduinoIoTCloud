@@ -41,7 +41,7 @@ void setup() {
   initProperties();
 
   /* Initialize Arduino IoT Cloud library */
-  ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+  ArduinoCloud.begin(NetworkConf, ArduinoIoTPreferredConnection);
 
   ArduinoCloud.printDebugInfo();
 }
