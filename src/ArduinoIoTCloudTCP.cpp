@@ -79,6 +79,12 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
+int ArduinoIoTCloudTCP::begin(NetworkConfigurator & configurator, ConnectionHandler & connection, bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
+{
+  _configurator = &configurator;
+  return begin(connection, enable_watchdog, brokerAddress, brokerPort);
+}
+
 int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
 {
   _connection = &connection;
