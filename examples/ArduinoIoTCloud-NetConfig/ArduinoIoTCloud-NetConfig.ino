@@ -40,6 +40,8 @@ void setup() {
   /* This function takes care of connecting your sketch variables to the ArduinoIoTCloud object */
   initProperties();
 
+  NetworkConf.begin(true, "", true);
+
   /* Initialize Arduino IoT Cloud library */
   ArduinoCloud.begin(NetworkConf, ArduinoIoTPreferredConnection);
 
