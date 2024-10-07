@@ -232,6 +232,7 @@ void ArduinoIoTCloudTCP::update()
   switch (_state)
   {
   case State::ConfigPhy:            next_state = handle_ConfigPhy();            break;
+  case State::Init:                 next_state = handle_Init();                 break;
   case State::ConnectPhy:           next_state = handle_ConnectPhy();           break;
   case State::SyncTime:             next_state = handle_SyncTime();             break;
   case State::ConnectMqttBroker:    next_state = handle_ConnectMqttBroker();    break;
@@ -269,10 +270,29 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConfigPhy()
 {
   if (_configurator == nullptr || _configurator->poll() == NetworkConfiguratorStates::CONFIGURED)
   {
-    return State::ConnectPhy;
+    return State::Init;
   }
 
   return State::ConfigPhy;
+}
+
+ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Init()
+{
+  if(_configurator != nullptr){
+    _configurator->end();
+  }
+  /* Setup broker TLS client */
+  _brokerClient.begin(*_connection);
+
+#if  OTA_ENABLED
+  /* Setup OTA TLS client */
+  _otaClient.begin(*_connection);
+#endif
+
+  /* Setup TimeService */
+  _time_service.begin(_connection);
+  
+  return State::ConnectPhy;
 }
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
