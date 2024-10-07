@@ -95,6 +95,21 @@ CBORMessageEncoder::EncoderState CBORMessageEncoder::handle_EncodeArray(CborEnco
     break;
   case CommandId::TimezoneCommandUpId:
     break;
+  case CommandId::ProvisioningStatus:
+    array_size = 1;
+    break;
+  case CommandId::ProvisioningListWifiNetworks:
+    {
+      ProvisioningListWifiNetworksMessage *msg = (ProvisioningListWifiNetworksMessage *) message;  
+      array_size = 2 * msg->params.numDiscoveredWiFiNetworks;
+      break;
+    }
+  case CommandId::ProvisioningUniqueId:
+    array_size = 1;
+    break;
+  case CommandId::ProvisioningSignature:
+    array_size = 1;
+    break;
   default:
     return EncoderState::MessageNotSupported;
   }
@@ -127,6 +142,18 @@ CBORMessageEncoder::EncoderState CBORMessageEncoder::handle_EncodeParam(CborEnco
     error = CBORMessageEncoder::encodeOtaProgressCmdUp(array_encoder, message);
     break;
   case CommandId::TimezoneCommandUpId:
+    break;
+  case CommandId::ProvisioningStatus:
+    error = CBORMessageEncoder::encodeProvisioningStatus(array_encoder, message);
+    break;
+  case CommandId::ProvisioningListWifiNetworks:
+    error = CBORMessageEncoder::encodeProvisioningListWifiNetworks(array_encoder, message);
+    break;
+  case CommandId::ProvisioningUniqueId:
+    error = CBORMessageEncoder::encodeProvisioningUniqueId(array_encoder, message);
+    break;
+  case CommandId::ProvisioningSignature:
+    error = CBORMessageEncoder::encodeProvisioningSignature(array_encoder, message);
     break;
   default:
     return EncoderState::MessageNotSupported;
@@ -171,5 +198,37 @@ CborError CBORMessageEncoder::encodeOtaProgressCmdUp(CborEncoder * array_encoder
   CHECK_CBOR(cbor_encode_simple_value(array_encoder, ota->params.state));
   CHECK_CBOR(cbor_encode_int(array_encoder, ota->params.state_data));
   CHECK_CBOR(cbor_encode_uint(array_encoder, ota->params.time));
+  return CborNoError;
+}
+
+// Provisioning specific encoders
+CborError CBORMessageEncoder::encodeProvisioningStatus(CborEncoder * array_encoder, Message * message)
+{
+  ProvisioningStatusMessage * provisioningStatus = (ProvisioningStatusMessage *) message;
+  CHECK_CBOR(cbor_encode_int(array_encoder, provisioningStatus->params.status));
+  return CborNoError;
+}
+
+CborError CBORMessageEncoder::encodeProvisioningListWifiNetworks(CborEncoder * array_encoder, Message * message)
+{
+  ProvisioningListWifiNetworksMessage * provisioningListWifiNetworks = (ProvisioningListWifiNetworksMessage *) message;
+  for (int i = 0; i < provisioningListWifiNetworks->params.numDiscoveredWiFiNetworks; i++) {
+    CHECK_CBOR(cbor_encode_text_stringz(array_encoder, provisioningListWifiNetworks->params.discoveredWifiNetworks[i].SSID));
+    CHECK_CBOR(cbor_encode_int(array_encoder, *provisioningListWifiNetworks->params.discoveredWifiNetworks[i].RSSI));
+  }
+  return CborNoError;
+}
+
+CborError CBORMessageEncoder::encodeProvisioningUniqueId(CborEncoder * array_encoder, Message * message)
+{
+  ProvisioningUniqueIdMessage * provisioningUniqueId = (ProvisioningUniqueIdMessage *) message;
+  CHECK_CBOR(cbor_encode_byte_string(array_encoder, (uint8_t *) provisioningUniqueId->params.uniqueId, 32));
+  return CborNoError;
+}
+
+CborError CBORMessageEncoder::encodeProvisioningSignature(CborEncoder * array_encoder, Message * message)
+{
+  ProvisioningSignatureMessage * provisioningSignature = (ProvisioningSignatureMessage *) message;
+  CHECK_CBOR(cbor_encode_byte_string(array_encoder, (uint8_t *) provisioningSignature->params.signature, 32));
   return CborNoError;
 }

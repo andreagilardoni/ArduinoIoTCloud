@@ -42,6 +42,32 @@ CommandId toCommandId(CBORCommandTag tag) {
     return CommandId::LastValuesUpdateCmdId;
   case CBORCommandTag::CBORTimezoneCommandDown:
     return CommandId::TimezoneCommandDownId;
+  case CBORCommandTag::CBORProvisioningStatus:
+    return CommandId::ProvisioningStatus;
+  case CBORCommandTag::CBORProvisioningListWifiNetworks:
+    return CommandId::ProvisioningListWifiNetworks;
+  case CBORCommandTag::CBORProvisioningUniqueId:
+    return CommandId::ProvisioningUniqueId;
+  case CBORCommandTag::CBORProvisioningSignature:
+    return CommandId::ProvisioningSignature;
+  case CBORCommandTag::CBORProvisioningTimestamp:
+    return CommandId::ProvisioningTimestamp;
+  case CBORCommandTag::CBORProvisioningCommands:
+    return CommandId::ProvisioningCommands;
+  case CBORCommandTag::CBORProvisioningWifiConfig:
+    return CommandId::ProvisioningWifiConfig;
+  case CBORCommandTag::CBORProvisioningLoRaConfig:
+    return CommandId::ProvisioningLoRaConfig;
+  case CBORCommandTag::CBORProvisioningGSMConfig:
+    return CommandId::ProvisioningGSMConfig;
+  case CBORCommandTag::CBORProvisioningNBIOTConfig:
+    return CommandId::ProvisioningNBIOTConfig;
+  case CBORCommandTag::CBORProvisioningCATM1Config:
+    return CommandId::ProvisioningCATM1Config;
+  case CBORCommandTag::CBORProvisioningEthernetConfig:
+    return CommandId::ProvisioningEthernetConfig;
+  case CBORCommandTag::CBORProvisioningCellularConfig:
+    return CommandId::ProvisioningCellularConfig;
   default:
     return CommandId::UnknownCmdId;
   }
@@ -71,6 +97,32 @@ CBORCommandTag toCBORCommandTag(CommandId id) {
     return CBORCommandTag::CBORLastValuesUpdate;
   case CommandId::TimezoneCommandDownId:
     return CBORCommandTag::CBORTimezoneCommandDown;
+  case CommandId::ProvisioningStatus:
+    return CBORCommandTag::CBORProvisioningStatus;
+  case CommandId::ProvisioningListWifiNetworks:
+    return CBORCommandTag::CBORProvisioningListWifiNetworks;
+  case CommandId::ProvisioningUniqueId:
+    return CBORCommandTag::CBORProvisioningUniqueId;
+  case CommandId::ProvisioningSignature:
+    return CBORCommandTag::CBORProvisioningSignature;
+  case CommandId::ProvisioningTimestamp:
+    return CBORCommandTag::CBORProvisioningTimestamp;
+  case CommandId::ProvisioningCommands:
+    return CBORCommandTag::CBORProvisioningCommands;
+  case CommandId::ProvisioningWifiConfig:
+    return CBORCommandTag::CBORProvisioningWifiConfig;
+  case CommandId::ProvisioningLoRaConfig:
+    return CBORCommandTag::CBORProvisioningLoRaConfig;
+  case CommandId::ProvisioningGSMConfig:
+    return CBORCommandTag::CBORProvisioningGSMConfig;
+  case CommandId::ProvisioningNBIOTConfig:
+    return CBORCommandTag::CBORProvisioningNBIOTConfig;
+  case CommandId::ProvisioningCATM1Config:
+    return CBORCommandTag::CBORProvisioningCATM1Config;
+  case CommandId::ProvisioningEthernetConfig:
+    return CBORCommandTag::CBORProvisioningEthernetConfig;
+  case CommandId::ProvisioningCellularConfig:
+    return CBORCommandTag::CBORProvisioningCellularConfig;
   default:
     return CBORCommandTag::CBORUnknownCmdTag;
   }
