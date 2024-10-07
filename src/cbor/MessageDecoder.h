@@ -70,6 +70,16 @@ private:
   ArrayParserState decodeLastValuesUpdateCmd(CborValue * param, Message * message);
   ArrayParserState decodeOtaUpdateCmdDown(CborValue * param, Message * message);
 
+  // Provisioning specific decoders
+  ArrayParserState decodeProvisioningTimestampMessage(CborValue * param, Message * message);
+  ArrayParserState decodeProvisioningCommandsMessage(CborValue * param, Message * message);
+  ArrayParserState decodeProvisioningWifiConfigMessage(CborValue * param, Message * message);
+  ArrayParserState decodeProvisioningLoRaConfigMessage(CborValue * param, Message * message);
+  ArrayParserState decodeProvisioningCATM1ConfigMessage(CborValue * param, Message * message);
+  ArrayParserState decodeProvisioningEthernetConfigMessage(CborValue * param, Message * message);
+  bool getProvisioningIPStructFromMessage(CborValue * param, ProvisioningIPStruct * message);
+  ArrayParserState decodeProvisioningCellularConfigMessage(CborValue * param, Message * message);
+
 };
 
 #endif /* ARDUINO_CBOR_MESSAGE_DECODER_H_ */

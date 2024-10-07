@@ -60,6 +60,12 @@ private:
   CborError encodeOtaBeginUp(CborEncoder * array_encoder, Message * message);
   CborError encodeDeviceBeginCmd(CborEncoder * array_encoder, Message * message);
   CborError encodeOtaProgressCmdUp(CborEncoder * array_encoder, Message * message);
+
+  //Provisioning specific encoders
+  CborError encodeProvisioningStatus(CborEncoder * array_encoder, Message * message);
+  CborError encodeProvisioningListWifiNetworks(CborEncoder * array_encoder, Message * message);
+  CborError encodeProvisioningUniqueId(CborEncoder * array_encoder, Message * message);
+  CborError encodeProvisioningSignature(CborEncoder * array_encoder, Message * message);
 };
 
 #endif /* ARDUINO_CBOR_MESSAGE_ENCODER_H_ */

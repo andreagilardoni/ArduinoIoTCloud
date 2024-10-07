@@ -60,7 +60,22 @@ enum CommandId: uint32_t {
   TimezoneCommandDownId,
 
   /* Unknown command id */
-  UnknownCmdId
+  UnknownCmdId,
+
+  /* Provisioning commands*/
+  ProvisioningStatus,
+  ProvisioningListWifiNetworks,
+  ProvisioningUniqueId,
+  ProvisioningSignature,
+  ProvisioningTimestamp,
+  ProvisioningCommands,
+  ProvisioningWifiConfig,
+  ProvisioningLoRaConfig,
+  ProvisioningGSMConfig,
+  ProvisioningNBIOTConfig,
+  ProvisioningCATM1Config,
+  ProvisioningEthernetConfig,
+  ProvisioningCellularConfig,
 };
 
 struct Command {
@@ -148,6 +163,116 @@ struct TimezoneCommandDown {
   } params;
 };
 
+struct ProvisioningStatusMessage {
+  Command c;
+  struct {
+    int16_t status;
+  } params;
+};
+
+struct WiFiNetwork {
+  char *SSID;
+  int *RSSI;
+};
+
+struct ProvisioningListWifiNetworksMessage {
+  Command c;
+  struct {
+    WiFiNetwork discoveredWifiNetworks[20];
+    uint8_t numDiscoveredWiFiNetworks = 0;
+  } params;
+};
+
+struct ProvisioningUniqueIdMessage {
+  Command c;
+  struct {
+    char uniqueId[32]; //The payload is an array of char with a maximum length of 32, not null terminated. It's not a string.
+  } params;
+};
+
+struct ProvisioningSignatureMessage {
+  Command c;
+  struct {
+    char signature[32]; //The payload is an array of char with a maximum length of 32, not null terminated. It's not a string.
+  } params;
+};
+
+struct ProvisioningTimestampMessage {
+  Command c;
+  struct {
+    uint64_t timestamp;
+  } params;
+};
+
+struct ProvisioningCommandsMessage {
+  Command c;
+  struct {
+    uint8_t cmd;
+  } params;
+};
+
+struct ProvisioningWifiConfigMessage {
+  Command c;
+  struct {
+    char ssid[33]; // Max length of ssid is 32 + \0
+    char pwd[64];  // Max length of password is 63 + \0
+  } params;
+};
+
+struct ProvisioningLoRaConfigMessage {
+  Command c;
+  struct {
+    char       appeui[17];    // appeui is 8 octets * 2 (hex format) + \0
+    char       appkey[33];    // appeui is 16 octets * 2 (hex format) + \0
+    uint8_t    band;
+    char       channelMask[13];
+    char       deviceClass[2];
+  } params;
+};
+
+struct ProvisioningCATM1ConfigMessage {
+  Command c;
+  struct {
+    char      pin[9];
+    char      apn[101]; // Max length of apn is 100 + \0
+    char      login[65];
+    char      pass[65];
+    uint32_t  band[4];
+  } params;
+};
+
+struct ProvisioningIPStruct{
+  enum IPType {
+    IPV4,
+    IPV6
+  };
+  IPType type;
+  uint8_t ip[16];
+};
+
+struct ProvisioningEthernetConfigMessage {
+  Command c;
+  struct {
+    ProvisioningIPStruct       ip;
+    ProvisioningIPStruct       dns;
+    ProvisioningIPStruct       gateway;
+    ProvisioningIPStruct       netmask;
+    unsigned long              timeout;
+    unsigned long              response_timeout;
+  } params;
+};
+
+
+struct ProvisioningCellularConfigMessage {
+  Command c;
+  struct {
+    char pin[9];
+    char apn[101]; // Max length of apn is 100 + \0
+    char login[65];
+    char pass[65];
+  } params;
+};
+
 union CommandDown {
   struct Command                  c;
   struct OtaUpdateCmdDown         otaUpdateCmdDown;
@@ -155,4 +280,15 @@ union CommandDown {
   struct ThingDetachCmd           thingDetachCmd;
   struct LastValuesUpdateCmd      lastValuesUpdateCmd;
   struct TimezoneCommandDown      timezoneCommandDown;
+};
+
+union ProvisioningCommandDown {
+  struct Command                           c;
+  struct ProvisioningTimestampMessage      provisioningTimestamp;
+  struct ProvisioningCommandsMessage       provisioningCommands;
+  struct ProvisioningWifiConfigMessage     provisioningWifiConfig;
+  struct ProvisioningLoRaConfigMessage     provisioningLoRaConfig;
+  struct ProvisioningCATM1ConfigMessage    provisioningCATM1Config;
+  struct ProvisioningEthernetConfigMessage provisioningEthernetConfig;
+  struct ProvisioningCellularConfigMessage provisioningCellularConfig;
 };

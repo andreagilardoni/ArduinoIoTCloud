@@ -217,6 +217,308 @@ CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeOtaUpdateCmdDown(
   return ArrayParserState::LeaveArray;
 }
 
+CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeProvisioningTimestampMessage(CborValue * param, Message * message) {
+  ProvisioningTimestampMessage * provisioningTimestamp = (ProvisioningTimestampMessage *) message;
+
+  // Message is composed of a single parameter: a 64-bit unsigned integer
+  if (cbor_value_is_integer(param)) {
+    uint64_t val = 0;
+    if (cbor_value_get_uint64(param, &val) == CborNoError) {
+      provisioningTimestamp->params.timestamp = val;
+    }
+  }
+
+  return ArrayParserState::LeaveArray;
+}
+
+CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeProvisioningWifiConfigMessage(CborValue * param, Message * message) {
+  ProvisioningWifiConfigMessage * provisioningWifiConfig = (ProvisioningWifiConfigMessage *) message;
+
+  // Message is composed of 2 parameters: ssid and password
+  if (!copyCBORStringToArray(param, provisioningWifiConfig->params.ssid, sizeof(provisioningWifiConfig->params.ssid))) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (!copyCBORStringToArray(param, provisioningWifiConfig->params.pwd, sizeof(provisioningWifiConfig->params.pwd))) {
+    return ArrayParserState::Error;
+  }
+
+  return ArrayParserState::LeaveArray;
+}
+
+CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeProvisioningCommandsMessage(CborValue * param, Message * message) {
+  ProvisioningCommandsMessage * provisioningCommands = (ProvisioningCommandsMessage *) message;
+
+  // Message is composed of a single parameter: a 32-bit signed integer
+  if (cbor_value_is_integer(param)) {
+    int val = 0;
+    if (cbor_value_get_int(param, &val) == CborNoError) {
+      provisioningCommands->params.cmd = val;
+    }
+  }
+
+  return ArrayParserState::LeaveArray;
+}
+
+CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeProvisioningLoRaConfigMessage(CborValue * param, Message * message) {
+  ProvisioningLoRaConfigMessage * provisioningLoRaConfig = (ProvisioningLoRaConfigMessage *) message;
+  // Message is composed of 5 parameters: app_eui, app_key, band, channel_mask, device_class
+  if (!copyCBORStringToArray(param, provisioningLoRaConfig->params.appeui, sizeof(provisioningLoRaConfig->params.appeui))) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (!copyCBORStringToArray(param, provisioningLoRaConfig->params.appkey, sizeof(provisioningLoRaConfig->params.appkey))) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (cbor_value_is_integer(param)) {
+    int val = 0;
+    if (cbor_value_get_int(param, &val) == CborNoError) {
+      provisioningLoRaConfig->params.band = val;
+    }
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if(!copyCBORStringToArray(param, provisioningLoRaConfig->params.channelMask, sizeof(provisioningLoRaConfig->params.channelMask))) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (!copyCBORStringToArray(param, provisioningLoRaConfig->params.deviceClass, sizeof(provisioningLoRaConfig->params.deviceClass))) {
+    return ArrayParserState::Error;
+  }
+
+  return ArrayParserState::LeaveArray;
+}
+
+CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeProvisioningCATM1ConfigMessage(CborValue * param, Message * message) {
+  ProvisioningCATM1ConfigMessage * provisioningCATM1Config = (ProvisioningCATM1ConfigMessage *) message;
+  CborValue array_iter;
+  size_t arrayLength = 0;
+
+  memset(provisioningCATM1Config->params.band, 0x00, sizeof(provisioningCATM1Config->params.band));
+
+  // Message is composed of 5 parameters: pin, band, apn, login and password 
+  if (!copyCBORStringToArray(param, provisioningCATM1Config->params.pin, sizeof(provisioningCATM1Config->params.pin))) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (cbor_value_get_type(param) != CborArrayType) {
+    return ArrayParserState::Error;
+  }
+  
+  cbor_value_get_array_length(param, &arrayLength);
+  size_t maxArraySize = sizeof(provisioningCATM1Config->params.band) / sizeof(provisioningCATM1Config->params.band[0]);
+
+  if(arrayLength > maxArraySize) {
+    return ArrayParserState::Error;
+  }
+
+  if (cbor_value_enter_container(param, &array_iter) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  for(size_t i = 0; i < arrayLength; i++) {
+    if (!cbor_value_is_unsigned_integer(&array_iter)) {
+      return ArrayParserState::Error;
+    }
+
+    int val = 0;
+    if (cbor_value_get_int(&array_iter, &val) != CborNoError) {
+      return ArrayParserState::Error;
+    }
+
+    provisioningCATM1Config->params.band[i] = val;
+    
+    if (cbor_value_advance(&array_iter) != CborNoError) {
+      return ArrayParserState::Error;
+    }      
+  }
+
+  if (cbor_value_leave_container(param, &array_iter) != CborNoError){
+    return ArrayParserState::Error;
+  }
+
+  if (!copyCBORStringToArray(param, provisioningCATM1Config->params.apn, sizeof(provisioningCATM1Config->params.apn))) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (!copyCBORStringToArray(param, provisioningCATM1Config->params.login, sizeof(provisioningCATM1Config->params.login))) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (!copyCBORStringToArray(param, provisioningCATM1Config->params.pass, sizeof(provisioningCATM1Config->params.pass))) {
+    return ArrayParserState::Error;
+  }  
+
+  return ArrayParserState::LeaveArray;
+}
+
+CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeProvisioningEthernetConfigMessage(CborValue * param, Message * message){
+  ProvisioningEthernetConfigMessage * provisioningEthernetConfig = (ProvisioningEthernetConfigMessage *) message;
+
+  // Message is composed of 2 parameters: static ip, dns, default gateway, netmask, timeout and response timeout
+  if (!getProvisioningIPStructFromMessage(param, &provisioningEthernetConfig->params.ip)) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (!getProvisioningIPStructFromMessage(param, &provisioningEthernetConfig->params.dns)) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (!getProvisioningIPStructFromMessage(param, &provisioningEthernetConfig->params.gateway)) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (!getProvisioningIPStructFromMessage(param, &provisioningEthernetConfig->params.netmask)) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (cbor_value_is_integer(param)) {
+    int val = 0;
+    if (cbor_value_get_int(param, &val) == CborNoError) {
+      provisioningEthernetConfig->params.timeout = val;
+    }
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (cbor_value_is_integer(param)) {
+    int val = 0;
+    if (cbor_value_get_int(param, &val) == CborNoError) {
+      provisioningEthernetConfig->params.response_timeout = val;
+    }
+  }
+
+  return ArrayParserState::LeaveArray;
+}
+
+bool CBORMessageDecoder::getProvisioningIPStructFromMessage(CborValue *param, ProvisioningIPStruct *ipStruct)
+{
+  size_t len = sizeof(ipStruct->ip);
+  
+  memset(ipStruct->ip, 0, len);
+
+  if (!cbor_value_is_byte_string(param)) {
+    return false;
+  }
+
+  if(_cbor_value_copy_string(param, ipStruct->ip, &len, NULL) != CborNoError) {
+      return false;
+  }
+
+  if(len == 4){
+    ipStruct->type = ProvisioningIPStruct::IPType::IPV4;
+  } else if(len == 16){
+    ipStruct->type = ProvisioningIPStruct::IPType::IPV6;
+  } else {
+    return false;
+  }
+
+  return true;
+}
+
+CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeProvisioningCellularConfigMessage(CborValue * param, Message * message){
+  ProvisioningCellularConfigMessage * provisioningCellularConfig = (ProvisioningCellularConfigMessage *) message;
+
+  // Message is composed of 4 parameters: pin, apn, login and password
+  if (!copyCBORStringToArray(param, provisioningCellularConfig->params.pin, sizeof(provisioningCellularConfig->params.pin))) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (!copyCBORStringToArray(param, provisioningCellularConfig->params.apn, sizeof(provisioningCellularConfig->params.apn))) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (!copyCBORStringToArray(param, provisioningCellularConfig->params.login, sizeof(provisioningCellularConfig->params.login))) {
+    return ArrayParserState::Error;
+  }
+
+  // Next
+  if (cbor_value_advance(param) != CborNoError) {
+    return ArrayParserState::Error;
+  }
+
+  if (!copyCBORStringToArray(param, provisioningCellularConfig->params.pass, sizeof(provisioningCellularConfig->params.pass))) {
+    return ArrayParserState::Error;
+  }
+
+  return ArrayParserState::LeaveArray;
+}
+
+
+
 CBORMessageDecoder::ArrayParserState CBORMessageDecoder::handle_Param(CborValue * param, Message * message) {
 
   switch (message->id)
@@ -235,6 +537,33 @@ CBORMessageDecoder::ArrayParserState CBORMessageDecoder::handle_Param(CborValue 
 
   case CommandId::OtaUpdateCmdDownId:
     return CBORMessageDecoder::decodeOtaUpdateCmdDown(param, message);
+
+  case CommandId::ProvisioningTimestamp:
+    return CBORMessageDecoder::decodeProvisioningTimestampMessage(param, message);
+  
+  case CommandId::ProvisioningWifiConfig:
+    return CBORMessageDecoder::decodeProvisioningWifiConfigMessage(param, message);
+  
+  case CommandId::ProvisioningCommands:
+    return CBORMessageDecoder::decodeProvisioningCommandsMessage(param, message);
+
+  case CommandId::ProvisioningLoRaConfig:
+    return CBORMessageDecoder::decodeProvisioningLoRaConfigMessage(param, message);
+  
+  case CommandId::ProvisioningGSMConfig:
+    return CBORMessageDecoder::decodeProvisioningCellularConfigMessage(param, message);
+
+  case CommandId::ProvisioningNBIOTConfig:
+    return CBORMessageDecoder::decodeProvisioningCellularConfigMessage(param, message);
+  
+  case CommandId::ProvisioningCATM1Config:
+    return CBORMessageDecoder::decodeProvisioningCATM1ConfigMessage(param, message);
+  
+  case CommandId::ProvisioningEthernetConfig:
+    return CBORMessageDecoder::decodeProvisioningEthernetConfigMessage(param, message);
+  
+  case CommandId::ProvisioningCellularConfig:
+    return CBORMessageDecoder::decodeProvisioningCellularConfigMessage(param, message);
 
   default:
     return ArrayParserState::MessageNotSupported;
