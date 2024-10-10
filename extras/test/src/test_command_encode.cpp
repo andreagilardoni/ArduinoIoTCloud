@@ -337,4 +337,136 @@ SCENARIO("Test the encoding of command messages") {
       REQUIRE(err == Encoder::Status::Error);
     }
   }
+
+    /****************************************************************************/
+
+  WHEN("Encode a message with provisioning status ")
+  {
+    ProvisioningStatusMessage command;
+    command.c.id = CommandId::ProvisioningStatus;
+    command.params.status = -100;
+    uint8_t buffer[512];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    uint8_t expected_result[] = {
+      0xda, 0x00, 0x01, 0x20, 0x00, 0x81, 0x38, 0x63
+    };
+
+    // Test the encoding is
+    // Da 0001200     # tag(0x012000)
+    //  81       # array(1)
+    //  38 63 # negative(99)
+
+    THEN("The encoding is successful") {
+      REQUIRE(err == Encoder::Status::Complete);
+      REQUIRE(bytes_encoded == sizeof(expected_result));
+      REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
+    }
+  }
+
+  WHEN("Encode a message with provisioning wifi list ")
+  {
+    ProvisioningListWifiNetworksMessage command;
+    command.c.id = CommandId::ProvisioningListWifiNetworks;
+    command.params.numDiscoveredWiFiNetworks = 2;
+    char ssid1[] = "SSID1";
+    int rssi1 = -76;
+    command.params.discoveredWifiNetworks[0].SSID = ssid1;
+    command.params.discoveredWifiNetworks[0].RSSI = &rssi1;
+    char ssid2[] = "SSID2";
+    int rssi2 = -56;
+    command.params.discoveredWifiNetworks[1].SSID = ssid2;
+    command.params.discoveredWifiNetworks[1].RSSI = &rssi2;
+
+    uint8_t buffer[512];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    uint8_t expected_result[] = {
+      0xda, 0x00, 0x01, 0x20, 0x01, 0x84, 0x65, 0x53, 0x53, 0x49, 0x44, 0x31, 0x38, 0x4B, 0x65, 0x53, 0x53, 0x49, 0x44, 0x32, 0x38, 0x37
+    };
+
+    // Test the encoding is
+    //DA 00012001        # tag(73729)
+    //  84               # array(4)
+    //     65            # text(5)
+    //        5353494431 # "SSID1"
+    //     38 4B         # negative(75)
+    //     65            # text(5)
+    //        5353494432 # "SSID2"
+    //     38 37         # negative(55)
+    THEN("The encoding is successful") {
+      REQUIRE(err == Encoder::Status::Complete);
+      REQUIRE(bytes_encoded == sizeof(expected_result));
+      REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
+    }
+  }
+
+  WHEN("Encode a message with provisioning uniqueId ")
+  {
+    ProvisioningUniqueIdMessage command;
+    command.c.id = CommandId::ProvisioningUniqueId;
+    memset(command.params.uniqueId, 0xCA, 32);
+    uint8_t buffer[512];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    uint8_t expected_result[] = {
+      0xda, 0x00, 0x01, 0x20, 0x10, 0x81, 0x58, 0x20, 
+      0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA,
+      0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA,
+      0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA,
+      0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA,
+    };
+
+    // Test the encoding is
+    //DA 00012010          # tag(73744)
+    //  81                 # array(1)
+    //    58 20            # bytes(32)
+    //      CA.... omissis # values
+    THEN("The encoding is successful") {
+      REQUIRE(err == Encoder::Status::Complete);
+      REQUIRE(bytes_encoded == sizeof(expected_result));
+      REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
+    }
+  }
+
+    WHEN("Encode a message with provisioning  signature ")
+  {
+    ProvisioningSignatureMessage command;
+    command.c.id = CommandId::ProvisioningSignature;
+    memset(command.params.signature, 0xCA, 32);
+    uint8_t buffer[512];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    uint8_t expected_result[] = {
+      0xda, 0x00, 0x01, 0x20, 0x11, 0x81, 0x58, 0x20, 
+      0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA,
+      0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA,
+      0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA,
+      0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA, 0xCA,
+    };
+
+    // Test the encoding is
+    //DA 00012011          # tag(73744)
+    //  81                 # array(1)
+    //    58 20            # bytes(32)
+    //      CA.... omissis # values
+    THEN("The encoding is successful") {
+      REQUIRE(err == Encoder::Status::Complete);
+      REQUIRE(bytes_encoded == sizeof(expected_result));
+      REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
+    }
+  }
+
 }
