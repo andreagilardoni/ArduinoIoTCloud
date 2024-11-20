@@ -26,6 +26,8 @@
 #define URL_SIZE                   256
 #define ID_SIZE                     16
 #define MAX_LIB_VERSION_SIZE        10
+#define UID_SIZE                    32
+#define SIGNATURE_SIZE              246
 
 /******************************************************************************
     TYPEDEF
@@ -193,7 +195,7 @@ struct ProvisioningUniqueIdMessage {
 struct ProvisioningSignatureMessage {
   Command c;
   struct {
-    char signature[32]; //The payload is an array of char with a maximum length of 32, not null terminated. It's not a string.
+    char signature[246]; //The payload is an array of char with a maximum length of 246, not null terminated. It's not a string.
   } params;
 };
 

@@ -222,13 +222,13 @@ CborError CBORMessageEncoder::encodeProvisioningListWifiNetworks(CborEncoder * a
 CborError CBORMessageEncoder::encodeProvisioningUniqueId(CborEncoder * array_encoder, Message * message)
 {
   ProvisioningUniqueIdMessage * provisioningUniqueId = (ProvisioningUniqueIdMessage *) message;
-  CHECK_CBOR(cbor_encode_byte_string(array_encoder, (uint8_t *) provisioningUniqueId->params.uniqueId, 32));
+  CHECK_CBOR(cbor_encode_byte_string(array_encoder, (uint8_t *) provisioningUniqueId->params.uniqueId, UID_SIZE));
   return CborNoError;
 }
 
 CborError CBORMessageEncoder::encodeProvisioningSignature(CborEncoder * array_encoder, Message * message)
 {
   ProvisioningSignatureMessage * provisioningSignature = (ProvisioningSignatureMessage *) message;
-  CHECK_CBOR(cbor_encode_byte_string(array_encoder, (uint8_t *) provisioningSignature->params.signature, 32));
+  CHECK_CBOR(cbor_encode_byte_string(array_encoder, (uint8_t *) provisioningSignature->params.signature, SIGNATURE_SIZE));
   return CborNoError;
 }
