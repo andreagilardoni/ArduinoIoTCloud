@@ -407,11 +407,11 @@ SCENARIO("Test the encoding of command messages") {
     }
   }
 
-  WHEN("Encode a message with provisioning uniqueId ")
+  WHEN("Encode a message with provisioning uniqueHardwareId ")
   {
-    ProvisioningUniqueIdMessage command;
-    command.c.id = CommandId::ProvisioningUniqueId;
-    memset(command.params.uniqueId, 0xCA, 32);
+    ProvisioningUniqueHardwareIdMessage command;
+    command.c.id = CommandId::ProvisioningUniqueHardwareId;
+    memset(command.params.uniqueHardwareId, 0xCA, 32);
     uint8_t buffer[512];
     size_t bytes_encoded = sizeof(buffer);
 
@@ -438,11 +438,11 @@ SCENARIO("Test the encoding of command messages") {
     }
   }
 
-    WHEN("Encode a message with provisioning  signature ")
+    WHEN("Encode a message with provisioning  jwt ")
   {
-    ProvisioningSignatureMessage command;
-    command.c.id = CommandId::ProvisioningSignature;
-    memset(command.params.signature, 0xCA, 246);
+    ProvisioningJWTMessage command;
+    command.c.id = CommandId::ProvisioningJWT;
+    memset(command.params.jwt, 0xCA, 246);
     uint8_t buffer[512];
     size_t bytes_encoded = sizeof(buffer);
 

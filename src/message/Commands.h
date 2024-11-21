@@ -26,8 +26,21 @@
 #define URL_SIZE                   256
 #define ID_SIZE                     16
 #define MAX_LIB_VERSION_SIZE        10
-#define UID_SIZE                    32
-#define SIGNATURE_SIZE              246
+#define UHWID_SIZE                  32
+#define PROVISIONING_JWT_SIZE      246
+#define WIFI_SSID_SIZE              33 // Max length of ssid is 32 + \0
+#define WIFI_PWD_SIZE               64 // Max length of password is 63 + \0
+#define LORA_APPEUI_SIZE            17 // appeui is 8 octets * 2 (hex format) + \0
+#define LORA_APPKEY_SIZE            33 // appeui is 16 octets * 2 (hex format) + \0
+#define LORA_CHANNEL_MASK_SIZE      13
+#define LORA_DEVICE_CLASS_SIZE       2 // 1 char + \0
+#define PIN_SIZE                     9 // 8 digits + \0
+#define APN_SIZE                   101 // Max length of apn is 100 + \0
+#define LOGIN_SIZE                  65 // Max length of login is 64 + \0
+#define PASS_SIZE                   65 // Max length of password is 64 + \0
+#define BAND_SIZE                    4
+#define MAX_WIFI_NETWORKS           20
+#define MAX_IP_SIZE                 16
 
 /******************************************************************************
     TYPEDEF
@@ -67,8 +80,8 @@ enum CommandId: uint32_t {
   /* Provisioning commands*/
   ProvisioningStatus,
   ProvisioningListWifiNetworks,
-  ProvisioningUniqueId,
-  ProvisioningSignature,
+  ProvisioningUniqueHardwareId,
+  ProvisioningJWT,
   ProvisioningTimestamp,
   ProvisioningCommands,
   ProvisioningWifiConfig,
@@ -180,22 +193,22 @@ struct WiFiNetwork {
 struct ProvisioningListWifiNetworksMessage {
   Command c;
   struct {
-    WiFiNetwork discoveredWifiNetworks[20];
+    WiFiNetwork discoveredWifiNetworks[MAX_WIFI_NETWORKS];
     uint8_t numDiscoveredWiFiNetworks = 0;
   } params;
 };
 
-struct ProvisioningUniqueIdMessage {
+struct ProvisioningUniqueHardwareIdMessage {
   Command c;
   struct {
-    char uniqueId[32]; //The payload is an array of char with a maximum length of 32, not null terminated. It's not a string.
+    char uniqueHardwareId[UHWID_SIZE]; //The payload is an array of char with a maximum length of 32, not null terminated. It's not a string.
   } params;
 };
 
-struct ProvisioningSignatureMessage {
+struct ProvisioningJWTMessage {
   Command c;
   struct {
-    char signature[246]; //The payload is an array of char with a maximum length of 246, not null terminated. It's not a string.
+    char jwt[PROVISIONING_JWT_SIZE]; //The payload is an array of char with a maximum length of 246, not null terminated. It's not a string.
   } params;
 };
 
@@ -216,30 +229,30 @@ struct ProvisioningCommandsMessage {
 struct ProvisioningWifiConfigMessage {
   Command c;
   struct {
-    char ssid[33]; // Max length of ssid is 32 + \0
-    char pwd[64];  // Max length of password is 63 + \0
+    char ssid[WIFI_SSID_SIZE]; 
+    char pwd[WIFI_PWD_SIZE];  
   } params;
 };
 
 struct ProvisioningLoRaConfigMessage {
   Command c;
   struct {
-    char       appeui[17];    // appeui is 8 octets * 2 (hex format) + \0
-    char       appkey[33];    // appeui is 16 octets * 2 (hex format) + \0
+    char       appeui[LORA_APPEUI_SIZE];    
+    char       appkey[LORA_APPKEY_SIZE];    
     uint8_t    band;
-    char       channelMask[13];
-    char       deviceClass[2];
+    char       channelMask[LORA_CHANNEL_MASK_SIZE];
+    char       deviceClass[LORA_DEVICE_CLASS_SIZE];
   } params;
 };
 
 struct ProvisioningCATM1ConfigMessage {
   Command c;
   struct {
-    char      pin[9];
-    char      apn[101]; // Max length of apn is 100 + \0
-    char      login[65];
-    char      pass[65];
-    uint32_t  band[4];
+    char      pin[PIN_SIZE];
+    char      apn[APN_SIZE]; 
+    char      login[LOGIN_SIZE];
+    char      pass[PASS_SIZE];
+    uint32_t  band[BAND_SIZE];
   } params;
 };
 
@@ -249,7 +262,7 @@ struct ProvisioningIPStruct{
     IPV6
   };
   IPType type;
-  uint8_t ip[16];
+  uint8_t ip[MAX_IP_SIZE];
 };
 
 struct ProvisioningEthernetConfigMessage {
@@ -268,10 +281,10 @@ struct ProvisioningEthernetConfigMessage {
 struct ProvisioningCellularConfigMessage {
   Command c;
   struct {
-    char pin[9];
-    char apn[101]; // Max length of apn is 100 + \0
-    char login[65];
-    char pass[65];
+    char pin[PIN_SIZE];
+    char apn[APN_SIZE];
+    char login[LOGIN_SIZE];
+    char pass[PASS_SIZE];
   } params;
 };
 
