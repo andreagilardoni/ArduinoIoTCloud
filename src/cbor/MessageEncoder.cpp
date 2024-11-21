@@ -104,10 +104,10 @@ CBORMessageEncoder::EncoderState CBORMessageEncoder::handle_EncodeArray(CborEnco
       array_size = 2 * msg->params.numDiscoveredWiFiNetworks;
       break;
     }
-  case CommandId::ProvisioningUniqueId:
+  case CommandId::ProvisioningUniqueHardwareId:
     array_size = 1;
     break;
-  case CommandId::ProvisioningSignature:
+  case CommandId::ProvisioningJWT:
     array_size = 1;
     break;
   default:
@@ -149,11 +149,11 @@ CBORMessageEncoder::EncoderState CBORMessageEncoder::handle_EncodeParam(CborEnco
   case CommandId::ProvisioningListWifiNetworks:
     error = CBORMessageEncoder::encodeProvisioningListWifiNetworks(array_encoder, message);
     break;
-  case CommandId::ProvisioningUniqueId:
-    error = CBORMessageEncoder::encodeProvisioningUniqueId(array_encoder, message);
+  case CommandId::ProvisioningUniqueHardwareId:
+    error = CBORMessageEncoder::encodeProvisioningUniqueHardwareId(array_encoder, message);
     break;
-  case CommandId::ProvisioningSignature:
-    error = CBORMessageEncoder::encodeProvisioningSignature(array_encoder, message);
+  case CommandId::ProvisioningJWT:
+    error = CBORMessageEncoder::encodeProvisioningJWT(array_encoder, message);
     break;
   default:
     return EncoderState::MessageNotSupported;
@@ -219,16 +219,16 @@ CborError CBORMessageEncoder::encodeProvisioningListWifiNetworks(CborEncoder * a
   return CborNoError;
 }
 
-CborError CBORMessageEncoder::encodeProvisioningUniqueId(CborEncoder * array_encoder, Message * message)
+CborError CBORMessageEncoder::encodeProvisioningUniqueHardwareId(CborEncoder * array_encoder, Message * message)
 {
-  ProvisioningUniqueIdMessage * provisioningUniqueId = (ProvisioningUniqueIdMessage *) message;
-  CHECK_CBOR(cbor_encode_byte_string(array_encoder, (uint8_t *) provisioningUniqueId->params.uniqueId, UID_SIZE));
+  ProvisioningUniqueHardwareIdMessage * provisioningUniqueHardwareId = (ProvisioningUniqueHardwareIdMessage *) message;
+  CHECK_CBOR(cbor_encode_byte_string(array_encoder, (uint8_t *) provisioningUniqueHardwareId->params.uniqueHardwareId, UHWID_SIZE));
   return CborNoError;
 }
 
-CborError CBORMessageEncoder::encodeProvisioningSignature(CborEncoder * array_encoder, Message * message)
+CborError CBORMessageEncoder::encodeProvisioningJWT(CborEncoder * array_encoder, Message * message)
 {
-  ProvisioningSignatureMessage * provisioningSignature = (ProvisioningSignatureMessage *) message;
-  CHECK_CBOR(cbor_encode_byte_string(array_encoder, (uint8_t *) provisioningSignature->params.signature, SIGNATURE_SIZE));
+  ProvisioningJWTMessage * provisioningJWT = (ProvisioningJWTMessage *) message;
+  CHECK_CBOR(cbor_encode_byte_string(array_encoder, (uint8_t *) provisioningJWT->params.jwt, PROVISIONING_JWT_SIZE));
   return CborNoError;
 }

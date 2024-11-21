@@ -46,10 +46,10 @@ CommandId toCommandId(CBORCommandTag tag) {
     return CommandId::ProvisioningStatus;
   case CBORCommandTag::CBORProvisioningListWifiNetworks:
     return CommandId::ProvisioningListWifiNetworks;
-  case CBORCommandTag::CBORProvisioningUniqueId:
-    return CommandId::ProvisioningUniqueId;
-  case CBORCommandTag::CBORProvisioningSignature:
-    return CommandId::ProvisioningSignature;
+  case CBORCommandTag::CBORProvisioningUniqueHardwareId:
+    return CommandId::ProvisioningUniqueHardwareId;
+  case CBORCommandTag::CBORProvisioningJWT:
+    return CommandId::ProvisioningJWT;
   case CBORCommandTag::CBORProvisioningTimestamp:
     return CommandId::ProvisioningTimestamp;
   case CBORCommandTag::CBORProvisioningCommands:
@@ -101,10 +101,10 @@ CBORCommandTag toCBORCommandTag(CommandId id) {
     return CBORCommandTag::CBORProvisioningStatus;
   case CommandId::ProvisioningListWifiNetworks:
     return CBORCommandTag::CBORProvisioningListWifiNetworks;
-  case CommandId::ProvisioningUniqueId:
-    return CBORCommandTag::CBORProvisioningUniqueId;
-  case CommandId::ProvisioningSignature:
-    return CBORCommandTag::CBORProvisioningSignature;
+  case CommandId::ProvisioningUniqueHardwareId:
+    return CBORCommandTag::CBORProvisioningUniqueHardwareId;
+  case CommandId::ProvisioningJWT:
+    return CBORCommandTag::CBORProvisioningJWT;
   case CommandId::ProvisioningTimestamp:
     return CBORCommandTag::CBORProvisioningTimestamp;
   case CommandId::ProvisioningCommands:
