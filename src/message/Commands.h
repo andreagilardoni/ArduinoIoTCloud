@@ -27,7 +27,7 @@
 #define ID_SIZE                     16
 #define MAX_LIB_VERSION_SIZE        10
 #define UHWID_SIZE                  32
-#define PROVISIONING_JWT_SIZE      246
+#define PROVISIONING_JWT_SIZE      268 // Max length of jwt is 268
 #define WIFI_SSID_SIZE              33 // Max length of ssid is 32 + \0
 #define WIFI_PWD_SIZE               64 // Max length of password is 63 + \0
 #define LORA_APPEUI_SIZE            17 // appeui is 8 octets * 2 (hex format) + \0
@@ -208,7 +208,7 @@ struct ProvisioningUniqueHardwareIdMessage {
 struct ProvisioningJWTMessage {
   Command c;
   struct {
-    char jwt[PROVISIONING_JWT_SIZE]; //The payload is an array of char with a maximum length of 246, not null terminated. It's not a string.
+    char jwt[PROVISIONING_JWT_SIZE]; //The payload is an array of char with a maximum length of 268, not null terminated. It's not a string.
   } params;
 };
 
