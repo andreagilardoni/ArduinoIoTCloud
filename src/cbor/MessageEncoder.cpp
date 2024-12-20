@@ -109,6 +109,9 @@ CBORMessageEncoder::EncoderState CBORMessageEncoder::handle_EncodeArray(CborEnco
   case CommandId::ProvisioningJWT:
     array_size = 1;
     break;
+  case CommandId::ProvisioningBLEMacAddress:
+    array_size = 1;
+    break;
   default:
     return EncoderState::MessageNotSupported;
   }
@@ -153,6 +156,9 @@ CBORMessageEncoder::EncoderState CBORMessageEncoder::handle_EncodeParam(CborEnco
     break;
   case CommandId::ProvisioningJWT:
     error = CBORMessageEncoder::encodeProvisioningJWT(array_encoder, message);
+    break;
+  case CommandId::ProvisioningBLEMacAddress:
+    error = CBORMessageEncoder::encodeProvisioningBLEMacAddress(array_encoder, message);
     break;
   default:
     return EncoderState::MessageNotSupported;
@@ -229,5 +235,18 @@ CborError CBORMessageEncoder::encodeProvisioningJWT(CborEncoder * array_encoder,
 {
   ProvisioningJWTMessage * provisioningJWT = (ProvisioningJWTMessage *) message;
   CHECK_CBOR(cbor_encode_byte_string(array_encoder, (uint8_t *) provisioningJWT->params.jwt, PROVISIONING_JWT_SIZE));
+  return CborNoError;
+}
+
+CborError CBORMessageEncoder::encodeProvisioningBLEMacAddress(CborEncoder *array_encoder, Message *message)
+{
+  ProvisioningBLEMacAddressMessage *provisioningBLEMacAddress = (ProvisioningBLEMacAddressMessage *)message;
+  uint8_t size = 0;
+  uint8_t emptyMac[] = {0, 0, 0, 0, 0, 0};
+  if(memcmp(provisioningBLEMacAddress->params.macAddress, emptyMac, BLE_MAC_ADDRESS_SIZE) != 0)
+  {
+    size = BLE_MAC_ADDRESS_SIZE;
+  }
+  CHECK_CBOR(cbor_encode_byte_string(array_encoder, provisioningBLEMacAddress->params.macAddress, size));
   return CborNoError;
 }

@@ -50,6 +50,8 @@ CommandId toCommandId(CBORCommandTag tag) {
     return CommandId::ProvisioningUniqueHardwareId;
   case CBORCommandTag::CBORProvisioningJWT:
     return CommandId::ProvisioningJWT;
+  case CBORCommandTag::CBORProvisioningBLEMacAddress:
+    return CommandId::ProvisioningBLEMacAddress;
   case CBORCommandTag::CBORProvisioningTimestamp:
     return CommandId::ProvisioningTimestamp;
   case CBORCommandTag::CBORProvisioningCommands:
@@ -105,6 +107,8 @@ CBORCommandTag toCBORCommandTag(CommandId id) {
     return CBORCommandTag::CBORProvisioningUniqueHardwareId;
   case CommandId::ProvisioningJWT:
     return CBORCommandTag::CBORProvisioningJWT;
+  case CommandId::ProvisioningBLEMacAddress:
+    return CBORCommandTag::CBORProvisioningBLEMacAddress;
   case CommandId::ProvisioningTimestamp:
     return CBORCommandTag::CBORProvisioningTimestamp;
   case CommandId::ProvisioningCommands:

@@ -66,6 +66,7 @@ private:
   CborError encodeProvisioningListWifiNetworks(CborEncoder * array_encoder, Message * message);
   CborError encodeProvisioningUniqueHardwareId(CborEncoder * array_encoder, Message * message);
   CborError encodeProvisioningJWT(CborEncoder * array_encoder, Message * message);
+  CborError encodeProvisioningBLEMacAddress(CborEncoder * array_encoder, Message * message);
 };
 
 #endif /* ARDUINO_CBOR_MESSAGE_ENCODER_H_ */

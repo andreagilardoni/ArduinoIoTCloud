@@ -499,4 +499,32 @@ SCENARIO("Test the encoding of command messages") {
     }
   }
 
+  WHEN("Encode a message with provisioning ble mac Address ")
+  {
+    ProvisioningJWTMessage command;
+    command.c.id = CommandId::ProvisioningBLEMacAddress;
+    memset(command.params.jwt, 0xAF, 6);
+    uint8_t buffer[512];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    uint8_t expected_result[] = {
+      0xda, 0x00, 0x01, 0x20, 0x13, 0x81, 0x46, 
+      0xAF, 0xAF, 0xAF, 0xAF, 0xAF, 0xAF
+    };
+
+    // Test the encoding is
+    //DA 00012013       # tag(73747)
+    //81                # array(1)
+    //  46              # bytes(6)
+    //     AFAFAFAFAFA
+    THEN("The encoding is successful") {
+      REQUIRE(err == Encoder::Status::Complete);
+      REQUIRE(bytes_encoded == sizeof(expected_result));
+      REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
+    }
+  }
+
 }
