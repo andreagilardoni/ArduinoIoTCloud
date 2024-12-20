@@ -40,6 +40,7 @@ enum CBORCommandTag: uint64_t {
   CBORProvisioningListWifiNetworks   = 0x012001,
   CBORProvisioningUniqueHardwareId   = 0x012010,
   CBORProvisioningJWT                = 0x012011,
+  CBORProvisioningBLEMacAddress      = 0x012013,
   CBORProvisioningTimestamp          = 0x012002,
   CBORProvisioningCommands           = 0x012003,
   CBORProvisioningWifiConfig         = 0x012004,
