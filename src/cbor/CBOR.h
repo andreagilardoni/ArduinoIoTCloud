@@ -14,12 +14,13 @@
  * INCLUDE
  ******************************************************************************/
 #include <message/Commands.h>
+#include <Arduino_CBOR.h>
 
 /******************************************************************************
    TYPEDEF
  ******************************************************************************/
 
-enum CBORCommandTag: uint64_t {
+enum CBORCommandTag: CBORTag {
   // Commands UP
   CBOROtaBeginUp                     = 0x010000,
   CBORThingBeginCmd                  = 0x010300,
@@ -50,18 +51,4 @@ enum CBORCommandTag: uint64_t {
   CBORProvisioningCATM1Config        = 0x012008,
   CBORProvisioningEthernetConfig     = 0x012009,
   CBORProvisioningCellularConfig     = 0x012012,
-
-
-  // Unknown Command Tag https://www.iana.org/assignments/cbor-tags/cbor-tags.xhtml
-  CBORUnknownCmdTag16b    = 0xffff,              // invalid tag
-  CBORUnknownCmdTag32b    = 0xffffffff,          // invalid tag
-  CBORUnknownCmdTag64b    = 0xffffffffffffffff,  // invalid tag
-  CBORUnknownCmdTag       = CBORUnknownCmdTag32b
 };
-
-/******************************************************************************
- * FUNCTION DECLARATION
- ******************************************************************************/
-
-CommandId toCommandId(CBORCommandTag tag);
-CBORCommandTag toCBORCommandTag(CommandId id);
