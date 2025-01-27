@@ -16,11 +16,15 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <Arduino_CBOR.h> // FIXME maybe include only message.h
 
 /******************************************************************************
  * DEFINE
  ******************************************************************************/
 
+
+// FIXME make this constants into an enum
+// TODO remove provisioning constants
 #define THING_ID_SIZE               37
 #define SHA256_SIZE                 32
 #define URL_SIZE                   256
@@ -47,7 +51,7 @@
     TYPEDEF
  ******************************************************************************/
 
-enum CommandId: uint32_t {
+enum CommandId: MessageId {
 
   /* Device commands */
   DeviceBeginCmdId,
@@ -77,29 +81,9 @@ enum CommandId: uint32_t {
 
   /* Unknown command id */
   UnknownCmdId,
-
-  /* Provisioning commands*/
-  ProvisioningStatus,
-  ProvisioningListWifiNetworks,
-  ProvisioningUniqueHardwareId,
-  ProvisioningBLEMacAddress,
-  ProvisioningJWT,
-  ProvisioningTimestamp,
-  ProvisioningCommands,
-  ProvisioningWifiConfig,
-  ProvisioningLoRaConfig,
-  ProvisioningGSMConfig,
-  ProvisioningNBIOTConfig,
-  ProvisioningCATM1Config,
-  ProvisioningEthernetConfig,
-  ProvisioningCellularConfig,
 };
 
-struct Command {
-  CommandId id;
-};
-
-typedef Command Message;
+typedef Message Command;
 
 struct DeviceBeginCmd {
   Command c;
@@ -180,139 +164,11 @@ struct TimezoneCommandDown {
   } params;
 };
 
-struct ProvisioningStatusMessage {
-  Command c;
-  struct {
-    int16_t status;
-  } params;
-};
-
-struct WiFiNetwork {
-  char *SSID;
-  int *RSSI;
-};
-
-struct ProvisioningListWifiNetworksMessage {
-  Command c;
-  struct {
-    WiFiNetwork discoveredWifiNetworks[MAX_WIFI_NETWORKS];
-    uint8_t numDiscoveredWiFiNetworks = 0;
-  } params;
-};
-
-struct ProvisioningUniqueHardwareIdMessage {
-  Command c;
-  struct {
-    char uniqueHardwareId[UHWID_SIZE]; //The payload is an array of char with a maximum length of 32, not null terminated. It's not a string.
-  } params;
-};
-
-struct ProvisioningJWTMessage {
-  Command c;
-  struct {
-    char jwt[PROVISIONING_JWT_SIZE]; //The payload is an array of char with a maximum length of 268, not null terminated. It's not a string.
-  } params;
-};
-
-struct ProvisioningBLEMacAddressMessage {
-  Command c;
-  struct {
-    uint8_t macAddress[BLE_MAC_ADDRESS_SIZE];
-  } params;
-};
-
-struct ProvisioningTimestampMessage {
-  Command c;
-  struct {
-    uint64_t timestamp;
-  } params;
-};
-
-struct ProvisioningCommandsMessage {
-  Command c;
-  struct {
-    uint8_t cmd;
-  } params;
-};
-
-struct ProvisioningWifiConfigMessage {
-  Command c;
-  struct {
-    char ssid[WIFI_SSID_SIZE]; 
-    char pwd[WIFI_PWD_SIZE];  
-  } params;
-};
-
-struct ProvisioningLoRaConfigMessage {
-  Command c;
-  struct {
-    char       appeui[LORA_APPEUI_SIZE];    
-    char       appkey[LORA_APPKEY_SIZE];    
-    uint8_t    band;
-    char       channelMask[LORA_CHANNEL_MASK_SIZE];
-    char       deviceClass[LORA_DEVICE_CLASS_SIZE];
-  } params;
-};
-
-struct ProvisioningCATM1ConfigMessage {
-  Command c;
-  struct {
-    char      pin[PIN_SIZE];
-    char      apn[APN_SIZE]; 
-    char      login[LOGIN_SIZE];
-    char      pass[PASS_SIZE];
-    uint32_t  band[BAND_SIZE];
-  } params;
-};
-
-struct ProvisioningIPStruct{
-  enum IPType {
-    IPV4,
-    IPV6
-  };
-  IPType type;
-  uint8_t ip[MAX_IP_SIZE];
-};
-
-struct ProvisioningEthernetConfigMessage {
-  Command c;
-  struct {
-    ProvisioningIPStruct       ip;
-    ProvisioningIPStruct       dns;
-    ProvisioningIPStruct       gateway;
-    ProvisioningIPStruct       netmask;
-    unsigned long              timeout;
-    unsigned long              response_timeout;
-  } params;
-};
-
-
-struct ProvisioningCellularConfigMessage {
-  Command c;
-  struct {
-    char pin[PIN_SIZE];
-    char apn[APN_SIZE];
-    char login[LOGIN_SIZE];
-    char pass[PASS_SIZE];
-  } params;
-};
-
 union CommandDown {
-  struct Command                  c;
+  Command                         c;
   struct OtaUpdateCmdDown         otaUpdateCmdDown;
   struct ThingUpdateCmd           thingUpdateCmd;
   struct ThingDetachCmd           thingDetachCmd;
   struct LastValuesUpdateCmd      lastValuesUpdateCmd;
   struct TimezoneCommandDown      timezoneCommandDown;
-};
-
-union ProvisioningCommandDown {
-  struct Command                           c;
-  struct ProvisioningTimestampMessage      provisioningTimestamp;
-  struct ProvisioningCommandsMessage       provisioningCommands;
-  struct ProvisioningWifiConfigMessage     provisioningWifiConfig;
-  struct ProvisioningLoRaConfigMessage     provisioningLoRaConfig;
-  struct ProvisioningCATM1ConfigMessage    provisioningCATM1Config;
-  struct ProvisioningEthernetConfigMessage provisioningEthernetConfig;
-  struct ProvisioningCellularConfigMessage provisioningCellularConfig;
 };
