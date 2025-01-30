@@ -449,7 +449,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
         case CommandId::ThingUpdateCmdId:
         {
           DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] device configuration received", __FUNCTION__, millis());
-          String new_thing_id = String(command.thingUpdateCmd.params.thing_id);
+          String new_thing_id = String(command.thingUpdateCmd.thing_id);
 
           if (!new_thing_id.length()) {
             /* Send message to device state machine to inform we have received a null thing-id */
@@ -470,7 +470,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
 
         case CommandId::ThingDetachCmdId:
         {
-          if (!_device.isAttached() || _thing_id != String(command.thingDetachCmd.params.thing_id)) {
+          if (!_device.isAttached() || _thing_id != String(command.thingDetachCmd.thing_id)) {
             DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] thing detach rejected", __FUNCTION__, millis());
           }
 
@@ -490,8 +490,8 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
         {
           DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
           CBORDecoder::decode(_thing.getPropertyContainer(),
-            (uint8_t*)command.lastValuesUpdateCmd.params.last_values,
-            command.lastValuesUpdateCmd.params.length, true);
+            (uint8_t*)command.lastValuesUpdateCmd.last_values,
+            command.lastValuesUpdateCmd.length, true);
           _thing.handleMessage((Message*)&command);
           execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
 
@@ -500,7 +500,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
            * modeling the messages with C structs. The current CBOR library allocates an array in the heap
            * thus we need to delete it after decoding it with the old CBORDecoder
            */
-          free(command.lastValuesUpdateCmd.params.last_values);
+          free(command.lastValuesUpdateCmd.last_values);
         }
         break;
 
