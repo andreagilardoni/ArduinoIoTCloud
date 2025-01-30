@@ -15,10 +15,9 @@
    INCLUDE
  ******************************************************************************/
 
-#include <Arduino.h>
-
 #include "./CBOR.h"
-#include <Arduino_CBOR.h>
+#include <cbor/CborDecoder.h>
+#include "message/Commands.h"
 
 /******************************************************************************
    CLASS DECLARATION
