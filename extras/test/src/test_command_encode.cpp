@@ -24,7 +24,7 @@ SCENARIO("Test the encoding of command messages") {
   {
     OtaBeginUp command;
     uint8_t sha[SHA256_SIZE] = {0x01, 0x02, 0x03, 0x04};
-    memcpy(command.params.sha, sha, SHA256_SIZE);
+    memcpy(command.sha, sha, SHA256_SIZE);
 
     command.c.id = CommandId::OtaBeginUpId;
 
@@ -61,7 +61,7 @@ SCENARIO("Test the encoding of command messages") {
   {
     ThingBeginCmd command;
     String thing_id = "thing_id";
-    strcpy(command.params.thing_id, thing_id.c_str());
+    strcpy(command.thing_id, thing_id.c_str());
 
     command.c.id = CommandId::ThingBeginCmdId;
 
@@ -122,7 +122,7 @@ SCENARIO("Test the encoding of command messages") {
   {
     DeviceBeginCmd command;
     String lib_version = "2.0.0";
-    strcpy(command.params.lib_version, lib_version.c_str());
+    strcpy(command.lib_version, lib_version.c_str());
 
     command.c.id = CommandId::DeviceBeginCmdId;
 
@@ -154,13 +154,13 @@ SCENARIO("Test the encoding of command messages") {
   WHEN("Encode the OtaProgressCmdUp message")
   {
     OtaProgressCmdUp command;
-    command.params.time = 2;
+    command.time = 2;
 
     uint8_t id[ID_SIZE] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
-    memcpy(command.params.id, id, ID_SIZE);
-    command.params.state = 1;
-    command.params.state_data = -1;
-    command.params.time = 100;
+    memcpy(command.id, id, ID_SIZE);
+    command.state = 1;
+    command.state_data = -1;
+    command.time = 100;
 
     command.c.id = CommandId::OtaProgressCmdUpId;
 
@@ -227,7 +227,7 @@ SCENARIO("Test the encoding of command messages") {
     command.c.id = CommandId::ThingUpdateCmdId;
 
     String thing_id = "e4494d55-872a-4fd2-9646-92f87949394c";
-    strcpy(command.params.thing_id, thing_id.c_str());
+    strcpy(command.thing_id, thing_id.c_str());
 
     uint8_t buffer[512];
     size_t bytes_encoded = sizeof(buffer);
@@ -247,8 +247,8 @@ SCENARIO("Test the encoding of command messages") {
     TimezoneCommandDown command;
     command.c.id = CommandId::TimezoneCommandDownId;
 
-    command.params.offset = 1708963873;
-    command.params.until = 2024579473;
+    command.offset = 1708963873;
+    command.until = 2024579473;
 
     uint8_t buffer[512];
     size_t bytes_encoded = sizeof(buffer);
@@ -268,10 +268,10 @@ SCENARIO("Test the encoding of command messages") {
     LastValuesUpdateCmd command;
     command.c.id = CommandId::LastValuesUpdateCmdId;
 
-    command.params.length = 13;
+    command.length = 13;
     uint8_t last_values[13] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                                0x08, 0x09, 0x10, 0x11, 0x12};
-    command.params.last_values = last_values;
+    command.last_values = last_values;
 
     uint8_t buffer[512];
     size_t bytes_encoded = sizeof(buffer);
@@ -344,7 +344,7 @@ SCENARIO("Test the encoding of command messages") {
   {
     ProvisioningStatusMessage command;
     command.c.id = CommandId::ProvisioningStatus;
-    command.params.status = -100;
+    command.status = -100;
     uint8_t buffer[512];
     size_t bytes_encoded = sizeof(buffer);
 
@@ -371,15 +371,15 @@ SCENARIO("Test the encoding of command messages") {
   {
     ProvisioningListWifiNetworksMessage command;
     command.c.id = CommandId::ProvisioningListWifiNetworks;
-    command.params.numDiscoveredWiFiNetworks = 2;
+    command.numDiscoveredWiFiNetworks = 2;
     char ssid1[] = "SSID1";
     int rssi1 = -76;
-    command.params.discoveredWifiNetworks[0].SSID = ssid1;
-    command.params.discoveredWifiNetworks[0].RSSI = &rssi1;
+    command.discoveredWifiNetworks[0].SSID = ssid1;
+    command.discoveredWifiNetworks[0].RSSI = &rssi1;
     char ssid2[] = "SSID2";
     int rssi2 = -56;
-    command.params.discoveredWifiNetworks[1].SSID = ssid2;
-    command.params.discoveredWifiNetworks[1].RSSI = &rssi2;
+    command.discoveredWifiNetworks[1].SSID = ssid2;
+    command.discoveredWifiNetworks[1].RSSI = &rssi2;
 
     uint8_t buffer[512];
     size_t bytes_encoded = sizeof(buffer);
@@ -411,7 +411,7 @@ SCENARIO("Test the encoding of command messages") {
   {
     ProvisioningUniqueHardwareIdMessage command;
     command.c.id = CommandId::ProvisioningUniqueHardwareId;
-    memset(command.params.uniqueHardwareId, 0xCA, 32);
+    memset(command.uniqueHardwareId, 0xCA, 32);
     uint8_t buffer[512];
     size_t bytes_encoded = sizeof(buffer);
 
@@ -442,7 +442,7 @@ SCENARIO("Test the encoding of command messages") {
   {
     ProvisioningJWTMessage command;
     command.c.id = CommandId::ProvisioningJWT;
-    memset(command.params.jwt, 0xCA, 268);
+    memset(command.jwt, 0xCA, 268);
     uint8_t buffer[512];
     size_t bytes_encoded = sizeof(buffer);
 
@@ -503,7 +503,7 @@ SCENARIO("Test the encoding of command messages") {
   {
     ProvisioningJWTMessage command;
     command.c.id = CommandId::ProvisioningBLEMacAddress;
-    memset(command.params.jwt, 0xAF, 6);
+    memset(command.jwt, 0xAF, 6);
     uint8_t buffer[512];
     size_t bytes_encoded = sizeof(buffer);
 

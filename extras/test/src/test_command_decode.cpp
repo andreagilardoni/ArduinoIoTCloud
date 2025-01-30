@@ -44,7 +44,7 @@ SCENARIO("Test the decoding of command messages") {
 
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
-      REQUIRE(strcmp(command.thingUpdateCmd.params.thing_id, thingIdToMatch) == 0);
+      REQUIRE(strcmp(command.thingUpdateCmd.thing_id, thingIdToMatch) == 0);
       REQUIRE(command.c.id == ThingUpdateCmdId);
     }
   }
@@ -73,7 +73,7 @@ SCENARIO("Test the decoding of command messages") {
 
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
-      REQUIRE(strcmp(command.thingDetachCmd.params.thing_id, thingIdToMatch) == 0);
+      REQUIRE(strcmp(command.thingDetachCmd.thing_id, thingIdToMatch) == 0);
       REQUIRE(command.c.id == ThingDetachCmdId);
     }
   }
@@ -143,8 +143,8 @@ SCENARIO("Test the decoding of command messages") {
 
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
-      REQUIRE(command.timezoneCommandDown.params.offset == (uint32_t)1708963873);
-      REQUIRE(command.timezoneCommandDown.params.until == (uint32_t)2024579473);
+      REQUIRE(command.timezoneCommandDown.offset == (uint32_t)1708963873);
+      REQUIRE(command.timezoneCommandDown.until == (uint32_t)2024579473);
       REQUIRE(command.c.id == TimezoneCommandDownId);
     }
   }
@@ -173,23 +173,23 @@ SCENARIO("Test the decoding of command messages") {
 
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
-      REQUIRE(command.lastValuesUpdateCmd.params.length == 13);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[0] == (uint8_t)0x00);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[1] == (uint8_t)0x01);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[2] == (uint8_t)0x02);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[3] == (uint8_t)0x03);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[4] == (uint8_t)0x04);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[5] == (uint8_t)0x05);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[6] == (uint8_t)0x06);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[7] == (uint8_t)0x07);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[8] == (uint8_t)0x08);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[9] == (uint8_t)0x09);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[10] == (uint8_t)0x10);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[11] == (uint8_t)0x11);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[12] == (uint8_t)0x12);
+      REQUIRE(command.lastValuesUpdateCmd.length == 13);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[0] == (uint8_t)0x00);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[1] == (uint8_t)0x01);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[2] == (uint8_t)0x02);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[3] == (uint8_t)0x03);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[4] == (uint8_t)0x04);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[5] == (uint8_t)0x05);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[6] == (uint8_t)0x06);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[7] == (uint8_t)0x07);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[8] == (uint8_t)0x08);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[9] == (uint8_t)0x09);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[10] == (uint8_t)0x10);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[11] == (uint8_t)0x11);
+      REQUIRE(command.lastValuesUpdateCmd.last_values[12] == (uint8_t)0x12);
       REQUIRE(command.c.id == LastValuesUpdateCmdId);
     }
-    free(command.lastValuesUpdateCmd.params.last_values);
+    free(command.lastValuesUpdateCmd.last_values);
   }
 
   /****************************************************************************/
@@ -257,75 +257,75 @@ SCENARIO("Test the decoding of command messages") {
 
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
-      REQUIRE(memcmp(command.otaUpdateCmdDown.params.id, otaIdToMatch, ID_SIZE) == 0);
-      REQUIRE(strcmp(command.otaUpdateCmdDown.params.url, urlToMatch) == 0);
+      REQUIRE(memcmp(command.otaUpdateCmdDown.id, otaIdToMatch, ID_SIZE) == 0);
+      REQUIRE(strcmp(command.otaUpdateCmdDown.url, urlToMatch) == 0);
       // Initial SHA256 check
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[0] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[1] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[2] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[3] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[4] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[5] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[6] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[7] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[8] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[9] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[10] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[11] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[12] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[13] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[14] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[15] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[16] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[17] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[18] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[19] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[20] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[21] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[22] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[23] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[24] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[25] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[26] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[27] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[28] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[29] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[30] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[31] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[0] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[1] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[2] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[3] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[4] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[5] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[6] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[7] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[8] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[9] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[10] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[11] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[12] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[13] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[14] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[15] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[16] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[17] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[18] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[19] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[20] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[21] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[22] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[23] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[24] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[25] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[26] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[27] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[28] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[29] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[30] == (uint8_t)0x00);
+      REQUIRE(command.otaUpdateCmdDown.initialSha256[31] == (uint8_t)0x00);
 
       // Final SHA256 check
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[0] == (uint8_t)0xdf);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[1] == (uint8_t)0x1e);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[2] == (uint8_t)0xac);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[3] == (uint8_t)0x9c);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[4] == (uint8_t)0x7b);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[5] == (uint8_t)0xd6);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[6] == (uint8_t)0x34);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[7] == (uint8_t)0x73);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[8] == (uint8_t)0xff);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[9] == (uint8_t)0xfb);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[10] == (uint8_t)0x11);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[11] == (uint8_t)0x7f);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[12] == (uint8_t)0x98);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[13] == (uint8_t)0x73);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[14] == (uint8_t)0x70);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[15] == (uint8_t)0x3e);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[16] == (uint8_t)0x4e);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[17] == (uint8_t)0xc9);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[18] == (uint8_t)0x55);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[19] == (uint8_t)0x93);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[20] == (uint8_t)0x1e);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[21] == (uint8_t)0x26);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[22] == (uint8_t)0x7f);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[23] == (uint8_t)0x26);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[24] == (uint8_t)0x26);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[25] == (uint8_t)0x2b);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[26] == (uint8_t)0x09);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[27] == (uint8_t)0x49);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[28] == (uint8_t)0xbc);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[29] == (uint8_t)0x16);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[30] == (uint8_t)0xdc);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[31] == (uint8_t)0x49);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[0] == (uint8_t)0xdf);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[1] == (uint8_t)0x1e);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[2] == (uint8_t)0xac);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[3] == (uint8_t)0x9c);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[4] == (uint8_t)0x7b);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[5] == (uint8_t)0xd6);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[6] == (uint8_t)0x34);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[7] == (uint8_t)0x73);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[8] == (uint8_t)0xff);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[9] == (uint8_t)0xfb);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[10] == (uint8_t)0x11);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[11] == (uint8_t)0x7f);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[12] == (uint8_t)0x98);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[13] == (uint8_t)0x73);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[14] == (uint8_t)0x70);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[15] == (uint8_t)0x3e);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[16] == (uint8_t)0x4e);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[17] == (uint8_t)0xc9);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[18] == (uint8_t)0x55);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[19] == (uint8_t)0x93);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[20] == (uint8_t)0x1e);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[21] == (uint8_t)0x26);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[22] == (uint8_t)0x7f);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[23] == (uint8_t)0x26);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[24] == (uint8_t)0x26);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[25] == (uint8_t)0x2b);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[26] == (uint8_t)0x09);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[27] == (uint8_t)0x49);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[28] == (uint8_t)0xbc);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[29] == (uint8_t)0x16);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[30] == (uint8_t)0xdc);
+      REQUIRE(command.otaUpdateCmdDown.finalSha256[31] == (uint8_t)0x49);
 
       REQUIRE(command.c.id == OtaUpdateCmdDownId);
     }
@@ -804,7 +804,7 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningTimestamp);
-      REQUIRE(command.provisioningTimestamp.params.timestamp == ts);
+      REQUIRE(command.provisioningTimestamp.timestamp == ts);
     }
   }
 
@@ -827,7 +827,7 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningCommands);
-      REQUIRE(command.provisioningCommands.params.cmd == commandId);
+      REQUIRE(command.provisioningCommands.cmd == commandId);
     }
   }
 
@@ -857,8 +857,8 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningWifiConfig);
-      REQUIRE(strcmp(command.provisioningWifiConfig.params.ssid, ssid) == 0);
-      REQUIRE(strcmp(command.provisioningWifiConfig.params.pwd, password) == 0);
+      REQUIRE(strcmp(command.provisioningWifiConfig.ssid, ssid) == 0);
+      REQUIRE(strcmp(command.provisioningWifiConfig.pwd, password) == 0);
     }
   }
 
@@ -896,11 +896,11 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningLoRaConfig);
-      REQUIRE(strcmp(command.provisioningLoRaConfig.params.appeui, appeui) == 0);
-      REQUIRE(strcmp(command.provisioningLoRaConfig.params.appkey, appkey) == 0);
-      REQUIRE(command.provisioningLoRaConfig.params.band == band);
-      REQUIRE(strcmp(command.provisioningLoRaConfig.params.channelMask, channelMask) == 0);
-      REQUIRE(strcmp(command.provisioningLoRaConfig.params.deviceClass, deviceType) == 0);
+      REQUIRE(strcmp(command.provisioningLoRaConfig.appeui, appeui) == 0);
+      REQUIRE(strcmp(command.provisioningLoRaConfig.appkey, appkey) == 0);
+      REQUIRE(command.provisioningLoRaConfig.band == band);
+      REQUIRE(strcmp(command.provisioningLoRaConfig.channelMask, channelMask) == 0);
+      REQUIRE(strcmp(command.provisioningLoRaConfig.deviceClass, deviceType) == 0);
     }
   }
 
@@ -940,10 +940,10 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningGSMConfig);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.pin, pin) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.apn, apn) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.login, username) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.pass, password) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.pin, pin) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.apn, apn) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.login, username) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.pass, password) == 0);
 
     }
   }
@@ -982,10 +982,10 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningGSMConfig);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.pin, pin) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.apn, apn) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.login, username) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.pass, password) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.pin, pin) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.apn, apn) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.login, username) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.pass, password) == 0);
 
     }
   }
@@ -1022,10 +1022,10 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningGSMConfig);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.pin, pin) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.apn, apn) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.login, username) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.pass, password) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.pin, pin) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.apn, apn) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.login, username) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.pass, password) == 0);
 
     }
   }
@@ -1066,10 +1066,10 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningNBIOTConfig);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.pin, pin) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.apn, apn) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.login, username) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.pass, password) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.pin, pin) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.apn, apn) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.login, username) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.pass, password) == 0);
 
     }
   }
@@ -1118,11 +1118,11 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningCATM1Config);
-      REQUIRE(strcmp(command.provisioningCATM1Config.params.pin, pin) == 0);
-      REQUIRE(strcmp(command.provisioningCATM1Config.params.apn, apn) == 0);
-      REQUIRE(strcmp(command.provisioningCATM1Config.params.login, username) == 0);
-      REQUIRE(strcmp(command.provisioningCATM1Config.params.pass, password) == 0);
-      REQUIRE(memcmp(command.provisioningCATM1Config.params.band, band, sizeof(band)) == 0);
+      REQUIRE(strcmp(command.provisioningCATM1Config.pin, pin) == 0);
+      REQUIRE(strcmp(command.provisioningCATM1Config.apn, apn) == 0);
+      REQUIRE(strcmp(command.provisioningCATM1Config.login, username) == 0);
+      REQUIRE(strcmp(command.provisioningCATM1Config.pass, password) == 0);
+      REQUIRE(memcmp(command.provisioningCATM1Config.band, band, sizeof(band)) == 0);
     }
   }
 
@@ -1165,11 +1165,11 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningCATM1Config);
-      REQUIRE(strcmp(command.provisioningCATM1Config.params.pin, pin) == 0);
-      REQUIRE(strcmp(command.provisioningCATM1Config.params.apn, apn) == 0);
-      REQUIRE(strcmp(command.provisioningCATM1Config.params.login, username) == 0);
-      REQUIRE(strcmp(command.provisioningCATM1Config.params.pass, password) == 0);
-      REQUIRE(memcmp(command.provisioningCATM1Config.params.band, band, sizeof(band)) == 0);
+      REQUIRE(strcmp(command.provisioningCATM1Config.pin, pin) == 0);
+      REQUIRE(strcmp(command.provisioningCATM1Config.apn, apn) == 0);
+      REQUIRE(strcmp(command.provisioningCATM1Config.login, username) == 0);
+      REQUIRE(strcmp(command.provisioningCATM1Config.pass, password) == 0);
+      REQUIRE(memcmp(command.provisioningCATM1Config.band, band, sizeof(band)) == 0);
     }
   }
 
@@ -1209,11 +1209,11 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningCATM1Config);
-      REQUIRE(strcmp(command.provisioningCATM1Config.params.pin, pin) == 0);
-      REQUIRE(strcmp(command.provisioningCATM1Config.params.apn, apn) == 0);
-      REQUIRE(strcmp(command.provisioningCATM1Config.params.login, username) == 0);
-      REQUIRE(strcmp(command.provisioningCATM1Config.params.pass, password) == 0);
-      REQUIRE(memcmp(command.provisioningCATM1Config.params.band, band, sizeof(band)) == 0);
+      REQUIRE(strcmp(command.provisioningCATM1Config.pin, pin) == 0);
+      REQUIRE(strcmp(command.provisioningCATM1Config.apn, apn) == 0);
+      REQUIRE(strcmp(command.provisioningCATM1Config.login, username) == 0);
+      REQUIRE(strcmp(command.provisioningCATM1Config.pass, password) == 0);
+      REQUIRE(memcmp(command.provisioningCATM1Config.band, band, sizeof(band)) == 0);
     }
   }
   /****************************************************************************/
@@ -1296,16 +1296,16 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningEthernetConfig);
-      REQUIRE(command.provisioningEthernetConfig.params.ip.type == ProvisioningIPStruct::IPType::IPV4);
-      REQUIRE(memcmp(command.provisioningEthernetConfig.params.ip.ip, ip, sizeof(ip)) == 0);
-      REQUIRE(command.provisioningEthernetConfig.params.dns.type == ProvisioningIPStruct::IPType::IPV4);
-      REQUIRE(memcmp(command.provisioningEthernetConfig.params.dns.ip, dns, sizeof(dns)) == 0);
-      REQUIRE(command.provisioningEthernetConfig.params.gateway.type == ProvisioningIPStruct::IPType::IPV4);
-      REQUIRE(memcmp(command.provisioningEthernetConfig.params.gateway.ip, gateway, sizeof(gateway)) == 0);
-      REQUIRE(command.provisioningEthernetConfig.params.netmask.type == ProvisioningIPStruct::IPType::IPV4);
-      REQUIRE(memcmp(command.provisioningEthernetConfig.params.netmask.ip, netmask, sizeof(netmask)) == 0);
-      REQUIRE(command.provisioningEthernetConfig.params.timeout == timeout);
-      REQUIRE(command.provisioningEthernetConfig.params.response_timeout == responseTimeout);
+      REQUIRE(command.provisioningEthernetConfig.ip.type == ProvisioningIPStruct::IPType::IPV4);
+      REQUIRE(memcmp(command.provisioningEthernetConfig.ip.ip, ip, sizeof(ip)) == 0);
+      REQUIRE(command.provisioningEthernetConfig.dns.type == ProvisioningIPStruct::IPType::IPV4);
+      REQUIRE(memcmp(command.provisioningEthernetConfig.dns.ip, dns, sizeof(dns)) == 0);
+      REQUIRE(command.provisioningEthernetConfig.gateway.type == ProvisioningIPStruct::IPType::IPV4);
+      REQUIRE(memcmp(command.provisioningEthernetConfig.gateway.ip, gateway, sizeof(gateway)) == 0);
+      REQUIRE(command.provisioningEthernetConfig.netmask.type == ProvisioningIPStruct::IPType::IPV4);
+      REQUIRE(memcmp(command.provisioningEthernetConfig.netmask.ip, netmask, sizeof(netmask)) == 0);
+      REQUIRE(command.provisioningEthernetConfig.timeout == timeout);
+      REQUIRE(command.provisioningEthernetConfig.response_timeout == responseTimeout);
     }
   }
 
@@ -1355,16 +1355,16 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningEthernetConfig);
-      REQUIRE(command.provisioningEthernetConfig.params.ip.type == ProvisioningIPStruct::IPType::IPV6);
-      REQUIRE(memcmp(command.provisioningEthernetConfig.params.ip.ip, ip, sizeof(ip)) == 0);
-      REQUIRE(command.provisioningEthernetConfig.params.dns.type == ProvisioningIPStruct::IPType::IPV6);
-      REQUIRE(memcmp(command.provisioningEthernetConfig.params.dns.ip, dns, sizeof(dns)) == 0);
-      REQUIRE(command.provisioningEthernetConfig.params.gateway.type == ProvisioningIPStruct::IPType::IPV6);
-      REQUIRE(memcmp(command.provisioningEthernetConfig.params.gateway.ip, gateway, sizeof(gateway)) == 0);
-      REQUIRE(command.provisioningEthernetConfig.params.netmask.type == ProvisioningIPStruct::IPType::IPV6);
-      REQUIRE(memcmp(command.provisioningEthernetConfig.params.netmask.ip, netmask, sizeof(netmask)) == 0);
-      REQUIRE(command.provisioningEthernetConfig.params.timeout == timeout);
-      REQUIRE(command.provisioningEthernetConfig.params.response_timeout == responseTimeout);
+      REQUIRE(command.provisioningEthernetConfig.ip.type == ProvisioningIPStruct::IPType::IPV6);
+      REQUIRE(memcmp(command.provisioningEthernetConfig.ip.ip, ip, sizeof(ip)) == 0);
+      REQUIRE(command.provisioningEthernetConfig.dns.type == ProvisioningIPStruct::IPType::IPV6);
+      REQUIRE(memcmp(command.provisioningEthernetConfig.dns.ip, dns, sizeof(dns)) == 0);
+      REQUIRE(command.provisioningEthernetConfig.gateway.type == ProvisioningIPStruct::IPType::IPV6);
+      REQUIRE(memcmp(command.provisioningEthernetConfig.gateway.ip, gateway, sizeof(gateway)) == 0);
+      REQUIRE(command.provisioningEthernetConfig.netmask.type == ProvisioningIPStruct::IPType::IPV6);
+      REQUIRE(memcmp(command.provisioningEthernetConfig.netmask.ip, netmask, sizeof(netmask)) == 0);
+      REQUIRE(command.provisioningEthernetConfig.timeout == timeout);
+      REQUIRE(command.provisioningEthernetConfig.response_timeout == responseTimeout);
     }
   }
 
@@ -1404,10 +1404,10 @@ SCENARIO("Test the decoding of command messages") {
     THEN("The decode is successful") {
       REQUIRE(err == Decoder::Status::Complete);
       REQUIRE(command.c.id == CommandId::ProvisioningCellularConfig);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.pin, pin) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.apn, apn) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.login, username) == 0);
-      REQUIRE(strcmp(command.provisioningCellularConfig.params.pass, password) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.pin, pin) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.apn, apn) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.login, username) == 0);
+      REQUIRE(strcmp(command.provisioningCellularConfig.pass, password) == 0);
 
     }
   }
