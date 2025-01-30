@@ -33,7 +33,7 @@ Encoder::Status OtaBeginCommandEncoder::encode(CborEncoder* encoder, Message *ms
     return Encoder::Status::Error;
   }
 
-  if(cbor_encode_byte_string(&array_encoder, otaBeginUp->params.sha, SHA256_SIZE) != CborNoError) {
+  if(cbor_encode_byte_string(&array_encoder, otaBeginUp->sha, SHA256_SIZE) != CborNoError) {
     return Encoder::Status::Error;
   }
 
@@ -52,7 +52,7 @@ Encoder::Status ThingBeginCommandEncoder::encode(CborEncoder* encoder, Message *
       return Encoder::Status::Error;
   }
 
-  if(cbor_encode_text_stringz(&array_encoder, thingBeginCmd->params.thing_id) != CborNoError) {
+  if(cbor_encode_text_stringz(&array_encoder, thingBeginCmd->thing_id) != CborNoError) {
     return Encoder::Status::Error;
   }
 
@@ -77,7 +77,7 @@ Encoder::Status DeviceBeginCommandEncoder::encode(CborEncoder* encoder, Message 
       return Encoder::Status::Error;
   }
 
-  if(cbor_encode_text_stringz(&array_encoder, deviceBeginCmd->params.lib_version) != CborNoError) {
+  if(cbor_encode_text_stringz(&array_encoder, deviceBeginCmd->lib_version) != CborNoError) {
     return Encoder::Status::Error;
   }
 
@@ -96,19 +96,19 @@ Encoder::Status OtaProgressCommandUpEncoder::encode(CborEncoder* encoder, Messag
       return Encoder::Status::Error;
   }
 
-  if(cbor_encode_byte_string(&array_encoder, ota->params.id, ID_SIZE) != CborNoError) {
+  if(cbor_encode_byte_string(&array_encoder, ota->id, ID_SIZE) != CborNoError) {
     return Encoder::Status::Error;
   }
 
-  if(cbor_encode_simple_value(&array_encoder, ota->params.state) != CborNoError) {
+  if(cbor_encode_simple_value(&array_encoder, ota->state) != CborNoError) {
     return Encoder::Status::Error;
   }
 
-  if(cbor_encode_int(&array_encoder, ota->params.state_data) != CborNoError) {
+  if(cbor_encode_int(&array_encoder, ota->state_data) != CborNoError) {
     return Encoder::Status::Error;
   }
 
-  if(cbor_encode_uint(&array_encoder, ota->params.time) != CborNoError) {
+  if(cbor_encode_uint(&array_encoder, ota->time) != CborNoError) {
     return Encoder::Status::Error;
   }
 
