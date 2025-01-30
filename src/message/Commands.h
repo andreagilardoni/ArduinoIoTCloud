@@ -89,28 +89,28 @@ struct DeviceBeginCmd {
   Command c;
   struct {
     char lib_version[MAX_LIB_VERSION_SIZE];
-  } params;
+  };
 };
 
 struct ThingBeginCmd {
   Command c;
   struct {
     char thing_id[THING_ID_SIZE];
-  } params;
+  };
 };
 
 struct ThingUpdateCmd {
   Command c;
   struct {
     char thing_id[THING_ID_SIZE];
-  } params;
+  };
 };
 
 struct ThingDetachCmd {
   Command c;
   struct {
     char thing_id[THING_ID_SIZE];
-  } params;
+  };
 };
 
 struct LastValuesBeginCmd {
@@ -122,14 +122,14 @@ struct LastValuesUpdateCmd {
   struct {
     uint8_t * last_values;
     size_t length;
-  } params;
+  };
 };
 
 struct OtaBeginUp {
   Command c;
   struct {
     uint8_t sha [SHA256_SIZE];
-  } params;
+  };
 };
 
 struct OtaProgressCmdUp {
@@ -139,7 +139,7 @@ struct OtaProgressCmdUp {
     uint8_t  state;
     int32_t  state_data;
     uint64_t time;
-  } params;
+  };
 };
 
 struct OtaUpdateCmdDown {
@@ -149,7 +149,7 @@ struct OtaUpdateCmdDown {
     char    url[URL_SIZE];
     uint8_t initialSha256[SHA256_SIZE];
     uint8_t finalSha256[SHA256_SIZE];
-  } params;
+  };
 };
 
 struct TimezoneCommandUp {
@@ -161,7 +161,7 @@ struct TimezoneCommandDown {
   struct {
     int32_t offset;
     uint32_t until;
-  } params;
+  };
 };
 
 union CommandDown {
