@@ -16,7 +16,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <Arduino_CBOR.h> // FIXME maybe include only message.h
+#include <interfaces/message.h>
 
 /******************************************************************************
  * DEFINE
@@ -54,7 +54,7 @@
 enum CommandId: MessageId {
 
   /* Device commands */
-  DeviceBeginCmdId,
+  DeviceBeginCmdId        = 1,
   ThingBeginCmdId,
   ThingUpdateCmdId,
   ThingDetachCmdId,
