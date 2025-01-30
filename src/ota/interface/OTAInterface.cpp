@@ -112,7 +112,7 @@ OTACloudProcessInterface::State OTACloudProcessInterface::otaBegin() {
   calculateSHA256(sha256_calc);
 
   sha256_calc.finalize(sha256);
-  memcpy(msg.params.sha, sha256, SHA256::HASH_SIZE);
+  memcpy(msg.sha, sha256, SHA256::HASH_SIZE);
 
   DEBUG_VERBOSE("calculated SHA256: "
       "0x%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X"
@@ -152,8 +152,8 @@ OTACloudProcessInterface::State OTACloudProcessInterface::idle(Message* msg) {
     struct OtaUpdateCmdDown* ota_msg = (struct OtaUpdateCmdDown*)msg;
 
     context = new OtaContext(
-        ota_msg->params.id, ota_msg->params.url,
-        ota_msg->params.initialSha256, ota_msg->params.finalSha256
+        ota_msg->id, ota_msg->url,
+        ota_msg->initialSha256, ota_msg->finalSha256
       );
 
     // TODO verify that initialSha256 is the sha256 on board
@@ -201,18 +201,18 @@ void OTACloudProcessInterface::reportStatus(int32_t state_data) {
     OtaProgressCmdUpId,
   };
 
-  memcpy(msg.params.id, context->id, ID_SIZE);
-  msg.params.state        = state>=0 ? state : State::Fail;
+  memcpy(msg.id, context->id, ID_SIZE);
+  msg.state        = state>=0 ? state : State::Fail;
 
   if(new_timestamp == report_last_timestamp) {
-    msg.params.time       = new_timestamp*1e6 + ++report_counter;
+    msg.time       = new_timestamp*1e6 + ++report_counter;
   } else {
-    msg.params.time       = new_timestamp*1e6;
+    msg.time       = new_timestamp*1e6;
     report_counter = 0;
     report_last_timestamp = new_timestamp;
   }
 
-  msg.params.state_data   = state_data;
+  msg.state_data   = state_data;
 
   deliver((Message*)&msg);
 }
