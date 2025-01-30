@@ -124,3 +124,10 @@ Encoder::Status TimezoneCommandUpEncoder::encode(CborEncoder* encoder, Message *
   // nothing to perform here
   return Encoder::Status::Complete;
 }
+
+static OtaBeginCommandEncoder         otaBeginCommandEncoder;
+static ThingBeginCommandEncoder       thingBeginCommandEncoder;
+static LastValuesBeginCommandEncoder  lastValuesBeginCommandEncoder;
+static DeviceBeginCommandEncoder      deviceBeginCommandEncoder;
+static OtaProgressCommandUpEncoder    otaProgressCommandUpEncoder;
+static TimezoneCommandUpEncoder       timezoneCommandUpEncoder;
