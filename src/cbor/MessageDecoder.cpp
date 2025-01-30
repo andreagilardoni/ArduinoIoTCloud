@@ -57,7 +57,7 @@ Decoder::Status ThingUpdateCommandDecoder::decode(CborValue* iter, Message *msg)
   ThingUpdateCmd * thingCommand = (ThingUpdateCmd *) msg;
 
   // Message is composed of a single parameter, a string (thing_id)
-  if (!copyCBORStringToArray(iter, thingCommand->params.thing_id, sizeof(thingCommand->params.thing_id))) {
+  if (!copyCBORStringToArray(iter, thingCommand->thing_id, sizeof(thingCommand->thing_id))) {
     return Decoder::Status::Error;
   }
 
@@ -68,7 +68,7 @@ Decoder::Status ThingDetachCommandDecoder::decode(CborValue* iter, Message *msg)
   ThingDetachCmd * thingCommand = (ThingDetachCmd *) msg;
 
   // Message is composed of a single parameter, a string (thing_id)
-  if (!copyCBORStringToArray(iter, thingCommand->params.thing_id, sizeof(thingCommand->params.thing_id))) {
+  if (!copyCBORStringToArray(iter, thingCommand->thing_id, sizeof(thingCommand->thing_id))) {
     return Decoder::Status::Error;
   }
 
@@ -83,7 +83,7 @@ Decoder::Status TimezoneCommandDownDecoder::decode(CborValue* iter, Message *msg
   if (cbor_value_is_integer(iter)) {
     int64_t val = 0;
     if (cbor_value_get_int64(iter, &val) == CborNoError) {
-      setTz->params.offset = static_cast<int32_t>(val);
+      setTz->offset = static_cast<int32_t>(val);
     }
   }
 
@@ -96,7 +96,7 @@ Decoder::Status TimezoneCommandDownDecoder::decode(CborValue* iter, Message *msg
   if (cbor_value_is_integer(iter)) {
     uint64_t val = 0;
     if (cbor_value_get_uint64(iter, &val) == CborNoError) {
-      setTz->params.until = static_cast<uint32_t>(val);
+      setTz->until = static_cast<uint32_t>(val);
     }
   }
 
@@ -111,11 +111,11 @@ Decoder::Status LastValuesUpdateCommandDecoder::decode(CborValue* iter, Message 
     // Cortex M0 is not able to assign a value to pointed memory that is not 32bit aligned
     // we use a support variable to cope with that
     size_t s;
-    if (cbor_value_dup_byte_string(iter, &setLv->params.last_values, &s, NULL) != CborNoError) {
+    if (cbor_value_dup_byte_string(iter, &setLv->last_values, &s, NULL) != CborNoError) {
       return Decoder::Status::Error;
     }
 
-    setLv->params.length = s;
+    setLv->length = s;
   }
 
   return Decoder::Status::Complete;
