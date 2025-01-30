@@ -316,7 +316,7 @@ void ArduinoIoTCloudNotecard::processCommand(const uint8_t *buf, size_t len)
       case CommandId::ThingUpdateCmdId:
       {
         DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] device configuration received", __FUNCTION__, millis());
-        String new_thing_id = String(command.thingUpdateCmd.params.thing_id);
+        String new_thing_id = String(command.thingUpdateCmd.thing_id);
 
         if (!new_thing_id.length()) {
           DEBUG_DEBUG("ArduinoIoTCloudNotecard::%s received null Thing ID.", __FUNCTION__);
@@ -341,7 +341,7 @@ void ArduinoIoTCloudNotecard::processCommand(const uint8_t *buf, size_t len)
 
       case CommandId::ThingDetachCmdId:
       {
-        if (!_device.isAttached() || _thing_id != String(command.thingDetachCmd.params.thing_id)) {
+        if (!_device.isAttached() || _thing_id != String(command.thingDetachCmd.thing_id)) {
           DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] thing detach rejected", __FUNCTION__, millis());
         }
 
@@ -361,8 +361,8 @@ void ArduinoIoTCloudNotecard::processCommand(const uint8_t *buf, size_t len)
       {
         DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] last values received", __FUNCTION__, millis());
         CBORDecoder::decode(_thing.getPropertyContainer(),
-          (uint8_t*)command.lastValuesUpdateCmd.params.last_values,
-          command.lastValuesUpdateCmd.params.length, true);
+          (uint8_t*)command.lastValuesUpdateCmd.last_values,
+          command.lastValuesUpdateCmd.length, true);
         _thing.handleMessage((Message*)&command);
         execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
 
@@ -372,7 +372,7 @@ void ArduinoIoTCloudNotecard::processCommand(const uint8_t *buf, size_t len)
          * current CBOR library allocates an array in the heap thus we need to
          * delete it after decoding it with the old CBORDecoder
          */
-        free(command.lastValuesUpdateCmd.params.last_values);
+        free(command.lastValuesUpdateCmd.last_values);
       }
       break;
 
