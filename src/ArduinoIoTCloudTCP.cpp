@@ -240,6 +240,14 @@ void ArduinoIoTCloudTCP::update()
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   watchdog_reset();
 #endif
+
+#if OTA_ENABLED
+  if((_ota.getState() != OTACloudProcessInterface::Resume &&
+      _ota.getState() != OTACloudProcessInterface::OtaBegin) ||
+      _mqttClient.connected()) {
+    _ota.update();
+  }
+#endif // OTA_ENABLED
 }
 
 int ArduinoIoTCloudTCP::connected()
@@ -325,8 +333,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
       _get_ota_confirmation()) {
     _ota.approveOta();
   }
-
-  _ota.update();
 #endif // OTA_ENABLED
 
   if ((!_otaClient.connected()) && (!_mqttClient.connected() || !_thing.connected() || !_device.connected()))
