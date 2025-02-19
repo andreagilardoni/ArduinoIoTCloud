@@ -319,7 +319,17 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 {
-  if (!_mqttClient.connected() || !_thing.connected() || !_device.connected())
+#if  OTA_ENABLED
+  if(_get_ota_confirmation != nullptr &&
+      _ota.getState() == OTACloudProcessInterface::State::OtaAvailable &&
+      _get_ota_confirmation()) {
+    _ota.approveOta();
+  }
+
+  _ota.update();
+#endif // OTA_ENABLED
+
+  if ((!_otaClient.connected()) && (!_mqttClient.connected() || !_thing.connected() || !_device.connected()))
   {
     return State::Disconnect;
   }
@@ -337,16 +347,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 
   /* Call CloudDevice process to get configuration */
   _device.update();
-
-#if  OTA_ENABLED
-  if(_get_ota_confirmation != nullptr &&
-      _ota.getState() == OTACloudProcessInterface::State::OtaAvailable &&
-      _get_ota_confirmation()) {
-    _ota.approveOta();
-  }
-
-  _ota.update();
-#endif // OTA_ENABLED
 
 
   if (_device.isAttached()) {
