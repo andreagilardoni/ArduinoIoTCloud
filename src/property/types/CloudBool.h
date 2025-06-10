@@ -31,6 +31,7 @@ class CloudBool : public Property {
       CloudBool(false);
     }
     CloudBool(bool v) : _value(v), _cloud_value(v) {}
+    CloudBool(const CloudBool &v) = default;
     operator bool() const {
       return _value;
     }

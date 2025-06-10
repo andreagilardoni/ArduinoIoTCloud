@@ -31,6 +31,7 @@ class CloudUnsignedInt : public Property {
       CloudUnsignedInt(0);
     }
     CloudUnsignedInt(unsigned int v) : _value(v), _cloud_value(v) {}
+    CloudUnsignedInt(const CloudUnsignedInt &v) = default;
     operator unsigned int() const {
       return _value;
     }

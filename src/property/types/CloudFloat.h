@@ -34,6 +34,7 @@ class CloudFloat : public Property {
       CloudFloat(0.0f);
     }
     CloudFloat(float v) : _value(v), _cloud_value(v) {}
+    CloudFloat(const CloudFloat& v) = default;
     operator float() const {
       return _value;
     }
