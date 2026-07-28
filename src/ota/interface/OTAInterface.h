@@ -82,7 +82,8 @@ public:
     ApprovalRequired  = 1,
     Approved          = 1<<1,
     ChunkDownload     = 1<<2,
-    SaveCompressed    = 1<<3
+    SaveCompressed    = 1<<3,
+    StoreOtaHeader    = 1<<4
   };
 
   virtual void handleMessage(Message*);

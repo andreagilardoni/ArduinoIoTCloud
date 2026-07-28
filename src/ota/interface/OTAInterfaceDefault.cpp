@@ -232,6 +232,10 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t bufLen) {
           return;
         }
         context->downloadedSize += sizeof(context->header.buf);
+
+        if (getOtaPolicy(StoreOtaHeader)) {
+          writeFlash(context->header.buf, sizeof(context->header.buf));
+        }
       }
 
       break;
