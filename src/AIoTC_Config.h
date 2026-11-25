@@ -77,6 +77,12 @@
   #define OTA_STORAGE_ESP         (1)
 #endif
 
+#if (defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) \
+  || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)) && \
+  defined(ARDUINO_ARCH_ZEPHYR)
+  #define MBED_ZEPHYR_MIGRATION   (1)
+#endif
+
 #if defined(ARDUINO_ARCH_ZEPHYR) && \
   (defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || \
    defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA) || defined(ARDUINO_PORTENTA_C33))
